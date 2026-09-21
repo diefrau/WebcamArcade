@@ -1,0 +1,528 @@
+.circle-top {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin: 0 0 18px;
+}
+.circle-back {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 170px;
+  border: 0;
+  background: transparent;
+  font-weight: 900;
+  cursor: pointer;
+}
+.circle-back svg {
+  width: 21px;
+}
+.circle-timer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  border: 3px solid #111;
+  border-radius: 18px;
+  background: #fffbed;
+  padding: 8px 14px;
+  box-shadow: 3px 3px #111;
+}
+.circle-timer span {
+  font-size: 12px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+.circle-timer progress {
+  flex: 1;
+  height: 17px;
+  overflow: hidden;
+  border: 2px solid #111;
+  border-radius: 10px;
+  accent-color: var(--lime);
+}
+.circle-timer progress::-webkit-progress-bar {
+  background: #202020;
+}
+.circle-timer progress::-webkit-progress-value {
+  background: var(--lime);
+}
+.circle-timer b {
+  font-family: "Black Han Sans";
+  font-size: 24px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.circle-timer small {
+  font-family: inherit;
+  font-size: 11px;
+  margin-left: 2px;
+}
+.circle-top > .circle-button {
+  min-width: 49px;
+  width: 49px;
+  height: 43px;
+  padding: 7px;
+}
+.circle-top > .circle-button svg {
+  width: 19px;
+}
+.circle-mode {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: -4px 0 18px;
+}
+.circle-mode button {
+  border: 2px solid #111;
+  border-radius: 20px;
+  background: #fffbed;
+  padding: 7px 13px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+.circle-mode button.active {
+  background: var(--cyan);
+}
+.circle-mode button svg {
+  width: 17px;
+}
+.circle-mode > span {
+  font-size: 11px;
+  font-weight: 800;
+  margin-left: 7px;
+}
+.circle-layout {
+  display: grid;
+  grid-template-columns: 230px minmax(0, 1fr) 170px;
+  gap: 20px;
+  align-items: stretch;
+}
+.circle-guide {
+  padding: 17px;
+  position: relative;
+  background: #fffbed;
+  overflow: hidden;
+}
+.circle-guide h1 {
+  font-family: "Black Han Sans";
+  font-size: 45px;
+  font-weight: 400;
+  color: var(--cyan);
+  -webkit-text-stroke: 7px #111;
+  paint-order: stroke fill;
+  margin: 6px 0 3px;
+  line-height: 1.08;
+}
+.circle-guide p {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+.circle-rule {
+  margin-top: 18px;
+  padding: 12px;
+  background: #fff297;
+  border: 3px solid #111;
+  border-radius: 17px;
+  display: grid;
+  gap: 5px;
+  transform: rotate(-2deg);
+}
+.circle-rule svg {
+  color: var(--pink);
+  width: 25px;
+  height: 25px;
+  stroke-width: 3px;
+}
+.circle-rule strong {
+  font-size: 13px;
+}
+.circle-rule small {
+  font-size: 10px;
+  line-height: 1.3;
+}
+.circle-guide .webcam-frame {
+  height: 190px;
+  margin-top: 18px;
+}
+.circle-character {
+  position: absolute;
+  bottom: -10px;
+  right: -27px;
+  width: 130px;
+  height: 155px;
+  object-fit: contain;
+  opacity: 0.8;
+  pointer-events: none;
+}
+.circle-stage {
+  min-height: 560px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #35c8ff, #caf8ff 55%, #a8ea39);
+  padding: 20px;
+}
+.circle-stage:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(#ffffff55 1.5px, transparent 2px) 0 0/12px 12px;
+  pointer-events: none;
+}
+.circle-stage-heading {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 1;
+}
+.circle-command {
+  display: block;
+  font-family: "Black Han Sans";
+  font-size: 55px;
+  line-height: 1.1;
+  color: var(--yellow);
+  -webkit-text-stroke: 8px #111;
+  paint-order: stroke fill;
+  filter: drop-shadow(2px 3px #111);
+  transform: rotate(-4deg);
+}
+.circle-stage-heading p {
+  font-size: 13px;
+  font-weight: 900;
+  margin-top: 6px;
+}
+.circle-stage-heading button {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border: 3px solid #111;
+  border-radius: 17px;
+  background: #fffbed;
+  padding: 8px 11px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.circle-stage-heading button svg {
+  width: 17px;
+}
+.circle-canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 360px;
+  margin: 20px 0 0;
+  background: #43c7f633;
+  border: 3px dashed #111;
+  border-radius: 22px;
+  touch-action: none;
+  cursor: crosshair;
+  position: relative;
+  z-index: 1;
+}
+.circle-stage-footer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 900;
+  margin-top: 8px;
+}
+.circle-stage-footer span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.circle-stage-footer svg {
+  width: 17px;
+}
+.circle-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  background: #1114;
+  display: grid;
+  place-items: center;
+}
+.circle-dialog {
+  padding: 30px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 400px;
+}
+.circle-dialog h2 {
+  font-family: "Bagel Fat One";
+  font-size: 32px;
+}
+.circle-dialog p {
+  font-size: 14px;
+  font-weight: 800;
+}
+.circle-dialog small {
+  font-size: 11px;
+}
+.circle-fallback,
+.circle-quit {
+  font-size: 12px;
+  text-decoration: underline;
+  font-weight: 800;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+.circle-side {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.circle-score {
+  padding: 18px;
+  text-align: center;
+  background: var(--yellow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.circle-score h3 {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 15px;
+}
+.circle-score h3 svg {
+  width: 18px;
+}
+.circle-score b {
+  font-family: "Black Han Sans";
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 1;
+}
+.circle-score span {
+  font-size: 10px;
+  font-weight: 900;
+}
+.circle-side-note {
+  padding: 15px;
+  background: #fffbed;
+  position: relative;
+  min-height: 250px;
+  overflow: hidden;
+}
+.circle-side-note .character {
+  width: 90px;
+  float: right;
+}
+.circle-side-note strong {
+  font-family: "Black Han Sans";
+  font-size: 22px;
+  display: block;
+  clear: both;
+}
+.circle-side-note p {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.45;
+  white-space: pre-line;
+  margin-top: 12px;
+}
+.circle-bottom {
+  margin-top: 18px;
+  padding: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  font-weight: 900;
+  font-size: 13px;
+}
+.circle-bottom span:first-child {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.circle-bottom svg {
+  width: 18px;
+}
+.circle-sticker {
+  display: inline-flex;
+  background: var(--yellow);
+  border: 3px solid #111;
+  border-radius: 8px;
+  padding: 6px 11px;
+  font-weight: 1000;
+  transform: rotate(-5deg);
+  box-shadow: 2px 2px #111;
+}
+.circle-result {
+  position: relative;
+}
+.circle-result-grid {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 260px;
+  gap: 22px;
+  align-items: stretch;
+}
+.circle-result-art {
+  padding: 15px;
+  position: relative;
+  background: var(--cyan);
+  overflow: hidden;
+  min-height: 330px;
+}
+.circle-result-art > .character {
+  width: 100%;
+  height: 250px;
+  object-fit: contain;
+}
+.circle-art-badge {
+  display: inline-block;
+  background: var(--pink);
+  color: white;
+  border: 3px solid #111;
+  padding: 7px 12px;
+  border-radius: 14px;
+  font-weight: 900;
+  transform: rotate(-5deg);
+}
+.circle-result-art p {
+  font-weight: 900;
+  font-size: 12px;
+  margin-top: 12px;
+}
+.circle-result .result-panel {
+  min-width: 0;
+}
+@media (max-width: 1100px) {
+  .circle-layout {
+    grid-template-columns: 190px minmax(0, 1fr);
+  }
+  .circle-side {
+    grid-column: 1/-1;
+    display: grid;
+    grid-template-columns: 190px 1fr;
+  }
+  .circle-result-grid {
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+  .circle-result-grid .result-side {
+    grid-column: 1/-1;
+  }
+}
+@media (max-width: 720px) {
+  .circle-top {
+    gap: 8px;
+  }
+  .circle-back {
+    width: auto;
+    font-size: 0;
+  }
+  .circle-back svg {
+    width: 25px;
+  }
+  .circle-timer {
+    gap: 6px;
+    padding: 6px 8px;
+  }
+  .circle-timer span {
+    font-size: 10px;
+  }
+  .circle-timer b {
+    font-size: 20px;
+  }
+  .circle-mode {
+    flex-wrap: wrap;
+  }
+  .circle-mode > span {
+    width: 100%;
+    text-align: center;
+    margin: 2px 0 0;
+  }
+  .circle-layout {
+    grid-template-columns: 1fr;
+  }
+  .circle-guide {
+    min-height: 210px;
+  }
+  .circle-guide .webcam-frame {
+    display: block;
+  }
+  .circle-character {
+    width: 110px;
+    height: 130px;
+  }
+  .circle-stage {
+    min-height: 515px;
+    padding: 14px;
+  }
+  .circle-command {
+    font-size: 42px;
+    -webkit-text-stroke-width: 6px;
+  }
+  .circle-stage-heading p {
+    font-size: 11px;
+    max-width: 180px;
+  }
+  .circle-stage-heading button {
+    font-size: 0;
+    padding: 8px;
+  }
+  .circle-stage-heading button svg {
+    width: 20px;
+  }
+  .circle-canvas {
+    min-height: 300px;
+    margin-top: 16px;
+  }
+  .circle-side {
+    grid-column: auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .circle-side-note {
+    min-height: 160px;
+  }
+  .circle-bottom {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+  }
+  .circle-result-grid {
+    grid-template-columns: 1fr;
+  }
+  .circle-result-art {
+    min-height: 230px;
+  }
+  .circle-result-art > .character {
+    height: 175px;
+  }
+}
+.circle-finish {
+  background: var(--pink);
+  border: 3px solid #111;
+  border-radius: 16px;
+  padding: 8px 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.circle-finish:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.circle-stage-footer {
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
