@@ -1491,7 +1491,7 @@ const root =
 if (import.meta.hot) import.meta.hot.data.root = root;
 root.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <CameraProvider>
         <App />
       </CameraProvider>
