@@ -1,0 +1,201 @@
+:root {
+  --arcade-spring: cubic-bezier(0.22, 1.65, 0.4, 1);
+}
+/* Feedback may grow beyond the stage, but must never scroll the aiming surface. */
+.screen-play .playfield {
+  overflow: clip;
+}
+.route-content[data-ready="true"] .app-shell > main {
+  animation: arcade-reveal 0.25s ease-out both;
+}
+.route-content[data-ready="true"]
+  :is(.game-dialog, .circle-dialog, .cham-dialog) {
+  animation: arcade-pop 0.6s var(--arcade-spring) both;
+  transform-origin: 50% 75%;
+}
+.route-content[data-ready="true"] :is(.result-heading, .circle-art-badge) {
+  animation: arcade-pop 0.7s var(--arcade-spring) both;
+}
+.route-content[data-ready="true"] .result-stats > div {
+  animation: arcade-pop 0.6s var(--arcade-spring) backwards;
+}
+.result-stats > div:nth-child(2) {
+  animation-delay: 0.12s !important;
+}
+.result-stats > div:nth-child(3) {
+  animation-delay: 0.24s !important;
+}
+.route-content[data-ready="true"] .result-badges > div {
+  animation: arcade-sticker 0.7s var(--arcade-spring) 0.25s backwards;
+}
+.route-content[data-ready="true"]
+  :is(.hero .character, .home-mascot .character) {
+  animation: arcade-pop 0.7s var(--arcade-spring) both;
+}
+:is(
+  .arcade-button,
+  .game-card,
+  .top-nav a,
+  .utilities button,
+  .cham-controls button,
+  .loading-recovery button
+) {
+  transition:
+    scale 0.28s var(--arcade-spring),
+    translate 0.28s var(--arcade-spring),
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+@media (hover: hover) {
+  :is(
+      .arcade-button,
+      .top-nav a,
+      .utilities button,
+      .cham-controls button,
+      .loading-recovery button
+    ):not(:disabled):hover {
+    scale: 1.055;
+    translate: 0 -3px;
+  }
+  .game-card:hover {
+    scale: 1.025;
+    translate: 0 -5px;
+  }
+  .game-card:hover .card-character {
+    animation: arcade-wave 0.65s ease-in-out;
+    transform-origin: 50% 90%;
+  }
+}
+:is(
+    .arcade-button,
+    .game-card,
+    .top-nav a,
+    .utilities button,
+    .cham-controls button,
+    .loading-recovery button
+  ):not(:disabled):active {
+  scale: 0.94;
+  translate: 0 3px;
+  transition-duration: 0.09s;
+}
+.bounce-feedback {
+  display: inline-block;
+  animation: arcade-feedback 0.48s ease-out;
+  transform-origin: 50% 65%;
+}
+.cham-rounds :is(.won, .lost) {
+  animation: arcade-pop 0.45s var(--arcade-spring);
+}
+.route-content[data-ready="true"] .target-character svg {
+  animation: arcade-target 0.4s var(--arcade-spring);
+  transform-origin: 50% 100%;
+}
+.screen-result .best-comparison > svg {
+  animation: arcade-wave 0.8s ease-in-out 0.6s;
+}
+@keyframes arcade-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes arcade-pop {
+  0% {
+    scale: 0.78;
+    opacity: 0;
+  }
+  55% {
+    scale: 1.06;
+    opacity: 1;
+  }
+  78% {
+    scale: 0.97;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+@keyframes arcade-feedback {
+  0% {
+    scale: 0.6;
+    opacity: 0.3;
+  }
+  45% {
+    scale: 1.17;
+    opacity: 1;
+  }
+  70% {
+    scale: 0.93;
+  }
+  88% {
+    scale: 1.04;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes arcade-sticker {
+  0% {
+    scale: 0.5;
+    rotate: -9deg;
+    opacity: 0;
+  }
+  60% {
+    scale: 1.08;
+    rotate: 4deg;
+    opacity: 1;
+  }
+  100% {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+@keyframes arcade-wave {
+  0%,
+  100% {
+    rotate: 0deg;
+    translate: 0 0;
+  }
+  25% {
+    rotate: -5deg;
+    translate: 0 -12px;
+  }
+  60% {
+    rotate: 4deg;
+    translate: 0 -4px;
+  }
+  80% {
+    rotate: -2deg;
+  }
+}
+@keyframes arcade-target {
+  from {
+    scale: 1 0.65;
+  }
+  60% {
+    scale: 0.96 1.08;
+  }
+  to {
+    scale: 1;
+  }
+}
+/* Keep both OS and in-game preferences authoritative, including the loader. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+html[data-motion="reduced"] *,
+html[data-motion="reduced"] *::before,
+html[data-motion="reduced"] *::after {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
+}

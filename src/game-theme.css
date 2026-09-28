@@ -1,0 +1,392 @@
+/* Shared comic game frame: HUD / play field / camera and instructions. */
+.app-shell {
+  width: 100%;
+  max-width: none;
+  min-height: 100svh;
+  margin: 0;
+  padding-inline: clamp(16px, 1.65vw, 40px);
+}
+.screen-play {
+  --game-line: 4px solid var(--ink);
+  --game-radius: 26px;
+  --game-shadow: 5px 6px 0 var(--ink), 0 0 0 4px #fffbed;
+  --game-left: clamp(170px, 13vw, 250px);
+  --game-right: clamp(260px, 20vw, 360px);
+}
+.screen-play .header {
+  height: 150px;
+  margin-bottom: 10px;
+}
+.screen-play .header .logo {
+  transform: rotate(-5deg) scale(0.75);
+  transform-origin: top left;
+}
+.screen-play .play-top .back-link {
+  display: flex;
+}
+.screen-play :is(.play-top, .circle-top, .cham-toolbar) {
+  position: relative;
+  top: auto;
+  height: auto;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+.screen-play :is(.back-link, .circle-back, .cham-toolbar > a) {
+  display: flex;
+  align-items: center;
+  width: var(--game-left);
+  flex-shrink: 0;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 900;
+}
+.screen-play :is(.timer-bar, .circle-timer, .cham-toolbar > strong) {
+  flex: 1;
+  min-width: 0;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  border: var(--game-line);
+  border-radius: 40px;
+  background: #fffbed;
+  box-shadow: 3px 4px #111;
+  padding: 8px 18px;
+  font-size: 24px;
+}
+.screen-play :is(.timer-bar, .circle-timer) span {
+  background: #111;
+  color: white;
+  border-radius: 24px;
+  padding: 7px 12px;
+  font-size: 16px;
+  font-weight: 900;
+}
+.screen-play :is(.timer-bar, .circle-timer) b {
+  font-family: "Black Han Sans";
+  font-size: 32px;
+  font-weight: 400;
+}
+.screen-play :is(.timer-bar, .circle-timer) progress {
+  flex: 1;
+  width: 0;
+  height: 25px;
+  min-width: 20px;
+}
+.screen-play :is(.play-top, .circle-top, .cham-toolbar) > button:last-child {
+  width: 60px;
+  min-width: 60px;
+  height: 60px;
+  padding: 12px;
+  border: var(--game-line);
+  border-radius: 20px;
+  background: #fffbed;
+  box-shadow: 3px 4px #111;
+}
+.screen-play :is(.input-mode-switch, .circle-mode) {
+  margin: 0 0 20px;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.screen-play :is(.input-mode-switch, .circle-mode, .cham-mode) button {
+  border: 3px solid #111;
+  border-radius: 24px;
+  background: #fffbed;
+  padding: 9px 15px;
+  font-size: 13px;
+  font-weight: 900;
+}
+.screen-play :is(.input-mode-switch, .circle-mode, .cham-mode) button.active {
+  background: var(--lime);
+}
+.screen-play :is(.play-layout, .circle-layout, .cham-layout) {
+  display: grid;
+  grid-template-columns: var(--game-left) minmax(0, 1fr) var(--game-right);
+  grid-template-areas: "hud stage guide";
+  gap: 24px;
+  align-items: stretch;
+}
+.screen-play :is(.hud, .circle-side, .cham-hud) {
+  grid-area: hud;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 0;
+  justify-content: flex-start;
+}
+.screen-play :is(.playfield, .circle-stage, .cham-stage) {
+  grid-area: stage;
+  min-width: 0;
+  min-height: 610px;
+  border: var(--game-line);
+  border-radius: var(--game-radius);
+  box-shadow: var(--game-shadow);
+  overflow: hidden;
+}
+.screen-play :is(.play-side, .circle-guide, .cham-info) {
+  grid-area: guide;
+  min-width: 0;
+  margin: 0;
+  padding: 18px;
+  background: #fffbed;
+  border: var(--game-line);
+  border-radius: var(--game-radius);
+  box-shadow: var(--game-shadow);
+}
+.screen-play :is(.circle-guide, .cham-info) {
+  display: flex;
+  flex-direction: column;
+}
+.screen-play :is(.circle-guide, .cham-info) > .webcam-frame {
+  order: -1;
+}
+.screen-play :is(.play-side, .circle-guide, .cham-info) .webcam-frame {
+  width: 100%;
+  height: 230px;
+  min-height: 230px;
+  margin: 12px 0 24px;
+  flex-shrink: 0;
+}
+.screen-play :is(.hud-panel, .circle-score, .circle-side-note) {
+  border: var(--game-line);
+  border-radius: 22px;
+  box-shadow: var(--game-shadow);
+  padding: 18px;
+  transform: none;
+}
+.screen-play :is(.hud-panel h3, .circle-score h3) {
+  font-family: "Black Han Sans";
+  font-size: 24px;
+  font-weight: 400;
+  color: white;
+  -webkit-text-stroke: 4px #111;
+  paint-order: stroke fill;
+}
+.screen-play :is(.hud-panel strong, .circle-score b) {
+  font-family: "Black Han Sans";
+  font-size: 48px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: white;
+  -webkit-text-stroke: 4px #111;
+  paint-order: stroke fill;
+}
+.screen-play .cham-hud small {
+  font-size: 20px;
+}
+.screen-play .circle-score {
+  background: var(--pink);
+  align-items: flex-start;
+}
+.screen-play .circle-side-note {
+  background: var(--cyan);
+  min-height: 0;
+}
+.screen-play :is(.circle-guide h1, .cham-info h1, .instructions h2) {
+  font-family: "Black Han Sans";
+  font-size: 36px;
+  line-height: 1.3;
+  font-weight: 400;
+  color: var(--yellow);
+  -webkit-text-stroke: 5px #111;
+  paint-order: stroke fill;
+  margin: 10px 0;
+  transform: rotate(-3deg);
+}
+.screen-play :is(.circle-guide p, .cham-info p, .instructions p) {
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 800;
+}
+.screen-play .circle-character,
+.screen-play .play-side > .mascot {
+  display: none;
+}
+.screen-play .play-side .instructions {
+  transform: none;
+  box-shadow: none;
+  border: 0;
+  background: #fff28a;
+  margin: 0;
+  padding: 16px;
+  border-radius: 18px;
+}
+.screen-play :is(.game-dialog, .circle-dialog, .cham-dialog) {
+  width: calc(100% - 32px);
+  max-width: 440px;
+  border: var(--game-line);
+  border-radius: 28px;
+  box-shadow: 6px 7px #111;
+  background: #fffbed;
+  padding: 28px;
+  gap: 16px;
+}
+.screen-play :is(.game-dialog, .circle-dialog, .cham-dialog) h2 {
+  font-family: "Bagel Fat One";
+  font-size: 32px;
+  line-height: 1.3;
+}
+.screen-play :is(.game-dialog, .circle-dialog, .cham-dialog) p {
+  font-size: 15px;
+  line-height: 1.6;
+}
+.screen-play :is(.game-dialog, .circle-dialog, .cham-dialog) .arcade-button {
+  border: var(--game-line);
+  box-shadow: 4px 5px #111;
+  font-family: "Black Han Sans";
+  font-weight: 400;
+  font-size: 23px;
+  padding: 13px 25px;
+}
+.screen-play :is(.play-hint, .circle-bottom, .cham-note) {
+  margin: 24px 0 0;
+  min-height: 64px;
+  padding: 16px 24px;
+  border: 3px solid #111;
+  border-radius: 24px;
+  box-shadow: 3px 4px #111;
+  background: #fffbed;
+  font-size: 14px;
+}
+.screen-play .circle-canvas {
+  min-height: 0;
+  aspect-ratio: 1000 / 650;
+  height: auto;
+}
+.screen-play .cham-stage-top > strong {
+  display: none;
+}
+.screen-play .cham-stage .cham-rival {
+  height: 210px;
+}
+.screen-play .cham-mode {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 20px;
+}
+.screen-play .cham-mode button {
+  width: auto;
+}
+@media (min-width: 1101px) {
+  .screen-play :is(.play-top, .circle-top, .cham-toolbar) {
+    margin: -105px 0 35px 310px;
+  }
+  .screen-play :is(.back-link, .circle-back, .cham-toolbar > a) {
+    position: absolute;
+    top: -30px;
+    left: 0;
+    width: auto;
+  }
+}
+@media (min-width: 1600px) {
+  .screen-play :is(.playfield, .circle-stage, .cham-stage) {
+    min-height: 650px;
+  }
+  .screen-play .circle-canvas {
+    height: auto;
+    width: 100%;
+    max-width: 677px;
+    margin-inline: auto;
+  }
+  .screen-play .cham-stage .cham-rival {
+    height: 230px;
+  }
+}
+@media (max-width: 1100px) {
+  .screen-play :is(.play-layout, .circle-layout, .cham-layout) {
+    grid-template-columns: minmax(0, 1fr) 270px;
+    grid-template-areas: "hud hud" "stage guide";
+    gap: 18px;
+  }
+  .screen-play :is(.hud, .circle-side, .cham-hud) {
+    flex-direction: row;
+  }
+  .screen-play :is(.hud, .circle-side, .cham-hud) > * {
+    flex: 1;
+    min-width: 0;
+  }
+  .screen-play .circle-side-note .character {
+    display: none;
+  }
+  .screen-play :is(.playfield, .circle-stage, .cham-stage) {
+    min-height: 560px;
+  }
+}
+@media (max-width: 640px) {
+  .app-shell {
+    padding-inline: 14px;
+  }
+  .screen-play .header {
+    height: 125px;
+  }
+  .screen-play :is(.play-top, .circle-top, .cham-toolbar) {
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .screen-play :is(.back-link, .circle-back, .cham-toolbar > a) {
+    width: 100%;
+    font-size: 13px;
+  }
+  .screen-play :is(.timer-bar, .circle-timer, .cham-toolbar > strong) {
+    min-height: 48px;
+    font-size: 19px;
+    padding: 7px 10px;
+    gap: 8px;
+  }
+  .screen-play :is(.timer-bar, .circle-timer) span {
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+  .screen-play :is(.timer-bar, .circle-timer) b {
+    font-size: 24px;
+  }
+  .screen-play :is(.play-top, .circle-top, .cham-toolbar) > button:last-child {
+    width: 48px;
+    min-width: 48px;
+    height: 48px;
+    padding: 8px;
+  }
+  .screen-play :is(.play-layout, .circle-layout, .cham-layout) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas: "hud" "stage" "guide";
+  }
+  .screen-play :is(.hud, .circle-side, .cham-hud) {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .screen-play :is(.hud-panel, .circle-score, .circle-side-note) {
+    padding: 12px;
+  }
+  .screen-play :is(.hud-panel h3, .circle-score h3) {
+    font-size: 18px;
+  }
+  .screen-play :is(.hud-panel strong, .circle-score b) {
+    font-size: 30px;
+  }
+  .screen-play .hud > section {
+    flex-basis: 40%;
+  }
+  .screen-play :is(.game-dialog, .circle-dialog, .cham-dialog) {
+    padding: 20px;
+  }
+  .screen-play :is(.game-dialog, .circle-dialog, .cham-dialog) h2 {
+    font-size: 26px;
+  }
+  .screen-play :is(.playfield, .circle-stage, .cham-stage) {
+    min-height: 520px;
+  }
+  .screen-play :is(.play-side, .circle-guide, .cham-info) .webcam-frame {
+    max-width: 340px;
+    margin-inline: auto;
+  }
+  .screen-play .circle-canvas {
+    height: auto;
+  }
+}

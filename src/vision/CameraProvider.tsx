@@ -8,6 +8,8 @@ import {
   type ReactNode,
 } from "react";
 import { emptyHand, GestureInterpreter, type HandSample } from "./gestures";
+import { useLocation } from "react-router-dom";
+import { emptyFace, faceSample, type FaceSample } from "./face";
 
 export type CameraState =
   | "idle"
@@ -24,6 +26,8 @@ type CameraContextValue = {
   vision: VisionState;
   stream: MediaStream | null;
   hand: HandSample;
+  face: FaceSample;
+  tracking: "hand" | "face";
   shotSequence: number;
   connect: () => Promise<void>;
   disconnect: () => void;
@@ -37,6 +41,8 @@ export function useCamera() {
 }
 
 export function CameraProvider({ children }: { children: ReactNode }) {
+  const tracking = useLocation().pathname === "/play/cham" ? "face" : "hand";
+  const [face, setFace] = useState<FaceSample>(emptyFace);
   const [state, setState] = useState<CameraState>("idle");
   const [vision, setVision] = useState<VisionState>("idle");
   const [stream, setStream] = useState<MediaStream | null>(null);
@@ -55,6 +61,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     setState("idle");
     setVision("idle");
     setHand({ ...emptyHand });
+    setFace({ ...emptyFace });
   }, []);
   const connect = useCallback(async () => {
     if (pending.current || activeStream.current) return;
@@ -137,6 +144,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       if (disposed) return;
       setVision("error");
       setHand({ ...emptyHand });
+      setFace({ ...emptyFace });
       worker?.terminate();
       worker = undefined;
       cancelAnimationFrame(raf);
@@ -179,9 +187,15 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         setState("ready");
         setVision("loading");
         setHand({ ...emptyHand });
-        worker = new Worker(new URL("./hand.worker.ts", import.meta.url), {
-          type: "module",
-        });
+        setFace({ ...emptyFace });
+        worker =
+          tracking === "face"
+            ? new Worker(new URL("./face.worker.ts", import.meta.url), {
+                type: "module",
+              })
+            : new Worker(new URL("./hand.worker.ts", import.meta.url), {
+                type: "module",
+              });
         startupTimer = setTimeout(fail, 30000);
         worker.onerror = fail;
         worker.onmessage = (event) => {
@@ -194,6 +208,16 @@ export function CameraProvider({ children }: { children: ReactNode }) {
           else if (event.data.type === "result") {
             busy = false;
             clearTimeout(frameTimer);
+            if (tracking === "face") {
+              setFace(
+                faceSample(
+                  document.hidden ? undefined : event.data.landmarks,
+                  event.data.time,
+                  event.data.aspect,
+                ),
+              );
+              return;
+            }
             const next = gesture.update(
               document.hidden ? undefined : event.data.landmarks,
               event.data.time,
@@ -226,7 +250,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       video.srcObject = null;
       video.remove();
     };
-  }, [stream, attempt, disconnect]);
+  }, [stream, attempt, disconnect, tracking]);
   return (
     <CameraContext.Provider
       value={{
@@ -234,6 +258,8 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         vision,
         stream,
         hand,
+        face,
+        tracking,
         shotSequence,
         connect,
         disconnect,

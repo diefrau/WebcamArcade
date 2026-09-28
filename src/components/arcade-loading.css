@@ -1,0 +1,294 @@
+.route-content {
+  outline: none;
+}
+.route-content[data-ready="false"] {
+  visibility: hidden;
+}
+.arcade-loading {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 40px 20px;
+  color: #111;
+  outline: none;
+  background:
+    radial-gradient(circle, #ffd72b 2px, transparent 3px) 0 0 / 20px 20px,
+    #fff9e8;
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+}
+.arcade-loading::before {
+  content: "";
+  position: absolute;
+  inset: 15% 0;
+  transform: skewY(-5deg);
+  background: #fff164;
+  pointer-events: none;
+}
+.loading-card {
+  position: relative;
+  width: min(800px, 100%);
+  padding: 48px 60px 26px;
+  border: 5px solid #111;
+  border-radius: 36px;
+  background: #fffbed;
+  box-shadow:
+    10px 12px #111,
+    0 0 0 10px white;
+  text-align: center;
+}
+.loading-sticker {
+  position: absolute;
+  top: -24px;
+  left: 30px;
+  transform: rotate(-7deg);
+  background: #ff4fa3;
+  color: white;
+  border: 4px solid #111;
+  border-radius: 12px;
+  padding: 10px 22px;
+  font-size: 20px;
+  font-weight: 900;
+  box-shadow: 4px 5px #111;
+}
+.loading-brand {
+  font-weight: 1000;
+  font-size: 20px;
+  letter-spacing: 1px;
+  margin: 0;
+}
+.loading-brand span {
+  color: #ff329a;
+}
+.loading-card h1 {
+  font-family: "Black Han Sans", system-ui, sans-serif;
+  font-size: clamp(44px, 5vw, 76px);
+  line-height: 1.2;
+  font-weight: 900;
+  margin: 18px 0;
+  color: #ffdd27;
+  -webkit-text-stroke: 5px #111;
+  paint-order: stroke fill;
+  filter: drop-shadow(3px 4px #111);
+}
+.loading-card h1 em {
+  font-style: normal;
+  color: #35c8ff;
+  display: inline-block;
+  rotate: -5deg;
+}
+.loading-copy {
+  font-weight: 800;
+  line-height: 1.7;
+  font-size: 15px;
+}
+.loading-race {
+  position: relative;
+  margin: 120px 0 0;
+}
+.loading-track {
+  height: 44px;
+  background: white;
+  border: 4px solid #111;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 3px 4px #111;
+}
+.loading-fill {
+  height: 100%;
+  width: var(--loading-progress);
+  background: repeating-linear-gradient(
+    125deg,
+    #a8ed3c 0 18px,
+    #c5ff62 18px 32px
+  );
+  border-radius: 24px;
+  transition: width 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.loading-pack {
+  position: absolute;
+  bottom: 42px;
+  left: clamp(80px, var(--loading-progress), calc(100% - 50px));
+  width: 160px;
+  height: 100px;
+  transform: translateX(-75%);
+  transition: left 0.35s cubic-bezier(0.2, 0.8, 0.3, 1);
+}
+.loading-pack .loading-runner {
+  position: absolute;
+  width: 86px;
+  height: 106px;
+  object-fit: contain;
+  max-width: none;
+  transform-origin: 50% 95%;
+  animation: runner-hop 0.48s ease-in-out infinite;
+  filter: drop-shadow(2px 3px white);
+}
+.loading-pack .runner-one {
+  left: -10px;
+  bottom: -6px;
+  width: 104px;
+  animation-delay: -0.3s;
+}
+.loading-pack .runner-two {
+  left: 42px;
+  bottom: 1px;
+  animation-delay: -0.15s;
+}
+.loading-pack .runner-three {
+  left: 91px;
+  bottom: 0;
+}
+.loading-dust {
+  position: absolute;
+  left: -18px;
+  bottom: 6px;
+  font-size: 25px;
+  color: #ff4fa3;
+  animation: run-dust 0.48s ease-out infinite;
+}
+.loading-start {
+  position: absolute;
+  left: 2px;
+  bottom: -27px;
+  font-size: 11px;
+  font-weight: 1000;
+}
+.loading-finish {
+  position: absolute;
+  right: 0;
+  bottom: 42px;
+  font-size: 60px;
+  line-height: 1;
+  color: #ff4fa3;
+  -webkit-text-stroke: 2px #111;
+}
+.loading-status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 40px;
+  font-size: 14px;
+  font-weight: 800;
+}
+.loading-status strong {
+  font-family: "Black Han Sans", system-ui, sans-serif;
+  font-size: 32px;
+}
+.loading-tip {
+  font-size: 13px;
+  font-weight: 800;
+  margin: 20px 0 0;
+}
+.loading-tip span {
+  display: inline-block;
+  color: #ff4fa3;
+  font-size: 28px;
+  vertical-align: middle;
+}
+.loading-orbit {
+  position: absolute;
+  font-size: 100px;
+  -webkit-text-stroke: 4px #111;
+  paint-order: stroke fill;
+  animation: loading-star 1.8s ease-in-out infinite;
+}
+.loading-orbit-one {
+  top: 10%;
+  left: 7%;
+  color: #34c8ff;
+  rotate: -18deg;
+}
+.loading-orbit-two {
+  bottom: 8%;
+  right: 8%;
+  color: #ff4fa3;
+  animation-delay: -0.9s;
+}
+.loading-recovery p {
+  font-size: 13px;
+  line-height: 1.7;
+}
+.loading-recovery button {
+  border: 3px solid #111;
+  background: #a8ea39;
+  border-radius: 20px;
+  padding: 10px 16px;
+  margin: 5px;
+  font-weight: 900;
+  cursor: pointer;
+}
+.loading-recovery button:last-child {
+  background: white;
+}
+@keyframes runner-hop {
+  0%,
+  100% {
+    translate: 0 0;
+    rotate: 6deg;
+    scale: 1.07 0.94;
+  }
+  45% {
+    translate: 0 -19px;
+    rotate: -7deg;
+    scale: 0.95 1.05;
+  }
+  75% {
+    translate: 0 -4px;
+    rotate: 2deg;
+    scale: 1 1;
+  }
+}
+@keyframes run-dust {
+  from {
+    opacity: 0.8;
+    translate: 0 0;
+    scale: 0.6;
+  }
+  to {
+    opacity: 0;
+    translate: -22px 4px;
+    scale: 1.3;
+  }
+}
+@keyframes loading-star {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  50% {
+    translate: 0 -16px;
+  }
+}
+@media (max-width: 600px) {
+  .arcade-loading {
+    padding: 40px 16px;
+  }
+  .loading-card {
+    padding: 42px 22px 24px;
+    border-radius: 28px;
+    box-shadow:
+      5px 7px #111,
+      0 0 0 5px white;
+  }
+  .loading-sticker {
+    font-size: 15px;
+    left: 16px;
+  }
+  .loading-copy {
+    font-size: 13px;
+  }
+  .loading-status {
+    font-size: 12px;
+    text-align: left;
+  }
+  .loading-orbit {
+    font-size: 60px;
+  }
+  .loading-race {
+    margin-top: 110px;
+  }
+}

@@ -397,7 +397,10 @@ export function CircleGamePage({
         <main className="circle-stage panel">
           <div className="circle-stage-heading">
             <div>
-              <span className="circle-command">
+              <span
+                key={feedback}
+                className={`circle-command ${feedback ? "bounce-feedback" : ""}`}
+              >
                 {t(feedback || "circleDraw")}
               </span>
               <p>{t("circleStageHint")}</p>

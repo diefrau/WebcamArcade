@@ -1,4 +1,5 @@
 import { useGameInput } from "./vision/useGameInput";
+import { ChamGamePage, ChamResultPage, readCham } from "./games/ChamGamePage";
 import React, {
   createContext,
   useContext,
@@ -64,6 +65,10 @@ import {
   CircleResultPage,
   type CircleResult,
 } from "./games/CircleGamePage";
+
+import "./game-theme.css";
+import { ArcadeLoading } from "./components/ArcadeLoading";
+import "./motion.css";
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -372,7 +377,7 @@ function Header({
 }
 function GameCard({ id, color, duration, badge }: (typeof games)[number]) {
   const { t } = useTranslation();
-  const available = id === "shoot" || id === "circle";
+  const available = true;
   return (
     <Link
       to={available ? `/play/${id}` : "/games"}
@@ -411,6 +416,7 @@ function RecordsBar() {
   const { records } = useContext(Context);
   const circleBest = read<number>("arcade.circle.best", 0);
   const circlePlays = read<number>("arcade.circle.plays", 0);
+  const cham = readCham();
   return (
     <section className="records-bar">
       <div className="records-title">
@@ -418,8 +424,8 @@ function RecordsBar() {
         <div>
           <h3>{t("bestRecords")}</h3>
           <small>
-            {records.plays
-              ? t("plays", { count: records.plays })
+            {records.plays + circlePlays + cham.plays
+              ? t("plays", { count: records.plays + circlePlays + cham.plays })
               : t("noRecords")}
           </small>
         </div>
@@ -428,7 +434,10 @@ function RecordsBar() {
         <Hand />
         <div>
           <span>{t("cham")}</span>
-          <b>—</b>
+          <b>
+            {cham.plays ? cham.best.toLocaleString() : "—"}
+            <small>{cham.plays ? t("points") : ""}</small>
+          </b>
         </div>
       </div>
       <div className="record-tile cyan">
@@ -579,7 +588,13 @@ function GamesPage() {
         <div className="selection-games">
           <div className="game-grid">
             {games
-              .filter((g) => filter !== "face" || g.id === "cham")
+              .filter((g) =>
+                filter === "face"
+                  ? g.id === "cham"
+                  : filter === "hand"
+                    ? g.id !== "cham"
+                    : true,
+              )
               .map((g) => (
                 <GameCard key={g.id} {...g} />
               ))}
@@ -702,7 +717,14 @@ function GamesPage() {
       </div>
       <div className="selection-bottom">
         <RecordsBar />
-        <Button color="yellow" onClick={() => navigate("/play/shoot")}>
+        <Button
+          color="yellow"
+          onClick={() =>
+            navigate(
+              `/play/${games[Math.floor(Math.random() * games.length)].id}`,
+            )
+          }
+        >
           <Dice5 />
           {t("random")}
         </Button>
@@ -1050,7 +1072,8 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
             )}
           </div>
           <h1
-            className={`game-command ${feedback === "miss" ? "pink-text" : "yellow-text"}`}
+            key={`${feedback}-${score}-${lives}`}
+            className={`game-command ${feedback ? "bounce-feedback" : ""} ${feedback === "miss" ? "pink-text" : "yellow-text"}`}
           >
             {t(feedback || "shootCommand")}
           </h1>
@@ -1283,7 +1306,14 @@ function ResultPage() {
           <Home />
           {t("toHome")}
         </Button>
-        <Button color="purple" onClick={() => navigate("/play/shoot")}>
+        <Button
+          color="purple"
+          onClick={() =>
+            navigate(
+              `/play/${games[Math.floor(Math.random() * games.length)].id}`,
+            )
+          }
+        >
           <Dice5 />
           {t("random")}
         </Button>
@@ -1425,57 +1455,73 @@ function App() {
     setRecords(next);
     setStorageError(!save("arcade.records", next));
   }
+  function finishCham() {
+    const next = {
+      ...records,
+      day: today(),
+      daily: (records.day === today() ? records.daily : 0) + 1,
+    };
+    setRecords(next);
+    setStorageError(!save("arcade.records", next));
+  }
   return (
     <Context.Provider value={{ sound, tone, records }}>
-      <div
-        className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}
-      >
-        <ComicDecor />
-        <Header
-          onSettings={() => {
-            window.dispatchEvent(new Event("arcade:pause"));
-            setSettings(true);
-          }}
-          onSound={() => {
-            setSound(!sound);
-            save("arcade.sound", !sound);
-          }}
-        />
-        <main>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/games" element={<GamesPage />} />
-            <Route
-              path="/play/shoot"
-              element={<PlayPage onFinish={finish} />}
-            />
-            <Route
-              path="/play/circle"
-              element={<CircleGamePage onFinish={finishCircle} />}
-            />
-            <Route path="/result/shoot" element={<ResultPage />} />
-            <Route path="/result/circle" element={<CircleResultPage />} />
-            <Route path="*" element={<Navigate to="/games" replace />} />
-          </Routes>
-        </main>
-        {storageError && <p role="alert">{t("recordError")}</p>}
-        <footer>
-          <span>WEBCAM ARCADE © 2026</span>
-          <span>
-            {t("footer")} <Smile size={16} />
-          </span>
-          <button
-            onClick={() => {
-              const lang = i18n.language === "ko" ? "en" : "ko";
-              void i18n.changeLanguage(lang);
-              save("arcade.language", lang);
+      <ArcadeLoading key={pathname}>
+        <div
+          className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}
+        >
+          <ComicDecor />
+          <Header
+            onSettings={() => {
+              window.dispatchEvent(new Event("arcade:pause"));
+              setSettings(true);
             }}
-          >
-            <Languages size={16} />{" "}
-            {i18n.language === "ko" ? "한국어 / EN" : "EN / 한국어"}
-          </button>
-        </footer>
-      </div>
+            onSound={() => {
+              setSound(!sound);
+              save("arcade.sound", !sound);
+            }}
+          />
+          <main>
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/games" element={<GamesPage />} />
+              <Route
+                path="/play/shoot"
+                element={<PlayPage onFinish={finish} />}
+              />
+              <Route
+                path="/play/circle"
+                element={<CircleGamePage onFinish={finishCircle} />}
+              />
+              <Route path="/result/shoot" element={<ResultPage />} />
+              <Route path="/result/circle" element={<CircleResultPage />} />
+              <Route
+                path="/play/cham"
+                element={<ChamGamePage onFinish={finishCham} tone={tone} />}
+              />
+              <Route path="/result/cham" element={<ChamResultPage />} />
+              <Route path="*" element={<Navigate to="/games" replace />} />
+            </Routes>
+          </main>
+          {storageError && <p role="alert">{t("recordError")}</p>}
+          <footer>
+            <span>WEBCAM ARCADE © 2026</span>
+            <span>
+              {t("footer")} <Smile size={16} />
+            </span>
+            <button
+              onClick={() => {
+                const lang = i18n.language === "ko" ? "en" : "ko";
+                void i18n.changeLanguage(lang);
+                save("arcade.language", lang);
+              }}
+            >
+              <Languages size={16} />{" "}
+              {i18n.language === "ko" ? "한국어 / EN" : "EN / 한국어"}
+            </button>
+          </footer>
+        </div>
+      </ArcadeLoading>
       {settings && (
         <SettingsDialog
           close={() => setSettings(false)}

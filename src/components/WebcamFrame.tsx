@@ -29,13 +29,21 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
   const live = camera.state === "ready";
   const problem = ["denied", "missing", "busy", "error"].includes(camera.state);
   const status =
-    camera.vision === "error"
-      ? "visionError"
-      : camera.vision === "loading"
-        ? "visionLoading"
-        : camera.hand.detected
-          ? "handDetected"
-          : "showHand";
+    camera.tracking === "face"
+      ? camera.vision === "error"
+        ? "faceError"
+        : camera.vision === "loading"
+          ? "faceLoading"
+          : camera.face.detected
+            ? "faceDetected"
+            : "showFace"
+      : camera.vision === "error"
+        ? "visionError"
+        : camera.vision === "loading"
+          ? "visionLoading"
+          : camera.hand.detected
+            ? "handDetected"
+            : "showHand";
   return (
     <section
       className={`webcam-frame ${compact ? "compact" : ""} ${live ? "is-live" : ""}`}
@@ -57,7 +65,7 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
           className="camera-video"
           hidden={!camera.stream}
         />
-        {live && camera.hand.detected && (
+        {live && camera.tracking === "hand" && camera.hand.detected && (
           <svg
             className="hand-overlay"
             viewBox="0 0 640 480"
@@ -105,7 +113,9 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
                   ? "cameraErrorHelp"
                   : waiting
                     ? "permissionHint"
-                    : "cameraHint",
+                    : camera.tracking === "face"
+                      ? "showFace"
+                      : "cameraHint",
               )}
             </p>
             <button

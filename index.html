@@ -5,9 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#fff7e7" />
     <title>WEBCAM ARCADE</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <style>
+      /* Immediate first paint while the application and its stylesheet arrive. */
+      #arcade-boot {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        margin: 0;
+        padding: 24px;
+        background:
+          radial-gradient(circle, #ffd72b 2px, transparent 3px) 0 0 / 20px 20px,
+          #fff9e8;
+        color: #111;
+        font:
+          900 24px system-ui,
+          sans-serif;
+        text-align: center;
+      }
+      #arcade-boot div {
+        border: 4px solid #111;
+        border-radius: 28px;
+        padding: 36px;
+        background: #fffbed;
+        box-shadow: 7px 8px #111;
+      }
+      #arcade-boot strong {
+        display: block;
+        color: #ff329a;
+        margin-bottom: 20px;
+      }
+      #arcade-boot span {
+        font-size: 16px;
+      }
+    </style>
+    <script>
+      try {
+        document.documentElement.dataset.motion = JSON.parse(
+          localStorage.getItem("arcade.motion"),
+        )
+          ? "reduced"
+          : "full";
+      } catch {}
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div id="arcade-boot" role="status">
+        <div><strong>WEBCAM ARCADE</strong><span>GET READY! ★</span></div>
+      </div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
