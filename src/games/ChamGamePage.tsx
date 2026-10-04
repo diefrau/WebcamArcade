@@ -8,6 +8,8 @@ import { Character } from "../components/Character";
 import { WebcamFrame } from "../components/WebcamFrame";
 import "./cham.css";
 import { winsRound } from "./chamRules";
+import { CountUp, ResultCelebration } from "../components/ResultCelebration";
+import type { SoundCue } from "../audio/ArcadeAudio";
 
 export const directions: Direction[] = ["left", "up", "down", "right"];
 const arrows = { left: "←", right: "→", up: "↑", down: "↓", center: "•" };
@@ -40,7 +42,7 @@ export function ChamGamePage({
   tone,
 }: {
   onFinish: () => void;
-  tone: (kind?: string) => void;
+  tone: (kind?: SoundCue) => void;
 }) {
   const { t, i18n } = useTranslation();
   const ko = i18n.language.startsWith("ko");
@@ -101,6 +103,7 @@ export function ChamGamePage({
     if (!["countdown", "respond", "feedback"].includes(phaseRef.current))
       return;
     resumePhase.current = phaseRef.current;
+    tone("pause");
     transition("paused");
   }
   function nextRound() {
@@ -135,7 +138,6 @@ export function ChamGamePage({
       result.saved = false;
     }
     onFinish();
-    tone("result");
     navigate("/result/cham", { replace: true, state: result });
   }
   function answer(player: Direction | null) {
@@ -144,7 +146,17 @@ export function ChamGamePage({
     const next = [...roundsRef.current, { computer, player, win }];
     roundsRef.current = next;
     setRounds(next);
-    tone(win ? "score" : "fail");
+    const streak = next
+      .slice()
+      .reverse()
+      .findIndex((round) => !round.win);
+    tone(
+      win
+        ? (streak < 0 ? next.length : streak) % 3 === 0
+          ? "combo"
+          : "success"
+        : "fail",
+    );
     transition("feedback", 1000);
   }
   inputRef.current = (d) => {
@@ -462,12 +474,12 @@ export function ChamGamePage({
                   className="arcade-button pink"
                   disabled={!canPlay || calibrating}
                   onClick={() => {
+                    tone(phase === "ready" ? "start" : "resume");
                     if (phase === "ready") nextRound();
                     else {
                       candidate.current = { direction: "center", since: 0 };
                       transition(resumePhase.current);
                     }
-                    tone();
                   }}
                 >
                   <Play />
@@ -496,7 +508,7 @@ export function ChamGamePage({
   );
 }
 
-export function ChamResultPage() {
+export function ChamResultPage({ tone }: { tone: (kind?: SoundCue) => void }) {
   const { t, i18n } = useTranslation();
   const ko = i18n.language.startsWith("ko");
   const location = useLocation();
@@ -514,6 +526,11 @@ export function ChamResultPage() {
   return (
     <div className="cham-result">
       <h1 className="result-heading yellow-text">{t("clear")}</h1>
+      <ResultCelebration
+        newBest={result.newBest}
+        score={result.score}
+        onCelebrate={(record) => tone(record ? "newBest" : "result")}
+      />
       <section className="panel cham-result-panel">
         <Character asset="cham" />
         <div>
@@ -522,12 +539,14 @@ export function ChamResultPage() {
           <div className="result-stats">
             <div>
               <span className="pink">{t("score")}</span>
-              <b>{result.score}</b>
+              <b>
+                <CountUp value={result.score} />
+              </b>
             </div>
             <div>
               <span className="cyan">{ko ? "피한 횟수" : "DODGED"}</span>
               <b>
-                {result.wins}
+                <CountUp value={result.wins} />
                 <small> / 10</small>
               </b>
             </div>

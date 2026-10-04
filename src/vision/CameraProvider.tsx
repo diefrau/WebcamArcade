@@ -132,6 +132,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       lastRun = 0;
     let startupTimer: ReturnType<typeof setTimeout>;
     let frameTimer: ReturnType<typeof setTimeout>;
+    let staleTimer: ReturnType<typeof setTimeout>;
     const gesture = new GestureInterpreter();
     const video = document.createElement("video");
     video.muted = true;
@@ -140,16 +141,22 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     video.className = "vision-source";
     video.setAttribute("aria-hidden", "true");
     document.body.append(video);
+    const invalidateTracking = () => {
+      if (disposed) return;
+      gesture.reset();
+      setHand({ ...emptyHand });
+      setFace({ ...emptyFace });
+    };
     const fail = () => {
       if (disposed) return;
       setVision("error");
-      setHand({ ...emptyHand });
-      setFace({ ...emptyFace });
+      invalidateTracking();
       worker?.terminate();
       worker = undefined;
       cancelAnimationFrame(raf);
       clearTimeout(startupTimer);
       clearTimeout(frameTimer);
+      clearTimeout(staleTimer);
     };
     const tick = async (time: number) => {
       if (disposed || !worker) return;
@@ -208,18 +215,26 @@ export function CameraProvider({ children }: { children: ReactNode }) {
           else if (event.data.type === "result") {
             busy = false;
             clearTimeout(frameTimer);
+            clearTimeout(staleTimer);
+            // A live camera does not guarantee live inference. Invalidate the
+            // last pose quickly while allowing a slow worker to recover before
+            // the existing six-second error/retry timeout.
+            const age = performance.now() - event.data.time;
+            const fresh =
+              !document.hidden &&
+              Number.isFinite(event.data.time) &&
+              age >= 0 &&
+              age < 900;
+            const landmarks = fresh ? event.data.landmarks : undefined;
+            if (fresh) staleTimer = setTimeout(invalidateTracking, 900 - age);
             if (tracking === "face") {
               setFace(
-                faceSample(
-                  document.hidden ? undefined : event.data.landmarks,
-                  event.data.time,
-                  event.data.aspect,
-                ),
+                faceSample(landmarks, event.data.time, event.data.aspect),
               );
               return;
             }
             const next = gesture.update(
-              document.hidden ? undefined : event.data.landmarks,
+              landmarks,
               event.data.time,
               event.data.aspect,
             );
@@ -245,6 +260,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       cancelAnimationFrame(raf);
       clearTimeout(startupTimer);
       clearTimeout(frameTimer);
+      clearTimeout(staleTimer);
       worker?.terminate();
       video.pause();
       video.srcObject = null;

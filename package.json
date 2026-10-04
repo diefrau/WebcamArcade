@@ -5,11 +5,13 @@
   "main": "index.js",
   "scripts": {
     "test": "playwright test",
+    "test:pages": "npm run build && playwright test --config playwright.pages.config.ts",
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "postinstall": "node scripts/prepare-vision.mjs",
-    "prebuild": "node scripts/prepare-vision.mjs"
+    "prebuild": "node scripts/prepare-vision.mjs",
+    "postbuild": "node scripts/prepare-pages.mjs"
   },
   "keywords": [],
   "author": "",

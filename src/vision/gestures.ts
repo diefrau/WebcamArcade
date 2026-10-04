@@ -36,7 +36,26 @@ export class GestureInterpreter {
     if (
       !points ||
       points.length < 21 ||
-      points.some((p) => !Number.isFinite(p.x) || !Number.isFinite(p.y))
+      !Number.isFinite(time) ||
+      !Number.isFinite(aspect) ||
+      aspect <= 0 ||
+      Array.from(points).some(
+        (p) => !p || !Number.isFinite(p.x) || !Number.isFinite(p.y),
+      )
+    ) {
+      this.reset();
+      return { ...emptyHand };
+    }
+    const distance = (a: Landmark, b: Landmark) =>
+      Math.hypot((a.x - b.x) * aspect, a.y - b.y);
+    const palmWidth = distance(points[5], points[17]);
+    const pinchDistance = distance(points[4], points[8]);
+    // Collapsed landmarks cannot establish a reliable pinch scale. Treat them
+    // as tracking loss, so a previously open hand cannot create a phantom shot.
+    if (
+      !Number.isFinite(palmWidth) ||
+      !Number.isFinite(pinchDistance) ||
+      palmWidth < 0.015
     ) {
       this.reset();
       return { ...emptyHand };
@@ -51,11 +70,7 @@ export class GestureInterpreter {
     );
     this.positions.push({ x, y });
     if (this.positions.length > 5) this.positions.shift();
-    const distance = (a: Landmark, b: Landmark) =>
-      Math.hypot((a.x - b.x) * aspect, a.y - b.y);
-    const ratio =
-      distance(points[4], points[8]) /
-      Math.max(0.015, distance(points[5], points[17]));
+    const ratio = pinchDistance / palmWidth;
     let fire = false;
     if (ratio > 0.55) {
       this.armed = true;

@@ -1,0 +1,121 @@
+.reward-sticker {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 10px auto 26px;
+  border: 4px solid #111;
+  border-radius: 16px;
+  background: #34c8ff;
+  padding: 12px 24px;
+  box-shadow: 4px 5px #111;
+  rotate: -3deg;
+  font-family: "Black Han Sans";
+  font-size: 22px;
+}
+.reward-sticker.is-record {
+  background: #ffd927;
+}
+.reward-sticker svg {
+  width: 32px;
+  height: 32px;
+  fill: #ff4fa3;
+}
+.route-content[data-ready="true"] .reward-sticker {
+  animation: reward-stamp 0.75s cubic-bezier(0.22, 1.65, 0.4, 1) both;
+}
+.reward-confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  overflow: hidden;
+  pointer-events: none;
+}
+.reward-confetti i {
+  position: absolute;
+  top: -30px;
+  left: var(--piece-x);
+  width: 11px;
+  height: 22px;
+  background: var(--piece-color);
+  border: 2px solid #111;
+  border-radius: 3px;
+  animation: reward-fall 2.8s ease-in var(--piece-delay) both;
+}
+.reward-confetti i:nth-child(3n) {
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+}
+.count-up {
+  font-variant-numeric: tabular-nums;
+}
+.result-stats .count-up,
+.result-stats .count-up > span {
+  display: inline;
+  font: inherit;
+  line-height: inherit;
+  color: inherit;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background: none;
+  transform: none;
+  rotate: none;
+}
+@keyframes reward-stamp {
+  0% {
+    scale: 2;
+    opacity: 0;
+  }
+  48% {
+    scale: 0.9;
+    opacity: 1;
+  }
+  68% {
+    scale: 1.08;
+  }
+  100% {
+    scale: 1;
+  }
+}
+@keyframes reward-fall {
+  0% {
+    translate: 0 -30px;
+    rotate: 0deg;
+    opacity: 1;
+  }
+  85% {
+    opacity: 1;
+  }
+  100% {
+    translate: var(--piece-drift) 110vh;
+    rotate: var(--piece-turn);
+    opacity: 0;
+  }
+}
+@media (max-width: 600px) {
+  .reward-sticker {
+    font-size: 17px;
+    gap: 8px;
+    padding: 10px 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reward-confetti {
+    display: none;
+  }
+  .reward-sticker {
+    animation: none !important;
+  }
+}
+html[data-motion="reduced"] .reward-confetti {
+  display: none;
+}
+html[data-motion="reduced"] .reward-sticker {
+  animation: none !important;
+}

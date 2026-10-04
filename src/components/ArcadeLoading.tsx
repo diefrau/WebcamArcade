@@ -4,10 +4,15 @@ import {
   useState,
   type CSSProperties,
   type ReactNode,
+  createContext,
+  useContext,
 } from "react";
 import { useTranslation } from "react-i18next";
 import { Character } from "./Character";
 import "./arcade-loading.css";
+
+const ArcadeReady = createContext(false);
+export const useArcadeReady = () => useContext(ArcadeReady);
 
 /** Wait for the rendered route, including below-the-fold artwork, before revealing it. */
 export function ArcadeLoading({ children }: { children: ReactNode }) {
@@ -117,7 +122,7 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
         aria-busy={!ready}
         tabIndex={-1}
       >
-        {children}
+        <ArcadeReady.Provider value={ready}>{children}</ArcadeReady.Provider>
       </div>
       {!ready && (
         <section

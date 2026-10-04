@@ -6,6 +6,7 @@ import React, {
   useEffect,
   useRef,
   useState,
+  useCallback,
 } from "react";
 import { createRoot } from "react-dom/client";
 import {
@@ -69,6 +70,8 @@ import {
 import "./game-theme.css";
 import { ArcadeLoading } from "./components/ArcadeLoading";
 import "./motion.css";
+import { CountUp, ResultCelebration } from "./components/ResultCelebration";
+import { ArcadeAudio, type SoundCue } from "./audio/ArcadeAudio";
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -120,7 +123,7 @@ function today() {
 }
 const Context = createContext({
   sound: true,
-  tone: (_type?: string) => {},
+  tone: (_type?: SoundCue) => {},
   records: emptyRecords,
 });
 const games: { id: GameId; color: string; duration: number; badge: string }[] =
@@ -797,6 +800,14 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
   const canResumeRef = useRef(canResume);
   canResumeRef.current = canResume;
   const [phase, setPhase] = useState<"ready" | "playing" | "paused">("ready");
+  const previousPhase = useRef(phase);
+  useEffect(() => {
+    if (previousPhase.current === "playing" && phase === "paused")
+      tone("pause");
+    if (previousPhase.current === "paused" && phase === "playing")
+      tone("resume");
+    previousPhase.current = phase;
+  }, [phase, tone]);
   const [time, setTime] = useState(30);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -874,7 +885,6 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       accuracy: s.shots ? Math.round((s.hits / s.shots) * 100) : 0,
       newBest: s.score > records.best,
     });
-    tone("result");
     navigate("/result/shoot", { replace: true });
   };
   useEffect(() => {
@@ -930,7 +940,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       setScore(s.score);
       setCombo(s.combo);
       setFeedback("hit");
-      tone("score");
+      tone(s.combo % 5 === 0 ? "combo" : "success");
       setTargets((prev) =>
         prev.map((target) =>
           target.id === id
@@ -1132,7 +1142,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                   onClick={() => {
                     setHandPaused(false);
                     setPhase("playing");
-                    tone("start");
+                    if (phase === "ready") tone("start");
                   }}
                 >
                   <Play />
@@ -1184,7 +1194,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
 }
 function ResultPage() {
   const { t } = useTranslation();
-  const { records } = useContext(Context);
+  const { records, tone } = useContext(Context);
   const navigate = useNavigate();
   const r = records.last;
   if (!r)
@@ -1208,6 +1218,11 @@ function ResultPage() {
         </span>
         <span>✦</span>
       </h1>
+      <ResultCelebration
+        newBest={r.newBest}
+        score={r.score}
+        onCelebrate={(record) => tone(record ? "newBest" : "result")}
+      />
       <div className="result-layout">
         <aside className="result-moment">
           <WebcamFrame compact />
@@ -1230,16 +1245,20 @@ function ResultPage() {
           <div className="result-stats">
             <div>
               <span className="pink">SCORE</span>
-              <b>{r.score.toLocaleString()}</b>
+              <b>
+                <CountUp value={r.score} />
+              </b>
             </div>
             <div>
               <span className="cyan">COMBO</span>
-              <b>{r.combo}</b>
+              <b>
+                <CountUp value={r.combo} />
+              </b>
             </div>
             <div>
               <span className="lime">{t("accuracy")}</span>
               <b>
-                {r.accuracy}
+                <CountUp value={r.accuracy} />
                 <small>%</small>
               </b>
             </div>
@@ -1394,7 +1413,34 @@ function App() {
       : emptyRecords;
   });
   const [storageError, setStorageError] = useState(false);
-  const audio = useRef<AudioContext | null>(null);
+  const audio = useRef<ArcadeAudio | null>(null);
+  const unlocked = useRef<Promise<boolean> | null>(null);
+  useEffect(() => {
+    const engine = new ArcadeAudio({ enabled: read("arcade.sound", true) });
+    audio.current = engine;
+    const unlock = (event: Event) => {
+      if (!event.isTrusted || (event instanceof KeyboardEvent && event.repeat))
+        return;
+      unlocked.current = engine.unlock();
+    };
+    const hidden = () => {
+      if (document.hidden) engine.stop();
+    };
+    window.addEventListener("pointerdown", unlock, true);
+    window.addEventListener("keydown", unlock, true);
+    document.addEventListener("visibilitychange", hidden);
+    return () => {
+      window.removeEventListener("pointerdown", unlock, true);
+      window.removeEventListener("keydown", unlock, true);
+      document.removeEventListener("visibilitychange", hidden);
+      engine.dispose();
+      audio.current = null;
+      unlocked.current = null;
+    };
+  }, []);
+  useEffect(() => {
+    audio.current?.setEnabled(sound);
+  }, [sound]);
   useEffect(() => {
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
@@ -1402,39 +1448,16 @@ function App() {
     document.documentElement.dataset.motion = motion ? "reduced" : "full";
     save("arcade.motion", motion);
   }, [motion]);
-  function tone(type = "click") {
-    if (!sound) return;
-    try {
-      audio.current ??= new AudioContext();
-      const ac = audio.current;
-      void ac.resume();
-      const oscillator = ac.createOscillator(),
-        gain = ac.createGain();
-      oscillator.type = "sine";
-      oscillator.frequency.setValueAtTime(
-        type === "fail"
-          ? 140
-          : type === "score"
-            ? 740
-            : type === "result"
-              ? 880
-              : 440,
-        ac.currentTime,
-      );
-      oscillator.frequency.exponentialRampToValueAtTime(
-        type === "fail" ? 70 : 1000,
-        ac.currentTime + 0.1,
-      );
-      gain.gain.setValueAtTime(0.035, ac.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.18);
-      oscillator.connect(gain);
-      gain.connect(ac.destination);
-      oscillator.start();
-      oscillator.stop(ac.currentTime + 0.2);
-    } catch {
-      /* Sound is optional. */
+  const tone = useCallback((type: SoundCue = "click") => {
+    const engine = audio.current;
+    if (!engine || document.hidden) return;
+    if (engine.isReady) engine.play(type);
+    else if (["click", "start", "resume"].includes(type) && unlocked.current) {
+      void unlocked.current.then(() => {
+        if (audio.current === engine) engine.play(type);
+      });
     }
-  }
+  }, []);
   function finish(result: Result) {
     const next = {
       best: Math.max(records.best, result.score),
@@ -1477,6 +1500,7 @@ function App() {
               setSettings(true);
             }}
             onSound={() => {
+              audio.current?.setEnabled(!sound);
               setSound(!sound);
               save("arcade.sound", !sound);
             }}
@@ -1491,15 +1515,21 @@ function App() {
               />
               <Route
                 path="/play/circle"
-                element={<CircleGamePage onFinish={finishCircle} />}
+                element={<CircleGamePage onFinish={finishCircle} tone={tone} />}
               />
               <Route path="/result/shoot" element={<ResultPage />} />
-              <Route path="/result/circle" element={<CircleResultPage />} />
+              <Route
+                path="/result/circle"
+                element={<CircleResultPage tone={tone} />}
+              />
               <Route
                 path="/play/cham"
                 element={<ChamGamePage onFinish={finishCham} tone={tone} />}
               />
-              <Route path="/result/cham" element={<ChamResultPage />} />
+              <Route
+                path="/result/cham"
+                element={<ChamResultPage tone={tone} />}
+              />
               <Route path="*" element={<Navigate to="/games" replace />} />
             </Routes>
           </main>

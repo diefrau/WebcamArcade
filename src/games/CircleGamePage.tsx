@@ -22,6 +22,8 @@ import { WebcamFrame } from "../components/WebcamFrame";
 import { Character } from "../components/Character";
 import "./circle.css";
 import { useGameInput } from "../vision/useGameInput";
+import { CountUp, ResultCelebration } from "../components/ResultCelebration";
+import type { SoundCue } from "../audio/ArcadeAudio";
 
 type Point = { x: number; y: number };
 export type CircleResult = {
@@ -168,14 +170,24 @@ function evaluateCircle(
 
 export function CircleGamePage({
   onFinish,
+  tone,
 }: {
   onFinish: (result: CircleResult) => void;
+  tone: (kind?: SoundCue) => void;
 }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const camera = useCamera();
   const [mode, setMode] = useGameInput();
   const [phase, setPhase] = useState<"ready" | "playing" | "paused">("ready");
+  const previousPhase = useRef(phase);
+  useEffect(() => {
+    if (previousPhase.current === "playing" && phase === "paused")
+      tone("pause");
+    if (previousPhase.current === "paused" && phase === "playing")
+      tone("resume");
+    previousPhase.current = phase;
+  }, [phase, tone]);
   const [time, setTime] = useState(20);
   const [path, setPath] = useState<Point[]>([]);
   const [feedback, setFeedback] = useState("");
@@ -219,11 +231,13 @@ export function CircleGamePage({
           return;
         }
         setFeedback("circleTooShort");
+        tone("fail");
         updatePath([]);
         setTimeout(() => setFeedback(""), 800);
         return;
       }
       finished.current = true;
+      tone("success");
       const best = read<number>("arcade.circle.best", 0);
       const next = {
         ...result,
@@ -238,7 +252,7 @@ export function CircleGamePage({
       onFinish(next);
       navigate("/result/circle", { replace: true });
     },
-    [navigate, onFinish, updatePath],
+    [navigate, onFinish, updatePath, tone],
   );
   useEffect(() => {
     if (phase !== "playing") return;
@@ -294,6 +308,7 @@ export function CircleGamePage({
     };
   }, []);
   const start = () => {
+    tone("start");
     finished.current = false;
     drawing.current = false;
     updatePath([]);
@@ -506,7 +521,11 @@ export function CircleGamePage({
   );
 }
 
-export function CircleResultPage() {
+export function CircleResultPage({
+  tone,
+}: {
+  tone: (kind?: SoundCue) => void;
+}) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const result = read<CircleResult | null>("arcade.circle.last", null);
@@ -528,6 +547,11 @@ export function CircleResultPage() {
         <span className="yellow-text">{t("circleClear")}</span>
         <span>✦</span>
       </h1>
+      <ResultCelebration
+        newBest={result.newBest}
+        score={result.score}
+        onCelebrate={(record) => tone(record ? "newBest" : "result")}
+      />
       <div className="circle-result-grid">
         <section className="circle-result-art panel">
           <Character asset="circle" />
@@ -550,18 +574,22 @@ export function CircleResultPage() {
           <div className="result-stats">
             <div>
               <span className="pink">{t("circleScore")}</span>
-              <b>{result.score.toLocaleString()}</b>
+              <b>
+                <CountUp value={result.score} />
+              </b>
             </div>
             <div>
               <span className="cyan">{t("accuracy")}</span>
               <b>
-                {result.accuracy}
+                <CountUp value={result.accuracy} />
                 <small>%</small>
               </b>
             </div>
             <div>
               <span className="lime">{t("points")}</span>
-              <b>{result.points}</b>
+              <b>
+                <CountUp value={result.points} />
+              </b>
             </div>
           </div>
           <div className="best-comparison">
