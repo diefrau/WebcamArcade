@@ -68,6 +68,14 @@ test("camera is opt-in, real worker loads local model, navigation reuses stream,
   await page.getByRole("button", { name: "게임 시작!" }).click();
   await page.getByRole("link", { name: "쏴! 지금 플레이!" }).click();
   await expect(page.locator(".webcam-frame")).toHaveClass(/is-live/);
+  await expect
+    .poll(async () =>
+      page.locator(".camera-video").evaluate((el) => {
+        const stream = (el as HTMLVideoElement).srcObject as MediaStream | null;
+        return Boolean(stream?.getVideoTracks().length);
+      }),
+    )
+    .toBe(true);
   expect(
     await page
       .locator(".camera-video")

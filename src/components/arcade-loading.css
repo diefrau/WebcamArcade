@@ -1,8 +1,14 @@
 .route-content {
   outline: none;
+  opacity: 0;
+  transition: opacity 600ms ease-in-out;
 }
 .route-content[data-ready="false"] {
   visibility: hidden;
+}
+.route-content:is([data-state="exiting"], [data-state="ready"]) {
+  opacity: 1;
+  visibility: visible;
 }
 .arcade-loading {
   position: fixed;
@@ -18,6 +24,12 @@
     radial-gradient(circle, #ffd72b 2px, transparent 3px) 0 0 / 20px 20px,
     #fff9e8;
   font-family: "Noto Sans KR", system-ui, sans-serif;
+  opacity: 1;
+  transition: opacity 600ms ease-in-out;
+}
+.arcade-loading[data-state="exiting"] {
+  opacity: 0;
+  pointer-events: none;
 }
 .arcade-loading::before {
   content: "";

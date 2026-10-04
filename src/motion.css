@@ -5,9 +5,6 @@
 .screen-play .playfield {
   overflow: clip;
 }
-.route-content[data-ready="true"] .app-shell > main {
-  animation: arcade-reveal 0.25s ease-out both;
-}
 .route-content[data-ready="true"]
   :is(.game-dialog, .circle-dialog, .cham-dialog) {
   animation: arcade-pop 0.6s var(--arcade-spring) both;

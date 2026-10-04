@@ -9,10 +9,13 @@ import {
 } from "react";
 import { useTranslation } from "react-i18next";
 import { Character } from "./Character";
+import { useReducedMotion } from "./useReducedMotion";
 import "./arcade-loading.css";
 
 const ArcadeReady = createContext(false);
 export const useArcadeReady = () => useContext(ArcadeReady);
+const MINIMUM_LOADING_MS = 3000;
+const LOADING_FADE_MS = 600;
 
 /** Wait for the rendered route, including below-the-fold artwork, before revealing it. */
 export function ArcadeLoading({ children }: { children: ReactNode }) {
@@ -20,9 +23,15 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
   const english = i18n.language.startsWith("en");
   const content = useRef<HTMLDivElement>(null);
   const screen = useRef<HTMLElement>(null);
-  const [ready, setReady] = useState(false);
+  const [phase, setPhase] = useState<"loading" | "exiting" | "ready">(
+    "loading",
+  );
+  const ready = phase === "ready";
+  const reducedMotion = useReducedMotion();
+  const skipAssets = useRef(() => {});
   const [attempt, setAttempt] = useState(0);
   const [progress, setProgress] = useState({ done: 0, total: 1 });
+  const [presentationProgress, setPresentationProgress] = useState(0);
   const [problem, setProblem] = useState(false);
 
   useEffect(() => {
@@ -32,10 +41,53 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
     }
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [ready]);
+
+  useEffect(() => {
+    if (phase !== "exiting") return;
+    const fade = window.setTimeout(
+      () => setPhase("ready"),
+      reducedMotion ? 0 : LOADING_FADE_MS,
+    );
+    return () => window.clearTimeout(fade);
+  }, [phase, reducedMotion]);
+
+  useEffect(() => {
     const controller = new AbortController();
     const { signal } = controller;
+    let departed = false;
+    const exit = () => {
+      if (signal.aborted || departed) return;
+      departed = true;
+      window.clearTimeout(timeout);
+      setPhase("exiting");
+    };
+    setPhase("loading");
+    setPresentationProgress(0);
     setProblem(false);
     screen.current?.focus({ preventScroll: true });
+    const started = performance.now();
+    const presentationTimer = window.setInterval(() => {
+      const elapsed = Math.min(
+        1,
+        (performance.now() - started) / MINIMUM_LOADING_MS,
+      );
+      setPresentationProgress(elapsed);
+      if (elapsed === 1) window.clearInterval(presentationTimer);
+    }, 50);
+    let minimumTimer = 0;
+    const minimumDuration = new Promise<void>((resolve) => {
+      minimumTimer = window.setTimeout(() => {
+        setPresentationProgress(1);
+        resolve();
+      }, MINIMUM_LOADING_MS);
+    });
+    skipAssets.current = () => {
+      void minimumDuration.then(exit);
+    };
     const images = Array.from(content.current!.querySelectorAll("img"));
     const runners = Array.from(screen.current!.querySelectorAll("img"));
     const allImages = [...images, ...runners];
@@ -43,7 +95,7 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
     // This only exposes recovery controls. It never marks unfinished assets as ready.
     const timeout = window.setTimeout(() => setProblem(true), 12000);
     const finished = () => {
-      if (!signal.aborted)
+      if (!signal.aborted && !departed)
         setProgress((value) => ({ ...value, done: value.done + 1 }));
     };
     const tasks = allImages.map(async (img) => {
@@ -95,29 +147,37 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
         finished();
       })(),
     );
-    void Promise.all(tasks)
-      .then(() => {
-        if (signal.aborted) return;
-        window.clearTimeout(timeout);
-        setReady(true);
-      })
+    void Promise.all([...tasks, minimumDuration])
+      .then(exit)
       .catch(() => {
-        if (!signal.aborted) setProblem(true);
+        if (!signal.aborted && !departed) setProblem(true);
       });
     return () => {
       controller.abort();
       window.clearTimeout(timeout);
-      document.body.style.overflow = previousOverflow;
+      window.clearTimeout(minimumTimer);
+      window.clearInterval(presentationTimer);
     };
-  }, [attempt, ready]);
+  }, [attempt]);
 
-  const percent = Math.round((progress.done / progress.total) * 100);
+  const assetsReady = progress.done === progress.total;
+  const percent =
+    phase === "exiting"
+      ? 100
+      : Math.min(
+          99,
+          Math.floor(
+            Math.min(progress.done / progress.total, presentationProgress) *
+              100,
+          ),
+        );
   return (
     <>
       <div
         ref={content}
         className="route-content"
         data-ready={ready}
+        data-state={phase}
         inert={!ready}
         aria-busy={!ready}
         tabIndex={-1}
@@ -128,6 +188,9 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
         <section
           ref={screen}
           className="arcade-loading"
+          data-state={phase}
+          inert={phase === "exiting"}
+          aria-hidden={phase === "exiting"}
           tabIndex={-1}
           aria-label={english ? "Loading arcade" : "아케이드 로딩"}
         >
@@ -203,9 +266,17 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
                   ? english
                     ? "Taking a little longer…"
                     : "준비가 조금 늦어지고 있어요…"
-                  : english
-                    ? "Loading fonts & artwork…"
-                    : "폰트와 그림을 불러오는 중…"}
+                  : phase === "exiting"
+                    ? english
+                      ? "LET'S PLAY!"
+                      : "자, 놀아볼까!"
+                    : assetsReady
+                      ? english
+                        ? "Warming up with our friends…"
+                        : "친구들과 준비운동 중…"
+                      : english
+                        ? "Loading fonts & artwork…"
+                        : "폰트와 그림을 불러오는 중…"}
               </span>
               <strong>{percent}%</strong>
             </div>
@@ -219,7 +290,7 @@ export function ArcadeLoading({ children }: { children: ReactNode }) {
                 <button onClick={() => setAttempt((value) => value + 1)}>
                   {english ? "Try again" : "다시 불러오기"}
                 </button>
-                <button onClick={() => setReady(true)}>
+                <button onClick={() => skipAssets.current()}>
                   {english ? "Continue anyway" : "준비된 화면으로 시작"}
                 </button>
               </div>

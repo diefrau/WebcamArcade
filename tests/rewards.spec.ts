@@ -11,7 +11,8 @@ const result = {
 test("result animation waits for loading, counts to exact values and preserves records", async ({
   page,
 }) => {
-  await page.clock.install();
+  await page.clock.install({ time: new Date("2026-10-05T00:00:00Z") });
+  await page.clock.pauseAt(new Date("2026-10-05T00:01:00Z"));
   await page.addInitScript((value) => {
     localStorage.setItem("arcade.circle.last", JSON.stringify(value));
     localStorage.setItem("arcade.circle.best", "930");
@@ -21,19 +22,40 @@ test("result animation waits for loading, counts to exact values and preserves r
     const wait = new Promise<void>((resolve) => {
       release = resolve;
     });
-    (window as unknown as { releaseFonts: () => void }).releaseFonts = release;
-    document.fonts.load = async (...args) => {
-      await wait;
-      return original(...args);
+    const loads: Promise<FontFace[]>[] = [];
+    document.fonts.load = (...args) => {
+      const load = wait.then(() => original(...args));
+      loads.push(load);
+      return load;
     };
+    (window as unknown as { releaseFonts: () => Promise<void> }).releaseFonts =
+      async () => {
+        release();
+        await Promise.all(loads);
+        await document.fonts.ready;
+      };
   }, result);
   await page.goto("/result/circle");
   await expect(page.locator(".arcade-loading")).toBeVisible();
   await page.clock.runFor(1500);
   await expect(page.locator(".count-up").first()).toHaveText("0");
   await page.evaluate(() =>
-    (window as unknown as { releaseFonts: () => void }).releaseFonts(),
+    (window as unknown as { releaseFonts: () => Promise<void> }).releaseFonts(),
   );
+  await page.evaluate(() =>
+    Promise.all(Array.from(document.images, (image) => image.decode())),
+  );
+  await page.clock.runFor(1500);
+  await expect(page.locator(".route-content")).toHaveAttribute(
+    "data-state",
+    "exiting",
+  );
+  await expect(page.locator(".route-content")).toHaveAttribute(
+    "data-ready",
+    "false",
+  );
+  await expect(page.locator(".count-up").first()).toHaveText("0");
+  await page.clock.runFor(600);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-ready",
     "true",
