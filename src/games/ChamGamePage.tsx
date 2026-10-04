@@ -13,6 +13,9 @@ import type { SoundCue } from "../audio/ArcadeAudio";
 
 export const directions: Direction[] = ["left", "up", "down", "right"];
 const arrows = { left: "←", right: "→", up: "↑", down: "↓", center: "•" };
+const COUNTDOWN_MS = 1500;
+const RESPONSE_MS = 900;
+const FEEDBACK_MS = 1000;
 type Round = { computer: Direction; player: Direction | null; win: boolean };
 export type ChamResult = {
   score: number;
@@ -57,7 +60,7 @@ export function ChamGamePage({
   const [phase, setPhase] = useState<Phase>("ready");
   const [rounds, setRounds] = useState<Round[]>([]);
   const [computer, setComputer] = useState<Direction>("left");
-  const [remaining, setRemaining] = useState(1500);
+  const [remaining, setRemaining] = useState(COUNTDOWN_MS);
   const [neutral, setNeutral] = useState<{ x: number; y: number } | null>(null);
   const [calibrating, setCalibrating] = useState(false);
   const [calibrationCount, setCalibrationCount] = useState(0);
@@ -69,7 +72,7 @@ export function ChamGamePage({
   });
   const centered = useRef(false);
   const phaseRef = useRef<Phase>(phase);
-  const remainingRef = useRef(1500);
+  const remainingRef = useRef(COUNTDOWN_MS);
   const resumePhase = useRef<Phase>("countdown");
   const roundsRef = useRef<Round[]>([]);
   const complete = useRef(false);
@@ -109,7 +112,7 @@ export function ChamGamePage({
   function nextRound() {
     centered.current = mode === "buttons";
     candidate.current = { direction: "center", since: 0 };
-    transition("countdown", 1500);
+    transition("countdown", COUNTDOWN_MS);
   }
   function finish() {
     if (complete.current) return;
@@ -157,7 +160,7 @@ export function ChamGamePage({
           : "success"
         : "fail",
     );
-    transition("feedback", 1000);
+    transition("feedback", FEEDBACK_MS);
   }
   inputRef.current = (d) => {
     if (
@@ -187,7 +190,7 @@ export function ChamGamePage({
     if (phaseRef.current === "countdown") {
       setComputer(directions[Math.floor(Math.random() * directions.length)]);
       candidate.current = { direction: "center", since: 0 };
-      transition("respond", 1500);
+      transition("respond", RESPONSE_MS);
     } else if (phaseRef.current === "respond") answer(null);
     else if (phaseRef.current === "feedback")
       roundsRef.current.length >= 10 ? finish() : nextRound();
@@ -422,7 +425,13 @@ export function ChamGamePage({
           </div>
           <progress
             aria-label={t("time")}
-            max={phase === "feedback" ? 1000 : 1500}
+            max={
+              phase === "feedback"
+                ? FEEDBACK_MS
+                : phase === "respond"
+                  ? RESPONSE_MS
+                  : COUNTDOWN_MS
+            }
             value={remaining}
           />
           <div className="cham-controls">
@@ -454,8 +463,8 @@ export function ChamGamePage({
                 <h2>{phase === "ready" ? t("readyGame") : t("paused")}</h2>
                 <p>
                   {text(
-                    "10라운드 · 화살표가 나타나면 1.5초 안에 다른 방향을 선택하세요.",
-                    "10 rounds. Choose a different direction within 1.5 seconds of the arrow appearing.",
+                    "10라운드 · 화살표가 나타나면 0.9초 안에 다른 방향을 선택하세요.",
+                    "10 rounds. Choose a different direction within 0.9 seconds of the arrow appearing.",
                   )}
                 </p>
                 {mode === "face" && (

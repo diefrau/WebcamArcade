@@ -33,7 +33,7 @@ async function releaseFonts(page: Page) {
   );
 }
 
-test("cached screens keep a three-second loading race, then fade while input stays blocked", async ({
+test("cached screens keep a two-second loading race, then fade while input stays blocked", async ({
   page,
 }) => {
   await freezeClock(page);
@@ -43,7 +43,7 @@ test("cached screens keep a three-second loading race, then fade while input sta
   await page.evaluate(() =>
     Promise.all(Array.from(document.images, (image) => image.decode())),
   );
-  await page.clock.runFor(1500);
+  await page.clock.runFor(1000);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-state",
     "loading",
@@ -53,7 +53,7 @@ test("cached screens keep a three-second loading race, then fade while input sta
   );
   expect(midpoint).toBeGreaterThan(0);
   expect(midpoint).toBeLessThanOrEqual(50);
-  await page.clock.runFor(1499);
+  await page.clock.runFor(999);
   await expect(page.locator(".route-content")).toHaveAttribute("inert", "");
   await expect(page.getByRole("progressbar")).not.toHaveAttribute(
     "aria-valuenow",
@@ -94,7 +94,7 @@ test("cached screens keep a three-second loading race, then fade while input sta
     "data-state",
     "loading",
   );
-  await page.clock.runFor(2999);
+  await page.clock.runFor(1999);
   await expect(page.locator(".arcade-loading")).toHaveCount(1);
   // The destination route may still be decoding its artwork after the
   // minimum timer; give its real asset gate one extra clock turn to finish.
@@ -132,7 +132,7 @@ test("loading waits for actual artwork, blocks input, and reveals a decoded scre
     "100",
   );
   await page.screenshot({ path: "artifacts/loading-desktop.png" });
-  await page.clock.runFor(3000);
+  await page.clock.runFor(2000);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-state",
     "loading",
@@ -164,7 +164,7 @@ test("loading waits for actual artwork, blocks input, and reveals a decoded scre
   ).toBe(true);
   await page.getByRole("button", { name: "뒤로", exact: true }).click();
   await expect(page).toHaveURL(/\/games$/);
-  await page.clock.runFor(3000);
+  await page.clock.runFor(2000);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-state",
     "exiting",
@@ -187,7 +187,7 @@ test("font readiness gates the screen even when artwork is cached", async ({
     "data-ready",
     "false",
   );
-  await page.clock.runFor(4000);
+  await page.clock.runFor(3000);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-state",
     "loading",
@@ -221,7 +221,7 @@ test("failed images offer recovery and retry succeeds without faking completion"
   await page.clock.runFor(3000);
   await page.unroute("**/dog-full-circle.webp");
   await page.getByRole("button", { name: "다시 불러오기" }).click();
-  await page.clock.runFor(2999);
+  await page.clock.runFor(1999);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-state",
     "loading",
@@ -259,7 +259,7 @@ test("mobile loading respects reduced motion and supports explicit fallback", as
   ).toBe(true);
   await page.screenshot({ path: "artifacts/loading-mobile.png" });
   await page.getByRole("button", { name: "준비된 화면으로 시작" }).click();
-  await page.clock.runFor(2999);
+  await page.clock.runFor(1999);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-ready",
     "false",

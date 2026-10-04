@@ -67,9 +67,13 @@ test("ten rounds support buttons, timeout, pause, records and replay", async ({
   );
   await page.getByRole("button", { name: "계속하기", exact: true }).click();
   for (let i = 0; i < 10; i++) {
-    await page.clock.fastForward(1520);
+    await page.clock.fastForward(1500);
     const arrow = await page.getByTestId("cham-arrow").textContent();
-    if (i === 0) await page.clock.fastForward(1520);
+    await expect(page.locator(".cham-stage progress")).toHaveAttribute(
+      "max",
+      "900",
+    );
+    if (i === 0) await page.clock.fastForward(900);
     else {
       const d = arrow === "←" ? "ArrowRight" : "ArrowLeft";
       await page.keyboard.press(d);

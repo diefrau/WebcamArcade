@@ -37,7 +37,7 @@ test("result animation waits for loading, counts to exact values and preserves r
   }, result);
   await page.goto("/result/circle");
   await expect(page.locator(".arcade-loading")).toBeVisible();
-  await page.clock.runFor(1500);
+  await page.clock.runFor(1000);
   await expect(page.locator(".count-up").first()).toHaveText("0");
   await page.evaluate(() =>
     (window as unknown as { releaseFonts: () => Promise<void> }).releaseFonts(),
@@ -45,7 +45,7 @@ test("result animation waits for loading, counts to exact values and preserves r
   await page.evaluate(() =>
     Promise.all(Array.from(document.images, (image) => image.decode())),
   );
-  await page.clock.runFor(1500);
+  await page.clock.runFor(1000);
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-state",
     "exiting",

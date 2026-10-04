@@ -14,7 +14,7 @@ import "./arcade-loading.css";
 
 const ArcadeReady = createContext(false);
 export const useArcadeReady = () => useContext(ArcadeReady);
-const MINIMUM_LOADING_MS = 3000;
+const MINIMUM_LOADING_MS = 2000;
 const LOADING_FADE_MS = 600;
 
 /** Wait for the rendered route, including below-the-fold artwork, before revealing it. */
