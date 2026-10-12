@@ -50,7 +50,7 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-for (const game of ["shoot", "circle"]) {
+for (const game of ["shoot", "circle", "rps"]) {
   test(`${game}: hand cursor pinches start and resume without leaking the click into gameplay`, async ({
     page,
   }) => {
@@ -94,7 +94,7 @@ for (const game of ["shoot", "circle"]) {
       await expect(page.locator('.hearts svg[fill="var(--pink)"]')).toHaveCount(
         5,
       );
-    } else {
+    } else if (game === "circle") {
       await expect(page.locator(".circle-canvas")).toHaveAttribute(
         "data-strokes",
         "0",
@@ -127,7 +127,7 @@ for (const game of ["shoot", "circle"]) {
       await expect(page.locator('.hearts svg[fill="var(--pink)"]')).toHaveCount(
         5,
       );
-    } else {
+    } else if (game === "circle") {
       await expect(page.locator(".circle-canvas")).toHaveAttribute(
         "data-strokes",
         "1",

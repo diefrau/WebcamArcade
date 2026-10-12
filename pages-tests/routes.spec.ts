@@ -12,9 +12,11 @@ const routes = [
   ["/play/shoot", ".playfield"],
   ["/play/circle", ".circle-stage"],
   ["/play/cham", ".cham-stage"],
+  ["/play/rps", ".rps-stage"],
   ["/result/shoot", ".empty-state"],
   ["/result/circle", ".empty-state"],
   ["/result/cham", ".empty-state"],
+  ["/result/rps", ".empty-state"],
 ] as const;
 
 for (const [route, screen] of routes) {

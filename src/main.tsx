@@ -72,6 +72,7 @@ import "./game-theme.css";
 import { RouteContent } from "./components/RouteContent";
 import "./motion.css";
 import "./responsive.css";
+import { RpsGamePage, RpsResultPage, readRps } from "./games/RpsGamePage";
 import { CountUp, ResultCelebration } from "./components/ResultCelebration";
 import { ArcadeAudio, type SoundCue } from "./audio/ArcadeAudio";
 
@@ -96,7 +97,7 @@ void i18n.use(initReactI18next).init({
   fallbackLng: "ko",
   interpolation: { escapeValue: false },
 });
-type GameId = "cham" | "circle" | "shoot";
+type GameId = "cham" | "circle" | "shoot" | "rps";
 type Result = {
   score: number;
   combo: number;
@@ -133,6 +134,7 @@ const games: { id: GameId; color: string; duration: number; badge: string }[] =
     { id: "cham", color: "pink", duration: 30, badge: "popular" },
     { id: "circle", color: "cyan", duration: 20, badge: "new" },
     { id: "shoot", color: "lime", duration: 30, badge: "easy" },
+    { id: "rps", color: "purple", duration: 30, badge: "new" },
   ];
 
 function Mascot({ mini = false }: { mini?: boolean }) {
@@ -421,6 +423,7 @@ function RecordsBar() {
   const circleBest = read<number>("arcade.circle.best", 0);
   const circlePlays = read<number>("arcade.circle.plays", 0);
   const cham = readCham();
+  const rps = readRps();
   return (
     <section className="records-bar">
       <div className="records-title">
@@ -428,8 +431,10 @@ function RecordsBar() {
         <div>
           <h3>{t("bestRecords")}</h3>
           <small>
-            {records.plays + circlePlays + cham.plays
-              ? t("plays", { count: records.plays + circlePlays + cham.plays })
+            {records.plays + circlePlays + cham.plays + rps.plays
+              ? t("plays", {
+                  count: records.plays + circlePlays + cham.plays + rps.plays,
+                })
               : t("noRecords")}
           </small>
         </div>
@@ -461,6 +466,16 @@ function RecordsBar() {
           <b>
             {records.plays ? records.best.toLocaleString() : "—"}
             <small>{records.plays ? t("points") : ""}</small>
+          </b>
+        </div>
+      </div>
+      <div className="record-tile purple">
+        <Hand />
+        <div>
+          <span>{t("rps")}</span>
+          <b>
+            {rps.plays ? rps.best.toLocaleString() : "—"}
+            <small>{rps.plays ? t("points") : ""}</small>
           </b>
         </div>
       </div>
@@ -526,7 +541,7 @@ function HomePage() {
           </Link>
         </div>
         <div className="game-grid">
-          {games.map((g) => (
+          {games.slice(0, 3).map((g) => (
             <GameCard key={g.id} {...g} />
           ))}
         </div>
@@ -594,12 +609,6 @@ function GamesPage() {
               ))}
             {filter !== "face" &&
               [
-                {
-                  key: "futureRps",
-                  color: "purple",
-                  art: "cham",
-                  input: "hand",
-                },
                 {
                   key: "futureDodge",
                   color: "orange",
@@ -1514,6 +1523,14 @@ function App() {
               <Route
                 path="/result/cham"
                 element={<ChamResultPage tone={tone} />}
+              />
+              <Route
+                path="/play/rps"
+                element={<RpsGamePage onFinish={finishCham} tone={tone} />}
+              />
+              <Route
+                path="/result/rps"
+                element={<RpsResultPage tone={tone} />}
               />
               <Route path="*" element={<Navigate to="/games" replace />} />
             </Routes>

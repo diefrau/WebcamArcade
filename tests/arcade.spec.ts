@@ -17,7 +17,7 @@ test("home, filters, language and settings work", async ({ page }) => {
   await page.getByRole("button", { name: "얼굴 인식", exact: true }).click();
   await expect(page.locator(".selection-games .game-card")).toHaveCount(1);
   await page.getByRole("button", { name: "전체", exact: true }).click();
-  await expect(page.locator(".selection-games .game-card")).toHaveCount(3);
+  await expect(page.locator(".selection-games .game-card")).toHaveCount(4);
   await page.screenshot({ path: "artifacts/games-ko.png", fullPage: true });
   await page.getByRole("button", { name: "설정", exact: true }).click();
   await page.getByRole("combobox").selectOption("en");
