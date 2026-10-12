@@ -496,11 +496,6 @@ function HomePage() {
             <span className="pink-text">{t("hero2")}</span>{" "}
             <span className="cyan-text">{t("hero3")}</span>
           </h1>
-          <p>
-            {t("intro")}
-            <br />
-            {t("intro2")}
-          </p>
           <Button className="hero-cta" onClick={() => navigate("/games")}>
             <Play fill="currentColor" />
             {t("start")}
@@ -524,10 +519,6 @@ function HomePage() {
       </section>
       <section className="featured">
         <div className="section-heading">
-          <h2>
-            <Zap size={23} fill="currentColor" />
-            {t("featured")}
-          </h2>
           <Link to="/games" className="view-all-button">
             {t("viewAll")}
             <ArrowRight size={18} />

@@ -84,7 +84,6 @@ export function ComicDecor() {
         />
         <path d="m0 555 1600-91v82L0 655Z" fill="#fffbed" />
       </svg>
-      <div className="comic-halftone" aria-hidden="true" />
       <svg
         className="comic-decor-shapes"
         viewBox="0 0 1600 920"
