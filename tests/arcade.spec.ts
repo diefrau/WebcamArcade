@@ -1,20 +1,11 @@
 import { test, expect, type Page } from "@playwright/test";
 
-async function revealWithLoading(page: Page) {
-  await expect(page.locator(".route-content")).toHaveAttribute(
-    "data-state",
-    "loading",
-  );
-  await page.clock.fastForward(3000);
-  await expect(page.locator(".route-content")).toHaveAttribute(
-    "data-state",
-    "exiting",
-  );
-  await page.clock.fastForward(600);
+async function expectRouteReady(page: Page) {
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-ready",
     "true",
   );
+  await expect(page.locator(".arcade-loading")).toHaveCount(0);
 }
 
 test("home, filters, language and settings work", async ({ page }) => {
@@ -68,14 +59,14 @@ test("shooting, pause, timer, results, replay and storage", async ({
   await page.screenshot({ path: "artifacts/play.png", fullPage: true });
   await page.clock.fastForward(30050);
   await expect(page).toHaveURL(/\/result\/shoot$/);
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await page.clock.fastForward(900);
   await expect(page.locator(".result-stats")).toContainText("900");
   await expect(page.locator(".result-stats")).toContainText("100");
   await page.clock.fastForward(350);
   await page.screenshot({ path: "artifacts/result.png", fullPage: true });
   await page.reload();
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await page.clock.fastForward(900);
   await expect(page.locator(".result-stats")).toContainText("900");
   const records = await page.evaluate(() =>
@@ -88,7 +79,7 @@ test("shooting, pause, timer, results, replay and storage", async ({
   for (let i = 0; i < 5; i++)
     await page.locator(".playfield").click({ position: { x: 10, y: 10 } });
   await expect(page).toHaveURL(/\/result\/shoot$/);
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await page.clock.fastForward(900);
   await expect(page.locator(".result-stats")).toContainText("0");
   const after = await page.evaluate(() =>

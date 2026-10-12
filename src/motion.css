@@ -34,8 +34,7 @@
   .game-card,
   .top-nav a,
   .utilities button,
-  .cham-controls button,
-  .loading-recovery button
+  .cham-controls button
 ) {
   transition:
     scale 0.28s var(--arcade-spring),
@@ -44,13 +43,9 @@
     background-color 0.2s ease;
 }
 @media (hover: hover) {
-  :is(
-      .arcade-button,
-      .top-nav a,
-      .utilities button,
-      .cham-controls button,
-      .loading-recovery button
-    ):not(:disabled):hover {
+  :is(.arcade-button, .top-nav a, .utilities button, .cham-controls button):not(
+      :disabled
+    ):hover {
     scale: 1.055;
     translate: 0 -3px;
   }
@@ -68,8 +63,7 @@
     .game-card,
     .top-nav a,
     .utilities button,
-    .cham-controls button,
-    .loading-recovery button
+    .cham-controls button
   ):not(:disabled):active {
   scale: 0.94;
   translate: 0 3px;
@@ -179,7 +173,7 @@
     scale: 1;
   }
 }
-/* Keep both OS and in-game preferences authoritative, including the loader. */
+/* Respect both OS and in-game motion preferences. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

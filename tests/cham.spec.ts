@@ -2,21 +2,12 @@ import { test, expect, type Page } from "@playwright/test";
 import { faceSample, faceDirection, type Direction } from "../src/vision/face";
 import { winsRound } from "../src/games/chamRules";
 
-async function revealWithLoading(page: Page) {
-  await expect(page.locator(".route-content")).toHaveAttribute(
-    "data-state",
-    "loading",
-  );
-  await page.clock.fastForward(3000);
-  await expect(page.locator(".route-content")).toHaveAttribute(
-    "data-state",
-    "exiting",
-  );
-  await page.clock.fastForward(600);
+async function expectRouteReady(page: Page) {
   await expect(page.locator(".route-content")).toHaveAttribute(
     "data-ready",
     "true",
   );
+  await expect(page.locator(".arcade-loading")).toHaveCount(0);
 }
 
 function landmarks(x = 0, y = 0.25) {
@@ -54,9 +45,9 @@ test("ten rounds support buttons, timeout, pause, records and replay", async ({
 }) => {
   await page.clock.install();
   await page.goto("/games");
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await page.getByRole("link", { name: "참!참!참! 지금 플레이!" }).click();
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await page.screenshot({ path: "artifacts/cham-ready.png", fullPage: true });
   await page.getByRole("button", { name: "시작!", exact: true }).click();
   await page.getByRole("button", { name: "일시정지", exact: true }).click();
@@ -90,7 +81,7 @@ test("ten rounds support buttons, timeout, pause, records and replay", async ({
     await page.clock.fastForward(1040);
   }
   await expect(page).toHaveURL(/result\/cham$/);
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await page.clock.fastForward(900);
   await expect(page.locator(".result-stats")).toContainText("900");
   const record = await page.evaluate(() =>
@@ -99,12 +90,12 @@ test("ten rounds support buttons, timeout, pause, records and replay", async ({
   expect(record.plays).toBe(1);
   expect(record.last.rounds).toHaveLength(10);
   await page.reload();
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await page.clock.fastForward(900);
   await expect(page.locator(".result-stats")).toContainText("900");
   await page.screenshot({ path: "artifacts/cham-result.png", fullPage: true });
   await page.getByRole("link", { name: "다시 하기" }).click();
-  await revealWithLoading(page);
+  await expectRouteReady(page);
   await expect(
     page.getByRole("button", { name: "시작!", exact: true }),
   ).toBeEnabled();

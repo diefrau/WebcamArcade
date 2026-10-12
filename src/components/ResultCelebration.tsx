@@ -1,16 +1,14 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { Crown, Star } from "lucide-react";
-import { useArcadeReady } from "./ArcadeLoading";
 import { useReducedMotion } from "./useReducedMotion";
 import "./result-celebration.css";
 
 export function CountUp({ value }: { value: number }) {
-  const ready = useArcadeReady();
   const reduced = useReducedMotion();
   const [count, setCount] = useState(0);
   useEffect(() => {
-    if (!ready || reduced) return;
+    if (reduced) return;
     let frame = 0;
     const start = performance.now();
     const tick = (now: number) => {
@@ -20,7 +18,7 @@ export function CountUp({ value }: { value: number }) {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [ready, reduced, value]);
+  }, [reduced, value]);
   return (
     <span className="count-up" aria-label={value.toLocaleString()}>
       <span aria-hidden="true">
@@ -40,16 +38,15 @@ export function ResultCelebration({
   onCelebrate: (record: boolean) => void;
 }) {
   const { t } = useTranslation();
-  const ready = useArcadeReady();
   const reduced = useReducedMotion();
   const played = useRef(false);
   const celebrate = useRef(onCelebrate);
   celebrate.current = onCelebrate;
   useEffect(() => {
-    if (!ready || played.current) return;
+    if (played.current) return;
     played.current = true;
     celebrate.current(newBest && score > 0);
-  }, [ready, newBest, score]);
+  }, [newBest, score]);
   return (
     <>
       <div
@@ -64,7 +61,7 @@ export function ResultCelebration({
         </strong>
         <span aria-hidden="true">✦</span>
       </div>
-      {ready && score > 0 && !reduced && (
+      {score > 0 && !reduced && (
         <div className="reward-confetti" aria-hidden="true">
           {Array.from({ length: newBest ? 40 : 24 }, (_, index) => (
             <i

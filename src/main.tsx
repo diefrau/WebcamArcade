@@ -68,7 +68,7 @@ import {
 } from "./games/CircleGamePage";
 
 import "./game-theme.css";
-import { ArcadeLoading } from "./components/ArcadeLoading";
+import { RouteContent } from "./components/RouteContent";
 import "./motion.css";
 import { CountUp, ResultCelebration } from "./components/ResultCelebration";
 import { ArcadeAudio, type SoundCue } from "./audio/ArcadeAudio";
@@ -1489,7 +1489,7 @@ function App() {
   }
   return (
     <Context.Provider value={{ sound, tone, records }}>
-      <ArcadeLoading key={pathname}>
+      <RouteContent key={pathname}>
         <div
           className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}
         >
@@ -1551,7 +1551,7 @@ function App() {
             </button>
           </footer>
         </div>
-      </ArcadeLoading>
+      </RouteContent>
       {settings && (
         <SettingsDialog
           close={() => setSettings(false)}
