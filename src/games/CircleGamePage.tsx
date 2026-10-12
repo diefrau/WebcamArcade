@@ -24,8 +24,9 @@ import "./circle.css";
 import { useGameInput } from "../vision/useGameInput";
 import { CountUp, ResultCelebration } from "../components/ResultCelebration";
 import type { SoundCue } from "../audio/ArcadeAudio";
+import { DrawingCursor } from "../vision/DrawingCursor";
 
-type Point = { x: number; y: number };
+type Point = { x: number; y: number; move?: boolean };
 export type CircleResult = {
   score: number;
   accuracy: number;
@@ -71,12 +72,14 @@ function ArcadeButton({
 }
 function CircleCanvas({
   path,
+  cursor,
   reference,
   onPointerDown,
   onPointerMove,
   onPointerUp,
 }: {
   path: Point[];
+  cursor: (Point & { pinched: boolean }) | null;
   reference: boolean;
   onPointerDown: (event: React.PointerEvent<HTMLCanvasElement>) => void;
   onPointerMove: (event: React.PointerEvent<HTMLCanvasElement>) => void;
@@ -105,24 +108,44 @@ function CircleCanvas({
       context.stroke();
       context.restore();
     }
-    if (path.length < 2) return;
-    context.beginPath();
-    context.moveTo(path[0].x * width, path[0].y * height);
-    for (const point of path.slice(1))
-      context.lineTo(point.x * width, point.y * height);
-    context.strokeStyle = "#ff4fa3";
-    context.lineWidth = 15;
-    context.shadowColor = "#111";
-    context.shadowBlur = 0;
-    context.stroke();
-    context.strokeStyle = "#fff3a2";
-    context.lineWidth = 6;
-    context.stroke();
-  }, [path, reference]);
+    if (path.length) {
+      context.beginPath();
+      context.moveTo(path[0].x * width, path[0].y * height);
+      for (const point of path.slice(1)) {
+        if (point.move) context.moveTo(point.x * width, point.y * height);
+        else context.lineTo(point.x * width, point.y * height);
+      }
+      context.strokeStyle = "#ff4fa3";
+      context.lineWidth = 15;
+      context.shadowColor = "#111";
+      context.shadowBlur = 0;
+      context.stroke();
+      context.strokeStyle = "#fff3a2";
+      context.lineWidth = 6;
+      context.stroke();
+    }
+    if (cursor) {
+      context.beginPath();
+      context.arc(
+        cursor.x * width,
+        cursor.y * height,
+        cursor.pinched ? 12 : 18,
+        0,
+        Math.PI * 2,
+      );
+      context.fillStyle = cursor.pinched ? "#ff4fa3" : "#a8ea39";
+      context.fill();
+      context.strokeStyle = "#111";
+      context.lineWidth = 4;
+      context.stroke();
+    }
+  }, [path, reference, cursor]);
   return (
     <canvas
       ref={canvas}
       className="circle-canvas"
+      data-drawing={cursor?.pinched ?? false}
+      data-strokes={path.filter((point) => point.move).length}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -157,6 +180,7 @@ function evaluateCircle(
   );
   let coverage = 0;
   for (let index = 1; index < angles.length; index++) {
+    if (points[index].move) continue;
     let delta = Math.abs(angles[index] - angles[index - 1]);
     if (delta > Math.PI) delta = 2 * Math.PI - delta;
     coverage += delta;
@@ -190,6 +214,10 @@ export function CircleGamePage({
   }, [phase, tone]);
   const [time, setTime] = useState(20);
   const [path, setPath] = useState<Point[]>([]);
+  const [cursor, setCursor] = useState<(Point & { pinched: boolean }) | null>(
+    null,
+  );
+  const cursorFilter = useRef(new DrawingCursor());
   const [feedback, setFeedback] = useState("");
   const [reference, setReference] = useState(true);
   const drawing = useRef(false);
@@ -267,20 +295,39 @@ export function CircleGamePage({
     return () => clearInterval(timer);
   }, [finish, phase]);
   useEffect(() => {
-    if (mode !== "hand" || phase !== "playing" || !camera.hand.detected) return;
+    if (
+      mode !== "hand" ||
+      phase !== "playing" ||
+      !camera.hand.detected ||
+      camera.state !== "ready" ||
+      camera.vision !== "ready"
+    ) {
+      drawing.current = false;
+      cursorFilter.current.reset();
+      setCursor(null);
+      return;
+    }
     const tip = camera.hand.landmarks[8];
     if (!tip) return;
-    const point = {
-      x: clamp((1 - tip.x - 0.12) / 0.76, 0, 1),
-      y: clamp((tip.y - 0.12) / 0.76, 0, 1),
-    };
+    const point = cursorFilter.current.update(
+      clamp((1 - tip.x - 0.12) / 0.76, 0, 1),
+      clamp((tip.y - 0.12) / 0.76, 0, 1),
+      performance.now(),
+    );
+    setCursor({ ...point, pinched: camera.hand.pinched });
+    if (!camera.hand.pinched) {
+      drawing.current = false;
+      return;
+    }
+    const newStroke = !drawing.current;
     drawing.current = true;
     if (
+      newStroke ||
       !pathRef.current.length ||
       distance(pathRef.current[pathRef.current.length - 1], point) > 0.003
     )
-      updatePath([...pathRef.current, point]);
-  }, [camera.hand, mode, phase, updatePath]);
+      updatePath([...pathRef.current, { ...point, move: newStroke }]);
+  }, [camera.hand, camera.state, camera.vision, mode, phase, updatePath]);
   useEffect(() => {
     if (mode !== "hand" || phase !== "playing") return;
     if (
@@ -432,6 +479,7 @@ export function CircleGamePage({
           </div>
           <CircleCanvas
             path={path}
+            cursor={cursor}
             reference={reference}
             onPointerDown={pointerDown}
             onPointerMove={pointerMove}

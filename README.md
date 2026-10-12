@@ -39,7 +39,7 @@ npm run preview
 
 공식 [Face Landmarker 웹 가이드](https://developers.google.com/edge/mediapipe/solutions/vision/face_landmarker/web_js)를 참고했으며 모델은 [Google float16 v1](https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task)을 `public/vision/face_landmarker.task`에 포함합니다. 영상은 기기 안의 Worker에서만 처리합니다.
 
-원 그리기는 `/play/circle`에서 검지 이동 또는 마우스 드래그로 플레이합니다. 얼굴/손 모델의 로컬 로딩, 입력 판정과 카메라 오류 복구는 자동 테스트로 확인하며, 사용자 실제 얼굴·손 영상은 테스트에 사용하지 않습니다.
+원 그리기는 `/play/circle`에서 엄지·검지를 집은 동안만 검지 위치로 그리거나 마우스로 드래그합니다. 손가락을 펴면 커서만 이동하며, 다시 집을 때 선을 새로 시작합니다. 초록 커서는 이동, 분홍 커서는 그리기 상태입니다. 검지 좌표에 65ms 시간 기반 저역 통과 필터를 적용해 떨림을 줄이고, 인식 상실·일시정지 시 필터와 획을 초기화합니다. 완료 버튼으로 채점합니다. 얼굴/손 모델의 로컬 로딩, 입력 판정과 카메라 오류 복구는 자동 테스트로 확인하며, 사용자 실제 얼굴·손 영상은 테스트에 사용하지 않습니다.
 
 ## 손으로 플레이
 

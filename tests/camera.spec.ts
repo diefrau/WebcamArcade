@@ -276,6 +276,9 @@ test("canceling a pending permission request stops a late-arriving stream", asyn
 test("circle webcam connection selects hand input, draws and preserves path on tracking loss", async ({
   page,
 }) => {
+  // Keep synthetic samples fresh while buttons are clicked; entrance animation
+  // stability waits can otherwise outlive the tracking-expiry window.
+  await page.emulateMedia({ reducedMotion: "reduce" });
   await page.addInitScript(() => {
     // Replace only the inference worker; camera lifecycle and gesture interpretation remain real.
     const OriginalWorker = window.Worker;
@@ -326,20 +329,35 @@ test("circle webcam connection selects hand input, draws and preserves path on t
   await expect(
     page.getByRole("button", { name: "손가락 그리기", exact: true }),
   ).toHaveClass(/active/);
-  const send = async (x: number, y: number) =>
+  const send = async (x: number, y: number, pinch = false) =>
     page.evaluate(
       (points) =>
         window.dispatchEvent(new CustomEvent("test-hand", { detail: points })),
-      landmarks(false, x, y),
+      landmarks(pinch, x, y),
     );
   await send(0.5, 0.5);
   await page.getByRole("button", { name: "시작!", exact: true }).click();
+  await send(0.6, 0.6);
+  await expect(page.locator(".circle-score b")).toHaveText("0");
   for (let i = 0; i <= 32; i++) {
     const a = (i * Math.PI * 2) / 32;
-    await send(0.5 + Math.cos(a) * 0.18, 0.65 + Math.sin(a) * 0.18);
+    await send(0.5 + Math.cos(a) * 0.18, 0.65 + Math.sin(a) * 0.18, true);
+    await page.waitForTimeout(40);
   }
   const count = await page.locator(".circle-score b").textContent();
   expect(Number(count)).toBeGreaterThan(18);
+  await send(0.2, 0.3);
+  await expect(page.locator(".circle-canvas")).toHaveAttribute(
+    "data-drawing",
+    "false",
+  );
+  await send(0.3, 0.4);
+  await expect(page.locator(".circle-score b")).toHaveText(count!);
+  await send(0.3, 0.4, true);
+  await expect(page.locator(".circle-canvas")).toHaveAttribute(
+    "data-strokes",
+    "2",
+  );
   await page.evaluate(() =>
     window.dispatchEvent(new CustomEvent("test-hand", { detail: undefined })),
   );
