@@ -70,108 +70,104 @@ export function FutureArt({ pose = false }: { pose?: boolean }) {
 }
 export function ComicDecor() {
   return (
-    <svg
-      className="comic-decor"
-      viewBox="0 0 1600 920"
-      preserveAspectRatio="none"
-      aria-hidden="true"
-    >
-      <defs>
-        <pattern
-          id="comic-dots"
-          width="22"
-          height="22"
-          patternUnits="userSpaceOnUse"
-        >
-          <circle cx="5" cy="5" r="4" fill="#f5cd21" opacity=".7" />
-          <circle cx="17" cy="15" r="2" fill="#f5cd21" />
-        </pattern>
-      </defs>
-      <path
-        d="M-20 179 1450 100 1640 196 1580 844 38 885Z"
-        fill="#fff46b"
-        opacity=".76"
-      />
-      <path
-        d="M0 175 1600 118v166L0 338Zm0 515 1600-32v381L0 854Z"
-        fill="url(#comic-dots)"
-      />
-      <path d="m0 555 1600-91v82L0 655Z" fill="#fffbed" />
-      <path
-        d="m-40 316 139 44-130 15 117 55-119-17m1530-197 72-95-26 118 67-51-32 91"
-        stroke="#34c8ff"
-        strokeWidth="24"
-        fill="none"
-        strokeLinecap="round"
-      />
-      <g fill="#ff4fa3">
-        {[
-          [430, 180, -32],
-          [1530, 505, 32],
-          [31, 774, 40],
-          [980, 207, 10],
-          [1480, 860, -20],
-          [95, 527, 40],
-        ].map(([x, y, r], i) => (
-          <rect
-            key={i}
-            x={x}
-            y={y}
-            width="18"
-            height="60"
-            rx="7"
-            transform={`rotate(${r} ${x} ${y})`}
-          />
-        ))}
-      </g>
-      <g fill="#a8ea39">
-        {[
-          [410, 800, -42],
-          [1590, 650, 12],
-          [30, 460, -30],
-          [1190, 150, -30],
-        ].map(([x, y, r], i) => (
-          <rect
-            key={i}
-            x={x}
-            y={y}
-            width="16"
-            height="45"
-            rx="5"
-            transform={`rotate(${r} ${x} ${y})`}
-          />
-        ))}
-      </g>
-      <g stroke="#111" strokeWidth="4" strokeLinejoin="round">
-        {[
-          [29, 203, "#ffd927", 0.8],
-          [411, 316, "#34c8ff", 0.75],
-          [1550, 824, "#ffd927", 1.2],
-          [1080, 464, "#ff4fa3", 1],
-          [430, 858, "#ffd927", 0.7],
-          [25, 671, "#a8ea39", 1],
-        ].map(([x, y, c, s], i) => (
-          <path
-            key={i}
-            d={star}
-            fill={c as string}
-            transform={`translate(${x} ${y}) scale(${s})`}
-          />
-        ))}
-      </g>
-      <g transform="translate(1530 147) rotate(10)">
-        <circle r="30" fill="#ffeb27" stroke="#111" strokeWidth="5" />
-        <ellipse cx="-10" cy="-7" rx="4" ry="6" />
-        <ellipse cx="10" cy="-7" rx="4" ry="6" />
+    <>
+      <svg
+        className="comic-decor"
+        viewBox="0 0 1600 920"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
         <path
-          d="M-15 7q15 22 30 0"
+          d="M-20 179 1450 100 1640 196 1580 844 38 885Z"
+          fill="#fff46b"
+          opacity=".76"
+        />
+        <path d="m0 555 1600-91v82L0 655Z" fill="#fffbed" />
+      </svg>
+      <div className="comic-halftone" aria-hidden="true" />
+      <svg
+        className="comic-decor-shapes"
+        viewBox="0 0 1600 920"
+        aria-hidden="true"
+      >
+        <path
+          d="m-40 316 139 44-130 15 117 55-119-17m1530-197 72-95-26 118 67-51-32 91"
+          stroke="#34c8ff"
+          strokeWidth="24"
           fill="none"
-          stroke="#111"
-          strokeWidth="5"
           strokeLinecap="round"
         />
-      </g>
-    </svg>
+        <g fill="#ff4fa3">
+          {[
+            [430, 180, -32],
+            [1530, 505, 32],
+            [31, 774, 40],
+            [980, 207, 10],
+            [1480, 860, -20],
+            [95, 527, 40],
+          ].map(([x, y, r], i) => (
+            <rect
+              key={i}
+              x={x}
+              y={y}
+              width="18"
+              height="60"
+              rx="7"
+              transform={`rotate(${r} ${x} ${y})`}
+            />
+          ))}
+        </g>
+        <g fill="#a8ea39">
+          {[
+            [410, 800, -42],
+            [1590, 650, 12],
+            [30, 460, -30],
+            [1190, 150, -30],
+          ].map(([x, y, r], i) => (
+            <rect
+              key={i}
+              x={x}
+              y={y}
+              width="16"
+              height="45"
+              rx="5"
+              transform={`rotate(${r} ${x} ${y})`}
+            />
+          ))}
+        </g>
+        <g stroke="#111" strokeWidth="4" strokeLinejoin="round">
+          {[
+            [29, 203, "#ffd927", 0.8],
+            [411, 316, "#34c8ff", 0.75],
+            [1550, 824, "#ffd927", 1.2],
+            [1080, 464, "#ff4fa3", 1],
+            [430, 858, "#ffd927", 0.7],
+            [25, 671, "#a8ea39", 1],
+          ].map(([x, y, c, s], i) => (
+            <path
+              key={i}
+              d={star}
+              fill={c as string}
+              transform={`translate(${x} ${y}) scale(${s})`}
+            />
+          ))}
+        </g>
+      </svg>
+      <svg className="comic-smile" viewBox="-36 -36 72 72" aria-hidden="true">
+        <g transform="rotate(10)">
+          <circle r="30" fill="#ffeb27" stroke="#111" strokeWidth="5" />
+          <ellipse cx="-10" cy="-7" rx="4" ry="6" />
+          <ellipse cx="10" cy="-7" rx="4" ry="6" />
+          <path
+            d="M-15 7q15 22 30 0"
+            fill="none"
+            stroke="#111"
+            strokeWidth="5"
+            strokeLinecap="round"
+          />
+        </g>
+      </svg>
+    </>
   );
 }
 

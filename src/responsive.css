@@ -1,0 +1,155 @@
+/* Content determines height; decorative artwork keeps its own proportions. */
+.comic-halftone {
+  position: absolute;
+  inset: 145px 0 0;
+  background:
+    radial-gradient(circle, #f5cd21b3 3px, transparent 3.5px) 0 0 / 22px 22px,
+    radial-gradient(circle, #f5cd2180 1.5px, transparent 2px) 11px 10px / 22px
+      22px;
+  z-index: -1;
+  pointer-events: none;
+}
+.comic-decor-shapes {
+  position: absolute;
+  inset: 0 0 auto;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1600 / 920;
+  z-index: -1;
+  pointer-events: none;
+}
+.header {
+  isolation: isolate;
+}
+.header::before {
+  content: "";
+  position: absolute;
+  inset: -24px -40px -10px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle, #f5cd2180 2px, transparent 2.5px) 0 0 / 18px 18px,
+    linear-gradient(115deg, #fff7c4, #fffaed);
+}
+.header .top-nav {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+}
+.header .utilities {
+  flex-shrink: 0;
+}
+.comic-smile {
+  position: absolute;
+  top: clamp(180px, 10vw, 220px);
+  right: clamp(18px, 2vw, 48px);
+  width: clamp(48px, 4.5vw, 84px);
+  height: auto;
+  aspect-ratio: 1;
+  z-index: 0;
+  pointer-events: none;
+}
+.hero {
+  height: auto;
+  min-height: 365px;
+  padding-block: 20px 48px;
+}
+.hero > * {
+  min-width: 0;
+}
+.hero .hero-cta {
+  max-width: calc(100% - 20px);
+}
+.featured .section-heading {
+  height: auto;
+  min-height: 48px;
+  gap: 16px;
+  margin: 16px 0 28px;
+}
+.featured .section-heading h2 {
+  font-size: clamp(16px, 1.15vw, 22px);
+  line-height: 1.4;
+}
+.featured .view-all-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  gap: 8px;
+  min-height: 48px;
+  padding: 10px 18px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: var(--yellow);
+  box-shadow: 3px 4px 0 var(--ink);
+  font-size: 15px;
+  font-weight: 900;
+}
+@media (min-width: 1550px) {
+  .hero {
+    min-height: 400px;
+  }
+}
+@media (max-width: 1100px) and (min-width: 961px) {
+  .header .logo {
+    width: 225px;
+    min-width: 225px;
+  }
+  .header .logo-webcam {
+    font-size: 39px;
+  }
+  .header .logo-arcade {
+    font-size: 48px;
+  }
+}
+@media (max-width: 960px) {
+  .header {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+  .header .top-nav {
+    flex: 1 0 100%;
+  }
+  .comic-smile {
+    top: 290px;
+    right: 16px;
+    width: 54px;
+  }
+  .hero {
+    min-height: 0;
+    padding-bottom: 36px;
+  }
+  .featured .game-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 20px;
+  }
+}
+@media (max-width: 640px) {
+  .comic-smile {
+    top: 230px;
+    width: 44px;
+  }
+  .hero h1 {
+    font-size: clamp(48px, 10vw, 64px);
+  }
+  .hero .hero-cta {
+    margin-inline: auto;
+    max-width: 350px;
+  }
+  .featured .section-heading {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 8px;
+  }
+  .featured .section-heading h2 {
+    font-size: 16px;
+  }
+  .featured .view-all-button {
+    font-size: 14px;
+    padding-inline: 14px;
+  }
+  .featured .game-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}

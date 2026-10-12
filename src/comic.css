@@ -122,43 +122,6 @@ body {
 .utilities .camera-utility {
   min-width: 92px;
 }
-.health-sticker {
-  position: absolute;
-  top: -26px;
-  right: -45px;
-  white-space: pre-line;
-  transform: rotate(10deg);
-  font-weight: 900;
-  font-size: 15px;
-  color: white;
-  background: var(--pink);
-  padding: 18px 18px;
-  clip-path: polygon(
-    5% 8%,
-    22% 10%,
-    24% 0,
-    43% 8%,
-    55% 0,
-    66% 9%,
-    89% 0,
-    90% 22%,
-    100% 27%,
-    92% 46%,
-    100% 69%,
-    88% 74%,
-    89% 99%,
-    64% 90%,
-    53% 100%,
-    40% 91%,
-    21% 100%,
-    18% 82%,
-    0 81%,
-    6% 61%,
-    0 47%,
-    9% 35%
-  );
-  display: none;
-}
 .hero {
   grid-template-columns: 1fr 1.13fr 0.77fr;
   gap: 22px;
@@ -1459,9 +1422,6 @@ html[lang="en"] .result-heading {
   .utilities span,
   .utilities small {
     font-size: 13px;
-  }
-  .health-sticker {
-    display: block;
   }
   .hero {
     height: 400px;

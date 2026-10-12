@@ -70,6 +70,7 @@ import {
 import "./game-theme.css";
 import { RouteContent } from "./components/RouteContent";
 import "./motion.css";
+import "./responsive.css";
 import { CountUp, ResultCelebration } from "./components/ResultCelebration";
 import { ArcadeAudio, type SoundCue } from "./audio/ArcadeAudio";
 
@@ -374,7 +375,6 @@ function Header({
           </small>
         </button>
       </div>
-      <span className="health-sticker">{t("health")}</span>
     </header>
   );
 }
@@ -528,7 +528,7 @@ function HomePage() {
             <Zap size={23} fill="currentColor" />
             {t("featured")}
           </h2>
-          <Link to="/games">
+          <Link to="/games" className="view-all-button">
             {t("viewAll")}
             <ArrowRight size={18} />
           </Link>
