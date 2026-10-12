@@ -51,6 +51,10 @@
 .game-card .card-character[data-character="shoot"] {
   right: calc(-1% + 10px);
 }
+.game-card .card-character[data-character="cham"] {
+  scale: 1.1;
+  transform-origin: center bottom;
+}
 .game-card:hover .card-character {
   transform: translateY(-4px) scale(1.03);
 }
