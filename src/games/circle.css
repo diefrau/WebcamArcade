@@ -262,6 +262,7 @@
 }
 .circle-dialog h2 {
   font-family: "Bagel Fat One";
+  letter-spacing: -0.02em;
   font-size: 32px;
 }
 .circle-dialog p {

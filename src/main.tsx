@@ -558,7 +558,6 @@ function GamesPage() {
             {t("pick2").slice(1)}
           </span>
         </h1>
-        <p>{t("pickSub")}</p>
         <Sparkles size={44} />
       </div>
       <div className="selection-layout">
@@ -657,14 +656,6 @@ function GamesPage() {
                   </article>
                 ))}
           </div>
-          <div className="upcoming-panel">
-            <Sparkles />
-            <div>
-              <h3>{t("upcoming")}</h3>
-              <p>{t("upcomingDesc")}</p>
-            </div>
-            <span>✦</span>
-          </div>
         </div>
         <aside className="selection-side">
           <section className="panel recommendation">
@@ -676,7 +667,6 @@ function GamesPage() {
               <Character asset="shoot" className="recommend-character" />
               <h2>{t("shoot")}</h2>
             </div>
-            <p>{t("recommendSub")}</p>
             <Button onClick={() => navigate("/play/shoot")}>
               <Play />
               {t("playNow")}

@@ -181,7 +181,7 @@ body {
 .hero h1 {
   font-size: clamp(58px, 5.1vw, 88px);
   line-height: 1.08;
-  letter-spacing: -2px;
+  letter-spacing: -0.02em;
   margin-bottom: 12px;
   transform: rotate(-6deg);
 }
@@ -601,7 +601,7 @@ body {
   margin-bottom: 10px;
   -webkit-text-stroke: 7px var(--ink);
   filter: drop-shadow(2px 4px 0 #111);
-  letter-spacing: -1px;
+  letter-spacing: -0.02em;
 }
 .card-copy p {
   font-size: 15px;
@@ -838,9 +838,6 @@ footer {
 }
 .future-card:last-child .game-art {
   transform: rotate(-15deg);
-}
-.upcoming-panel {
-  display: none;
 }
 .selection-side {
   gap: 16px;
@@ -1402,7 +1399,7 @@ footer {
 }
 html[lang="en"] .hero h1 {
   font-size: clamp(43px, 4.1vw, 66px);
-  letter-spacing: -1px;
+  letter-spacing: -0.02em;
 }
 html[lang="en"] .hero-copy p {
   font-size: 13px;

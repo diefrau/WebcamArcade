@@ -283,13 +283,14 @@ input:focus-visible {
 }
 h1 {
   font-family: "Bagel Fat One", sans-serif;
+  letter-spacing: -0.02em;
   font-weight: 400;
   line-height: 1.13;
 }
 .hero h1 {
   font-size: clamp(40px, 4.6vw, 72px);
   transform: rotate(-3deg);
-  letter-spacing: -2px;
+  letter-spacing: -0.02em;
   margin: 0 0 18px;
 }
 .yellow-text,
@@ -616,6 +617,7 @@ h1 {
 }
 .card-copy h3 {
   font-family: "Bagel Fat One", sans-serif;
+  letter-spacing: -0.02em;
   font-size: 37px;
   color: white;
   -webkit-text-stroke: 5px var(--ink);
@@ -913,6 +915,7 @@ footer button {
 }
 .recommend-art h2 {
   font-family: "Bagel Fat One";
+  letter-spacing: -0.02em;
   font-size: 40px;
   padding: 20px 10px;
   transform: rotate(-8deg);
@@ -953,29 +956,6 @@ footer button {
   display: flex;
   align-items: center;
   color: #3b872d;
-}
-.upcoming-panel {
-  border: 2px dashed #bbae94;
-  border-radius: 17px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  padding: 19px;
-  margin-top: 23px;
-  color: #7b7264;
-}
-.upcoming-panel h3 {
-  font-size: 14px;
-}
-.upcoming-panel p {
-  font-size: 11px;
-  white-space: pre-line;
-  margin-top: 4px;
-}
-.upcoming-panel > span {
-  margin-left: auto;
-  font-size: 32px;
-  color: var(--pink);
 }
 .selection-bottom {
   display: flex;
@@ -1269,6 +1249,7 @@ footer button {
 }
 .game-dialog h2 {
   font-family: "Bagel Fat One";
+  letter-spacing: -0.02em;
   font-size: 30px;
 }
 .game-dialog p {
@@ -1326,6 +1307,7 @@ footer button {
 }
 .instructions h2 {
   font-family: "Bagel Fat One";
+  letter-spacing: -0.02em;
   font-size: 26px;
 }
 .instructions > div {
@@ -1441,6 +1423,7 @@ footer button {
 }
 .result-game h2 {
   font-family: "Bagel Fat One";
+  letter-spacing: -0.02em;
   font-size: 38px;
   margin-top: 6px;
 }
