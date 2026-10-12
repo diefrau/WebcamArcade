@@ -61,6 +61,7 @@ import { Character } from "./components/Character";
 import { gameCharacterMap } from "./assets/characters";
 import { CameraProvider, useCamera } from "./vision/CameraProvider";
 import { WebcamFrame } from "./components/WebcamFrame";
+import { HandMenuCursor } from "./components/HandMenuCursor";
 import {
   CircleGamePage,
   CircleResultPage,
@@ -1100,6 +1101,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
           </div>
           {phase !== "playing" && (
             <div className="game-overlay" onClick={(e) => e.stopPropagation()}>
+              <HandMenuCursor active />
               <div className="game-dialog panel">
                 <Sticker>{phase === "ready" ? "READY?" : "PAUSE"}</Sticker>
                 <h2>{t(phase === "ready" ? "readyGame" : "paused")}</h2>
@@ -1114,6 +1116,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                 </p>
                 <small>{t("readyDetail")}</small>
                 <Button
+                  data-hand-click
                   disabled={
                     inputMode === "hand" &&
                     (!camera.hand.detected ||
@@ -1122,6 +1125,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                   }
                   onClick={() => {
                     setHandPaused(false);
+                    consumedShot.current = camera.shotSequence;
                     setPhase("playing");
                     if (phase === "ready") tone("start");
                   }}

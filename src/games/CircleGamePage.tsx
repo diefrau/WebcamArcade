@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useCamera } from "../vision/CameraProvider";
 import { WebcamFrame } from "../components/WebcamFrame";
+import { HandMenuCursor } from "../components/HandMenuCursor";
 import { Character } from "../components/Character";
 import "./circle.css";
 import { useGameInput } from "../vision/useGameInput";
@@ -221,6 +222,7 @@ export function CircleGamePage({
   const [feedback, setFeedback] = useState("");
   const [reference, setReference] = useState(true);
   const drawing = useRef(false);
+  const waitForRelease = useRef(false);
   const pathRef = useRef<Point[]>([]);
   const elapsed = useRef(0);
   const finished = useRef(false);
@@ -315,6 +317,10 @@ export function CircleGamePage({
       performance.now(),
     );
     setCursor({ ...point, pinched: camera.hand.pinched });
+    if (waitForRelease.current) {
+      if (camera.hand.pinched) return;
+      waitForRelease.current = false;
+    }
     if (!camera.hand.pinched) {
       drawing.current = false;
       return;
@@ -503,6 +509,7 @@ export function CircleGamePage({
           </div>
           {phase !== "playing" && (
             <div className="circle-overlay">
+              <HandMenuCursor active />
               <section className="circle-dialog panel">
                 <span className="circle-sticker">
                   {phase === "ready" ? "READY?" : "PAUSE"}
@@ -513,9 +520,11 @@ export function CircleGamePage({
                   {t(mode === "hand" ? "circleHandReady" : "circleMouseReady")}
                 </small>
                 <ArcadeButton
-                  onClick={() =>
-                    phase === "ready" ? start() : setPhase("playing")
-                  }
+                  data-hand-click
+                  onClick={() => {
+                    waitForRelease.current = camera.hand.pinched;
+                    phase === "ready" ? start() : setPhase("playing");
+                  }}
                   disabled={!usable}
                 >
                   <Play />

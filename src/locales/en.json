@@ -45,6 +45,7 @@
   "all": "All games",
   "solo": "Solo",
   "hand": "Hand tracking",
+  "handMenuHint": "Move your hand over the button, then pinch to start!",
   "face": "Face tracking",
   "recommend": "TODAY’S PICK",
   "playNow": "PLAY NOW!",
