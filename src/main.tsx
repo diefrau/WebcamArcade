@@ -73,6 +73,11 @@ import { RouteContent } from "./components/RouteContent";
 import "./motion.css";
 import "./responsive.css";
 import { RpsGamePage, RpsResultPage, readRps } from "./games/RpsGamePage";
+import {
+  DodgeGamePage,
+  DodgeResultPage,
+  readDodge,
+} from "./games/DodgeGamePage";
 import { CountUp, ResultCelebration } from "./components/ResultCelebration";
 import { ArcadeAudio, type SoundCue } from "./audio/ArcadeAudio";
 
@@ -97,7 +102,7 @@ void i18n.use(initReactI18next).init({
   fallbackLng: "ko",
   interpolation: { escapeValue: false },
 });
-type GameId = "cham" | "circle" | "shoot" | "rps";
+type GameId = "cham" | "circle" | "shoot" | "rps" | "dodge";
 type Result = {
   score: number;
   combo: number;
@@ -135,6 +140,7 @@ const games: { id: GameId; color: string; duration: number; badge: string }[] =
     { id: "circle", color: "cyan", duration: 20, badge: "new" },
     { id: "shoot", color: "lime", duration: 30, badge: "easy" },
     { id: "rps", color: "purple", duration: 30, badge: "new" },
+    { id: "dodge", color: "orange", duration: 30, badge: "new" },
   ];
 
 function Mascot({ mini = false }: { mini?: boolean }) {
@@ -424,6 +430,7 @@ function RecordsBar() {
   const circlePlays = read<number>("arcade.circle.plays", 0);
   const cham = readCham();
   const rps = readRps();
+  const dodge = readDodge();
   return (
     <section className="records-bar">
       <div className="records-title">
@@ -431,9 +438,14 @@ function RecordsBar() {
         <div>
           <h3>{t("bestRecords")}</h3>
           <small>
-            {records.plays + circlePlays + cham.plays + rps.plays
+            {records.plays + circlePlays + cham.plays + rps.plays + dodge.plays
               ? t("plays", {
-                  count: records.plays + circlePlays + cham.plays + rps.plays,
+                  count:
+                    records.plays +
+                    circlePlays +
+                    cham.plays +
+                    rps.plays +
+                    dodge.plays,
                 })
               : t("noRecords")}
           </small>
@@ -476,6 +488,16 @@ function RecordsBar() {
           <b>
             {rps.plays ? rps.best.toLocaleString() : "—"}
             <small>{rps.plays ? t("points") : ""}</small>
+          </b>
+        </div>
+      </div>
+      <div className="record-tile orange">
+        <Hand />
+        <div>
+          <span>{t("dodge")}</span>
+          <b>
+            {dodge.plays ? dodge.best.toLocaleString() : "—"}
+            <small>{dodge.plays ? t("points") : ""}</small>
           </b>
         </div>
       </div>
@@ -601,7 +623,7 @@ function GamesPage() {
                 filter === "face"
                   ? g.id === "cham"
                   : filter === "hand"
-                    ? g.id !== "cham"
+                    ? g.id !== "cham" && g.id !== "dodge"
                     : true,
               )
               .map((g) => (
@@ -609,12 +631,6 @@ function GamesPage() {
               ))}
             {filter !== "face" &&
               [
-                {
-                  key: "futureDodge",
-                  color: "orange",
-                  art: "circle",
-                  input: "body",
-                },
                 {
                   key: "futurePose",
                   color: "purple",
@@ -1531,6 +1547,14 @@ function App() {
               <Route
                 path="/result/rps"
                 element={<RpsResultPage tone={tone} />}
+              />
+              <Route
+                path="/play/dodge"
+                element={<DodgeGamePage onFinish={finishCham} tone={tone} />}
+              />
+              <Route
+                path="/result/dodge"
+                element={<DodgeResultPage tone={tone} />}
               />
               <Route path="*" element={<Navigate to="/games" replace />} />
             </Routes>

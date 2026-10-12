@@ -11,10 +11,12 @@ const routes = [
   "/play/circle",
   "/play/cham",
   "/play/rps",
+  "/play/dodge",
   "/result/shoot",
   "/result/circle",
   "/result/cham",
   "/result/rps",
+  "/result/dodge",
 ];
 
 for (const route of routes) {

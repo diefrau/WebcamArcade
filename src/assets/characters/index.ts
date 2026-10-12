@@ -22,6 +22,7 @@ export const gameCharacterMap = {
   circle: "circle",
   shoot: "shoot",
   rps: "rps",
+  dodge: "dodge",
   futureRps: "rps",
   futureDodge: "dodge",
   futurePose: "pose",

@@ -1,0 +1,217 @@
+.dodge-stage {
+  position: relative;
+  padding: 16px;
+  background: #fffbed;
+  min-width: 0;
+}
+.dodge-field {
+  height: clamp(360px, 45vh, 580px);
+  position: relative;
+  overflow: hidden;
+  border: 3px solid #111;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle, #fff8 2px, transparent 3px) 0 0/20px 20px,
+    linear-gradient(#ffb755, #ffe976);
+}
+.dodge-banner {
+  position: absolute;
+  top: 14px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: "Bagel Fat One";
+  letter-spacing: -0.02em;
+  font-size: clamp(30px, 3vw, 52px);
+  color: #ff43a1;
+  -webkit-text-stroke: 5px #111;
+  paint-order: stroke fill;
+}
+.dodge-floor {
+  position: absolute;
+  inset: 90% 0 0;
+  border-top: 4px solid #111;
+  background: repeating-linear-gradient(
+    135deg,
+    #a4ed3d 0 16px,
+    #ccff72 16px 32px
+  );
+}
+.dodge-player {
+  position: absolute;
+  top: 87%;
+  width: 18%;
+  height: 27%;
+  transform: translate(-50%, -75%);
+}
+.dodge-player .character {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  animation: dodge-hop 0.55s ease-in-out infinite alternate;
+}
+.dodge-hitbox {
+  position: absolute;
+  left: 25%;
+  right: 25%;
+  bottom: 8%;
+  height: 10px;
+  border: 2px solid #111;
+  background: #ff43a1;
+  border-radius: 50%;
+}
+.dodge-obstacle {
+  position: absolute;
+  width: 10%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  font-size: clamp(26px, 3vw, 48px);
+  color: #9948ef;
+  -webkit-text-stroke: 3px #111;
+  paint-order: stroke fill;
+}
+.dodge-count {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: #fff5;
+  font-family: "Bagel Fat One";
+  font-size: 100px;
+  color: #ff43a1;
+  -webkit-text-stroke: 5px #111;
+  paint-order: stroke fill;
+  animation: dodge-pop 0.45s cubic-bezier(0.2, 1.5, 0.5, 1);
+}
+.dodge-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 14px;
+}
+.dodge-controls button {
+  flex-shrink: 0;
+  border: 3px solid #111;
+  border-radius: 20px;
+  background: #3ac9f4;
+  padding: 12px;
+  box-shadow: 2px 3px #111;
+  touch-action: none;
+}
+.dodge-controls p {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 900;
+}
+.dodge-controls button:disabled {
+  opacity: 0.4;
+}
+.dodge-tracking {
+  display: block;
+  padding: 12px;
+  border: 3px solid #111;
+  border-radius: 16px;
+  background: var(--lime);
+  font-weight: 900;
+}
+.dodge-game .hud-panel .dodge-hearts {
+  color: #ff43a1;
+  -webkit-text-stroke: 2px #111;
+  font-size: clamp(28px, 3vw, 46px) !important;
+  white-space: nowrap;
+}
+.dodge-fallback {
+  border: 2px solid #111;
+  border-radius: 16px;
+  background: var(--cyan);
+  padding: 10px;
+  font-weight: 900;
+}
+.dodge-game .game-overlay-card {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  max-width: 450px;
+}
+.dodge-game .game-overlay-card h2 {
+  font-size: clamp(26px, 3vw, 40px);
+}
+.dodge-game .game-overlay-card p {
+  margin: 0;
+  font-size: 14px;
+}
+.dodge-game .game-overlay-card > a {
+  font-weight: 900;
+}
+.dodge-player.is-hit {
+  opacity: 0.5;
+}
+.dodge-result-note {
+  border: 3px solid #111;
+  border-radius: 18px;
+  background: #ffe976;
+  padding: 16px;
+  font-weight: 900;
+}
+.dodge-result .cham-result-panel > div {
+  min-width: 0;
+}
+.dodge-result .result-stats b small {
+  font-size: 16px;
+}
+@keyframes dodge-pop {
+  from {
+    transform: scale(0.65) rotate(-8deg);
+  }
+  to {
+    transform: scale(1) rotate(0deg);
+  }
+}
+@keyframes dodge-hop {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+  to {
+    transform: translateY(-5px) rotate(2deg);
+  }
+}
+@media (max-width: 640px) {
+  .dodge-stage {
+    padding: 10px;
+  }
+  .dodge-field {
+    height: 380px;
+  }
+  .dodge-player {
+    width: 28%;
+  }
+  .dodge-hitbox {
+    left: 34%;
+    right: 34%;
+  }
+  .dodge-controls {
+    gap: 8px;
+  }
+  .dodge-controls p {
+    font-size: 11px;
+  }
+  .dodge-result .result-stats b {
+    font-size: 28px;
+  }
+  .dodge-game .game-overlay-card {
+    padding: 20px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dodge-count,
+  .dodge-player .character {
+    animation: none;
+  }
+}
+[data-motion="reduced"] .dodge-count,
+[data-motion="reduced"] .dodge-player .character {
+  animation: none;
+}

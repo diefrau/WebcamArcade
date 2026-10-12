@@ -29,21 +29,29 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
   const live = camera.state === "ready";
   const problem = ["denied", "missing", "busy", "error"].includes(camera.state);
   const status =
-    camera.tracking === "face"
+    camera.tracking === "body"
       ? camera.vision === "error"
-        ? "faceError"
+        ? "bodyError"
         : camera.vision === "loading"
-          ? "faceLoading"
-          : camera.face.detected
-            ? "faceDetected"
-            : "showFace"
-      : camera.vision === "error"
-        ? "visionError"
-        : camera.vision === "loading"
-          ? "visionLoading"
-          : camera.hand.detected
-            ? "handDetected"
-            : "showHand";
+          ? "bodyLoading"
+          : camera.body.detected
+            ? "bodyDetected"
+            : "showBody"
+      : camera.tracking === "face"
+        ? camera.vision === "error"
+          ? "faceError"
+          : camera.vision === "loading"
+            ? "faceLoading"
+            : camera.face.detected
+              ? "faceDetected"
+              : "showFace"
+        : camera.vision === "error"
+          ? "visionError"
+          : camera.vision === "loading"
+            ? "visionLoading"
+            : camera.hand.detected
+              ? "handDetected"
+              : "showHand";
   return (
     <section
       className={`webcam-frame ${compact ? "compact" : ""} ${live ? "is-live" : ""}`}
@@ -92,6 +100,30 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
             ))}
           </svg>
         )}
+        {live && camera.tracking === "body" && camera.body.detected && (
+          <svg
+            className="hand-overlay"
+            viewBox="0 0 640 480"
+            aria-hidden="true"
+          >
+            <polyline
+              points={[11, 12]
+                .map(
+                  (i) =>
+                    `${(1 - camera.body.landmarks[i].x) * 640},${camera.body.landmarks[i].y * 480}`,
+                )
+                .join(" ")}
+            />
+            {[11, 12].map((i) => (
+              <circle
+                key={i}
+                cx={(1 - camera.body.landmarks[i].x) * 640}
+                cy={camera.body.landmarks[i].y * 480}
+                r={7}
+              />
+            ))}
+          </svg>
+        )}
         {!live && (
           <div className="camera-empty">
             <div className="camera-orbit">
@@ -113,9 +145,11 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
                   ? "cameraErrorHelp"
                   : waiting
                     ? "permissionHint"
-                    : camera.tracking === "face"
-                      ? "showFace"
-                      : "cameraHint",
+                    : camera.tracking === "body"
+                      ? "showBody"
+                      : camera.tracking === "face"
+                        ? "showFace"
+                        : "cameraHint",
               )}
             </p>
             <button

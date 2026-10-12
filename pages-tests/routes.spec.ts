@@ -13,10 +13,12 @@ const routes = [
   ["/play/circle", ".circle-stage"],
   ["/play/cham", ".cham-stage"],
   ["/play/rps", ".rps-stage"],
+  ["/play/dodge", ".dodge-stage"],
   ["/result/shoot", ".empty-state"],
   ["/result/circle", ".empty-state"],
   ["/result/cham", ".empty-state"],
   ["/result/rps", ".empty-state"],
+  ["/result/dodge", ".empty-state"],
 ] as const;
 
 for (const [route, screen] of routes) {
@@ -69,6 +71,7 @@ test("unknown routes recover through the built 404 page and local vision assets 
   for (const asset of [
     "vision/hand_landmarker.task",
     "vision/face_landmarker.task",
+    "vision/pose_landmarker_lite.task",
     "vision/wasm/vision_wasm_internal.wasm",
   ]) {
     expect((await request.get(`/WebcamArcade/${asset}`)).status()).toBe(200);

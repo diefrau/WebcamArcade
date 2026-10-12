@@ -10,6 +10,7 @@ import {
 import { emptyHand, GestureInterpreter, type HandSample } from "./gestures";
 import { useLocation } from "react-router-dom";
 import { emptyFace, faceSample, type FaceSample } from "./face";
+import { emptyBody, bodySample, type BodySample } from "./body";
 
 export type CameraState =
   | "idle"
@@ -27,7 +28,8 @@ type CameraContextValue = {
   stream: MediaStream | null;
   hand: HandSample;
   face: FaceSample;
-  tracking: "hand" | "face";
+  body: BodySample;
+  tracking: "hand" | "face" | "body";
   shotSequence: number;
   connect: () => Promise<void>;
   disconnect: () => void;
@@ -41,7 +43,10 @@ export function useCamera() {
 }
 
 export function CameraProvider({ children }: { children: ReactNode }) {
-  const tracking = useLocation().pathname === "/play/cham" ? "face" : "hand";
+  const path = useLocation().pathname;
+  const tracking =
+    path === "/play/dodge" ? "body" : path === "/play/cham" ? "face" : "hand";
+  const [body, setBody] = useState<BodySample>(emptyBody);
   const [face, setFace] = useState<FaceSample>(emptyFace);
   const [state, setState] = useState<CameraState>("idle");
   const [vision, setVision] = useState<VisionState>("idle");
@@ -62,6 +67,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     setVision("idle");
     setHand({ ...emptyHand });
     setFace({ ...emptyFace });
+    setBody({ ...emptyBody });
   }, []);
   const connect = useCallback(async () => {
     if (pending.current || activeStream.current) return;
@@ -146,6 +152,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       gesture.reset();
       setHand({ ...emptyHand });
       setFace({ ...emptyFace });
+      setBody({ ...emptyBody });
     };
     const fail = () => {
       if (disposed) return;
@@ -195,14 +202,19 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         setVision("loading");
         setHand({ ...emptyHand });
         setFace({ ...emptyFace });
+        setBody({ ...emptyBody });
         worker =
-          tracking === "face"
-            ? new Worker(new URL("./face.worker.ts", import.meta.url), {
+          tracking === "body"
+            ? new Worker(new URL("./body.worker.ts", import.meta.url), {
                 type: "module",
               })
-            : new Worker(new URL("./hand.worker.ts", import.meta.url), {
-                type: "module",
-              });
+            : tracking === "face"
+              ? new Worker(new URL("./face.worker.ts", import.meta.url), {
+                  type: "module",
+                })
+              : new Worker(new URL("./hand.worker.ts", import.meta.url), {
+                  type: "module",
+                });
         startupTimer = setTimeout(fail, 30000);
         worker.onerror = fail;
         worker.onmessage = (event) => {
@@ -227,6 +239,10 @@ export function CameraProvider({ children }: { children: ReactNode }) {
               age < 900;
             const landmarks = fresh ? event.data.landmarks : undefined;
             if (fresh) staleTimer = setTimeout(invalidateTracking, 900 - age);
+            if (tracking === "body") {
+              setBody(bodySample(landmarks));
+              return;
+            }
             if (tracking === "face") {
               setFace(
                 faceSample(landmarks, event.data.time, event.data.aspect),
@@ -275,6 +291,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         stream,
         hand,
         face,
+        body,
         tracking,
         shotSequence,
         connect,
