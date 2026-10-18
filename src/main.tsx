@@ -1,3 +1,10 @@
+import { CommunityPage } from "./community/CommunityPage";
+import { recordPlay } from "./community/client";
+import {
+  InputEnvironment,
+  useInputEnvironment,
+} from "./components/InputEnvironment";
+import "./touch.css";
 import { useGameInput } from "./vision/useGameInput";
 import { ChamGamePage, ChamResultPage, readCham } from "./games/ChamGamePage";
 import React, {
@@ -346,11 +353,15 @@ function Header({
           <Gamepad2 />
           {t("games")}
         </NavLink>
-        {[
-          ["ranking", Crown],
-          ["missions", Star],
-          ["events", Smile],
-        ].map(([key, Icon]) => (
+        <NavLink to="/ranking">
+          <Crown />
+          {t("ranking")}
+        </NavLink>
+        <NavLink to="/achievements">
+          <Star />
+          {t("missions")}
+        </NavLink>
+        {[["events", Smile]].map(([key, Icon]) => (
           <button key={key as string} disabled title={t("soon")}>
             <Icon />
             {t(key as string)}
@@ -793,6 +804,7 @@ function TargetCharacter({ kind }: { kind: number }) {
   );
 }
 function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
+  const { compactTouch } = useInputEnvironment();
   const { t } = useTranslation();
   const { tone, records } = useContext(Context);
   const camera = useCamera();
@@ -1010,7 +1022,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
           }}
         >
           <MousePointer2 />
-          {t("mouseMode")}
+          {t(compactTouch ? "touchMode" : "mouseMode")}
         </button>
         <button
           className={inputMode === "hand" ? "active" : ""}
@@ -1022,7 +1034,15 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
           <Hand />
           {t("handMode")}
         </button>
-        <span>{t(inputMode === "hand" ? "handHelp" : "aim")}</span>
+        <span>
+          {t(
+            inputMode === "hand"
+              ? "handHelp"
+              : compactTouch
+                ? "touchAim"
+                : "aim",
+          )}
+        </span>
       </div>
       <div className="play-layout">
         <aside className="hud">
@@ -1169,7 +1189,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                       setHandPaused(false);
                     }}
                   >
-                    {t("switchMouse")}
+                    {t(compactTouch ? "touchMode" : "switchMouse")}
                   </button>
                 )}
                 {phase === "paused" && <Link to="/games">{t("quit")}</Link>}
@@ -1185,10 +1205,30 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
               <MousePointer2 />
               <Target />
             </div>
-            <p>{t(inputMode === "hand" ? "handAim" : "aim")}</p>
-            <p>{t(inputMode === "hand" ? "handFire" : "fire")}</p>
+            <p>
+              {t(
+                inputMode === "hand"
+                  ? "handAim"
+                  : compactTouch
+                    ? "touchAim"
+                    : "aim",
+              )}
+            </p>
+            <p>
+              {t(
+                inputMode === "hand"
+                  ? "handFire"
+                  : compactTouch
+                    ? "touchFire"
+                    : "fire",
+              )}
+            </p>
             <span className="small-sticker">
-              {inputMode === "hand" ? "PINCH & POP!" : "CLICK & POP!"}
+              {inputMode === "hand"
+                ? "PINCH & POP!"
+                : compactTouch
+                  ? "TAP & POP!"
+                  : "CLICK & POP!"}
             </span>
           </section>
           <Mascot mini />
@@ -1469,6 +1509,7 @@ function App() {
     }
   }, []);
   function finish(result: Result) {
+    recordPlay("shoot", result.score, result.accuracy);
     const next = {
       best: Math.max(records.best, result.score),
       plays: records.plays + 1,
@@ -1480,6 +1521,7 @@ function App() {
     setStorageError(!save("arcade.records", next));
   }
   function finishCircle(_result: CircleResult) {
+    recordPlay("circle", _result.score, _result.accuracy, _result.duration);
     const next = {
       ...records,
       day: today(),
@@ -1556,6 +1598,11 @@ function App() {
                 path="/result/dodge"
                 element={<DodgeResultPage tone={tone} />}
               />
+              <Route path="/ranking" element={<CommunityPage />} />
+              <Route
+                path="/achievements"
+                element={<CommunityPage achievements />}
+              />
               <Route path="*" element={<Navigate to="/games" replace />} />
             </Routes>
           </main>
@@ -1595,6 +1642,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter basename={import.meta.env.BASE_URL}>
       <CameraProvider>
+        <InputEnvironment />
         <App />
       </CameraProvider>
     </BrowserRouter>

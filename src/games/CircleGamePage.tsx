@@ -1,3 +1,4 @@
+import { useInputEnvironment } from "../components/InputEnvironment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type React from "react";
 import { useNavigate } from "react-router-dom";
@@ -203,6 +204,7 @@ export function CircleGamePage({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const camera = useCamera();
+  const { compactTouch } = useInputEnvironment();
   const [mode, setMode] = useGameInput();
   const [phase, setPhase] = useState<"ready" | "playing" | "paused">("ready");
   const previousPhase = useRef(phase);
@@ -435,7 +437,7 @@ export function CircleGamePage({
           onClick={() => setMode("mouse")}
         >
           <MousePointer2 />
-          {t("circleMouse")}
+          {t(compactTouch ? "touchMode" : "circleMouse")}
         </button>
         <button
           className={mode === "hand" ? "active" : ""}
@@ -517,7 +519,13 @@ export function CircleGamePage({
                 <h2>{t(phase === "ready" ? "circleReadyTitle" : "paused")}</h2>
                 <p>{t("circleReadyDesc")}</p>
                 <small>
-                  {t(mode === "hand" ? "circleHandReady" : "circleMouseReady")}
+                  {t(
+                    mode === "hand"
+                      ? "circleHandReady"
+                      : compactTouch
+                        ? "touchCircle"
+                        : "circleMouseReady",
+                  )}
                 </small>
                 <ArcadeButton
                   data-hand-click
@@ -537,7 +545,7 @@ export function CircleGamePage({
                   className="circle-fallback"
                   onClick={() => setMode("mouse")}
                 >
-                  {t("switchMouse")}
+                  {t(compactTouch ? "touchMode" : "switchMouse")}
                 </button>
                 {phase === "paused" && (
                   <button

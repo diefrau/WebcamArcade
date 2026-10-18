@@ -216,5 +216,11 @@
   "dodgeField": "Star dodging play field",
   "dodgeSeconds": "s",
   "dodgeLeft": "Move left",
-  "dodgeRight": "Move right"
+  "dodgeRight": "Move right",
+  "touchMode": "Touch control",
+  "touchAim": "Tap a target with your finger",
+  "touchFire": "Tap a target to shoot",
+  "touchCircle": "Keep your finger down to draw a circle.",
+  "touchRps": "Tap Rock, Paper or Scissors",
+  "touchDodge": "Hold an arrow button to move"
 }

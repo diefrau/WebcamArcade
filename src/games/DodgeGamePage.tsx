@@ -1,3 +1,5 @@
+import { useInputEnvironment } from "../components/InputEnvironment";
+import { recordPlay } from "../community/client";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -85,6 +87,7 @@ export function DodgeGamePage({
 }) {
   const { t } = useTranslation();
   const camera = useCamera();
+  const { compactTouch } = useInputEnvironment();
   const navigate = useNavigate();
   const [choice, setChoice] = useState<"buttons" | "body" | null>(null);
   const mode = choice ?? (camera.stream ? "body" : "buttons");
@@ -163,6 +166,7 @@ export function DodgeGamePage({
     } catch {
       result.saved = false;
     }
+    recordPlay("dodge", result.score, 0, result.seconds);
     onFinish();
     navigate("/result/dodge", { replace: true, state: result });
   }
@@ -309,7 +313,7 @@ export function DodgeGamePage({
           className={mode === "buttons" ? "active" : ""}
           onClick={() => changeMode("buttons")}
         >
-          {t("dodgeButtons")}
+          {t(compactTouch ? "touchMode" : "dodgeButtons")}
         </button>
         <button
           className={mode === "body" ? "active" : ""}
@@ -380,7 +384,15 @@ export function DodgeGamePage({
                 {direction < 0 ? <ArrowLeft /> : <ArrowRight />}
               </button>
             ))}
-            <p>{t(mode === "body" ? "dodgeMove" : "dodgeKeyHint")}</p>
+            <p>
+              {t(
+                mode === "body"
+                  ? "dodgeMove"
+                  : compactTouch
+                    ? "touchDodge"
+                    : "dodgeKeyHint",
+              )}
+            </p>
           </div>
           {(phase === "ready" || phase === "paused") && (
             <div className="game-overlay">

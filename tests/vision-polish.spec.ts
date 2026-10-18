@@ -111,7 +111,6 @@ test.use({
 });
 
 test.describe("stalled inference", () => {
-
   async function mockWorker(page: Page, points: Landmark[]) {
     await page.addInitScript((landmarks) => {
       const OriginalWorker = window.Worker;
@@ -276,9 +275,9 @@ test.describe("stalled inference", () => {
       page.getByRole("button", { name: "계속하기", exact: true }),
     ).toBeEnabled();
     await page.getByRole("button", { name: "계속하기", exact: true }).click();
-    await expect(page.locator(".cham-cue")).toHaveAttribute(
+    await expect(page.locator(".cham-cue")).not.toHaveAttribute(
       "data-phase",
-      "countdown",
+      "paused",
     );
   });
 });

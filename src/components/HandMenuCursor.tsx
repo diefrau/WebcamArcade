@@ -4,10 +4,12 @@ import { Hand } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useCamera } from "../vision/CameraProvider";
 import "./hand-menu-cursor.css";
+import { useInputEnvironment } from "./InputEnvironment";
 
 /** Pinch activates only explicitly marked menu buttons, never game targets. */
 export function HandMenuCursor({ active }: { active: boolean }) {
   const camera = useCamera();
+  const { compactTouch } = useInputEnvironment();
   const { t } = useTranslation();
   const consumed = useRef(camera.shotSequence);
   const armed = useRef(false);
@@ -22,6 +24,7 @@ export function HandMenuCursor({ active }: { active: boolean }) {
     consumed.current = camera.shotSequence;
     if (
       !active ||
+      compactTouch ||
       camera.state !== "ready" ||
       camera.vision !== "ready" ||
       !camera.hand.detected ||
@@ -46,7 +49,14 @@ export function HandMenuCursor({ active }: { active: boolean }) {
       armed.current = false;
     }
     return () => target?.classList.remove("hand-hovered");
-  }, [active, camera.hand, camera.shotSequence, camera.state, camera.vision]);
+  }, [
+    active,
+    compactTouch,
+    camera.hand,
+    camera.shotSequence,
+    camera.state,
+    camera.vision,
+  ]);
   if (!cursor) return null;
   return createPortal(
     <>

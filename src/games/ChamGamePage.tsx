@@ -1,3 +1,5 @@
+import { useInputEnvironment } from "../components/InputEnvironment";
+import { recordPlay } from "../community/client";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -51,6 +53,7 @@ export function ChamGamePage({
   const ko = i18n.language.startsWith("ko");
   const text = (a: string, b: string) => (ko ? a : b);
   const camera = useCamera();
+  const { compactTouch } = useInputEnvironment();
   const navigate = useNavigate();
   const [choice, setChoice] = useState<"face" | "buttons" | null>(null);
   const mode = choice ?? (camera.stream ? "face" : "buttons");
@@ -71,6 +74,7 @@ export function ChamGamePage({
     since: 0,
   });
   const centered = useRef(false);
+  const faceLostAt = useRef<number | null>(null);
   const phaseRef = useRef<Phase>(phase);
   const remainingRef = useRef(COUNTDOWN_MS);
   const resumePhase = useRef<Phase>("countdown");
@@ -140,6 +144,7 @@ export function ChamGamePage({
     } catch {
       result.saved = false;
     }
+    recordPlay("cham", score);
     onFinish();
     navigate("/result/cham", { replace: true, state: result });
   }
@@ -177,12 +182,21 @@ export function ChamGamePage({
       complete.current
     )
       return;
-    if (
-      mode === "face" &&
-      (!canPlay || performance.now() - camera.face.time > 900)
-    ) {
-      pause();
-      return;
+    if (mode === "face") {
+      const lost = !canPlay || performance.now() - camera.face.time > 900;
+      if (lost) {
+        faceLostAt.current ??= performance.now();
+        // A turned head can briefly hide one eye. Keep the round moving;
+        // never invent a direction from a missing or stale observation.
+        if (
+          camera.state !== "ready" ||
+          camera.vision === "error" ||
+          performance.now() - faceLostAt.current >= 3000
+        ) {
+          pause();
+          return;
+        }
+      } else faceLostAt.current = null;
     }
     remainingRef.current = Math.max(0, remainingRef.current - delta);
     setRemaining(remainingRef.current);
@@ -268,7 +282,7 @@ export function ChamGamePage({
       candidate.current = { direction: d, since: camera.face.time };
     else if (
       d !== "center" &&
-      camera.face.time - candidate.current.since >= 180
+      camera.face.time - candidate.current.since >= 100
     )
       answer(d);
   }, [camera.face, mode, calibrating]);
@@ -308,7 +322,9 @@ export function ChamGamePage({
           onClick={() => selectMode("buttons")}
         >
           <Keyboard />
-          {text("버튼 / 키보드", "Buttons / keys")}
+          {compactTouch
+            ? t("touchMode")
+            : text("버튼 / 키보드", "Buttons / keys")}
         </button>
       </div>
       <div className="cham-layout">
@@ -361,8 +377,8 @@ export function ChamGamePage({
               </button>
               <p>
                 {text(
-                  "카메라 정면을 보고 보정하세요. 매 라운드 정면으로 돌아온 뒤 화살표를 피하세요.",
-                  "Look straight at the camera to calibrate. Return to center before each round.",
+                  "정면 보정 후 고개를 살짝 움직이세요. 매 라운드 정면으로 돌아오면 준비 완료! 잠깐 인식이 끊겨도 게임은 계속돼요.",
+                  "Calibrate facing forward, then make a small head movement. Return to center each round. Brief tracking gaps do not stop play.",
                 )}
               </p>
               <strong className="cham-face-direction">
@@ -370,6 +386,14 @@ export function ChamGamePage({
                   ? `${arrows[direction]} ${label(direction)}`
                   : t("showFace")}
               </strong>
+              {active && !camera.face.detected && (
+                <p role="status">
+                  {text(
+                    "인식 중… 정면으로 돌아와 주세요. 이번 라운드는 계속 진행됩니다.",
+                    "Finding your face… return to center. This round keeps moving.",
+                  )}
+                </p>
+              )}
             </>
           )}
         </aside>

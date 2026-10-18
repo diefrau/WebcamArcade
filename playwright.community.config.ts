@@ -1,0 +1,16 @@
+import { defineConfig } from "@playwright/test";
+export default defineConfig({
+  testDir: "./community-tests",
+  workers: 1,
+  reporter: "list",
+  use: { baseURL: "http://127.0.0.1:5176" },
+  webServer: {
+    command: "npm run dev -- --port 5176 --strictPort",
+    url: "http://127.0.0.1:5176",
+    reuseExistingServer: false,
+    env: {
+      VITE_SUPABASE_URL: "https://arcade-test.supabase.co",
+      VITE_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_test",
+    },
+  },
+});

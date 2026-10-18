@@ -197,6 +197,33 @@ test.describe("face camera", () => {
     await page.getByRole("button", { name: "계속하기", exact: true }).click();
     await expect(page.locator(".cham-rounds .won")).toHaveCount(1);
   });
+  test("brief side-profile tracking loss continues the round without inventing an answer", async ({
+    page,
+  }) => {
+    await mockFace(page);
+    await page.goto("/play/cham");
+    await page
+      .getByRole("button", { name: "얼굴로 플레이", exact: true })
+      .click();
+    await expect(page.locator(".camera-note")).toContainText("얼굴을 카메라");
+    await send(page, landmarks());
+    await page.getByRole("button", { name: "정면 보정", exact: true }).click();
+    await page.getByRole("button", { name: "시작!", exact: true }).click();
+    await send(page, undefined);
+    await page.waitForTimeout(2500);
+    await expect(page.locator(".cham-cue")).toHaveAttribute(
+      "data-phase",
+      "feedback",
+    );
+    await expect(page.locator(".cham-rounds .won")).toHaveCount(0);
+    await expect(page.locator(".cham-dialog")).toHaveCount(0);
+    await send(page, landmarks());
+    await expect(page.locator(".camera-note")).toContainText("얼굴 인식 완료");
+    await expect(page.locator(".cham-cue")).not.toHaveAttribute(
+      "data-phase",
+      "paused",
+    );
+  });
   test("real face model loads locally and switching games restores hand tracking", async ({
     page,
   }) => {

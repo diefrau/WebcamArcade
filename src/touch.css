@@ -1,0 +1,32 @@
+/* JS detects the primary pointer and touch capability; width alone is not a device test. */
+html[data-input="touch"] .hand-menu-cursor,
+html[data-input="touch"] .hand-menu-hint,
+html[data-input="touch"] .crosshair,
+html[data-input="touch"] .comic-smile,
+html[data-input="touch"] .hero-mascot,
+html[data-input="touch"] .selection-character {
+  display: none;
+}
+html[data-input="touch"] :is(button, .arcade-button, .top-nav a) {
+  touch-action: manipulation;
+  min-height: 44px;
+}
+html[data-input="touch"] .circle-canvas,
+html[data-input="touch"] .playfield {
+  touch-action: none;
+}
+html[data-input="touch"] .top-nav {
+  flex-wrap: wrap;
+}
+@media (max-width: 640px) {
+  .header .top-nav {
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 6px;
+  }
+  .header .top-nav a {
+    flex: 1 1 calc(50% - 8px);
+    font-size: 13px;
+    min-width: 0;
+  }
+}

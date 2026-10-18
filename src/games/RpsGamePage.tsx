@@ -1,3 +1,5 @@
+import { useInputEnvironment } from "../components/InputEnvironment";
+import { recordPlay } from "../community/client";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -93,6 +95,7 @@ export function RpsGamePage({
 }) {
   const { t } = useTranslation();
   const camera = useCamera();
+  const { compactTouch } = useInputEnvironment();
   const [mode, setMode] = useGameInput();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<Phase>("ready");
@@ -177,6 +180,7 @@ export function RpsGamePage({
     } catch {
       result.saved = false;
     }
+    recordPlay("rps", score);
     onFinish();
     navigate("/result/rps", { replace: true, state: result });
   }
@@ -290,8 +294,7 @@ export function RpsGamePage({
       <div className="cham-toolbar">
         <Link to="/games">← {t("back")}</Link>
         <strong>
-          {t("round")}{" "}
-          {roundNumber} / {ROUNDS}
+          {t("round")} {roundNumber} / {ROUNDS}
         </strong>
         <button
           disabled={
@@ -481,7 +484,7 @@ export function RpsGamePage({
               ? pose
                 ? `${symbols[pose]} ${t(`rps_${pose}`)}`
                 : t(handReady ? "rpsUnknown" : "showHand")
-              : t("rpsKeyHint")}
+              : t(compactTouch ? "touchRps" : "rpsKeyHint")}
           </strong>
           <p>{t("rpsRules")}</p>
         </aside>

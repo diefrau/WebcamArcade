@@ -56,8 +56,8 @@ export function faceDirection(
     ![face.x, face.y, neutral.x, neutral.y].every(Number.isFinite)
   )
     return "center";
-  const x = (face.x - neutral.x) / 0.16,
-    y = (face.y - neutral.y) / 0.12;
+  const x = (face.x - neutral.x) / 0.12,
+    y = (face.y - neutral.y) / 0.1;
   if (Math.max(Math.abs(x), Math.abs(y)) < 1) return "center";
   return Math.abs(x) >= Math.abs(y)
     ? x > 0

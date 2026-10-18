@@ -216,5 +216,11 @@
   "dodgeField": "별 피하기 게임 영역",
   "dodgeSeconds": "초",
   "dodgeLeft": "왼쪽으로 이동",
-  "dodgeRight": "오른쪽으로 이동"
+  "dodgeRight": "오른쪽으로 이동",
+  "touchMode": "터치로 플레이",
+  "touchAim": "과녁을 손가락으로 터치하세요",
+  "touchFire": "과녁 터치 = 발사",
+  "touchCircle": "손가락을 누른 채 원을 그려보세요.",
+  "touchRps": "바위·보·가위 버튼을 터치하세요",
+  "touchDodge": "화살표 버튼을 누르고 이동"
 }
