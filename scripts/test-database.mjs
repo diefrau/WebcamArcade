@@ -12,6 +12,15 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    new URL(
+      "../supabase/migrations/202610190001_achievement_counts.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
 const a = "11111111-1111-4111-8111-111111111111",
   b = "22222222-2222-4222-8222-222222222222";
 await db.query("insert into auth.users values($1),($2)", [a, b]);
@@ -33,6 +42,11 @@ const submit = (id, game, score, accuracy = 0, seconds = 0) =>
 const one = "33333333-3333-4333-8333-333333333333";
 await submit(one, "shoot", 100, 90);
 await submit(one, "shoot", 100, 90);
+assert.deepEqual(
+  (await db.query("select public.arcade_progress() as value")).rows[0].value
+    .counts,
+  { plays: 1, games: 1 },
+);
 assert.equal(
   (await db.query("select * from public.arcade_runs")).rows.length,
   1,
@@ -48,9 +62,12 @@ for (const [game, score, seconds] of [
 const progress = (await db.query("select public.arcade_progress() as value"))
   .rows[0].value;
 assert.ok(
-  Object.values(progress).every((v) => v === true),
+  Object.entries(progress)
+    .filter(([key]) => key !== "counts")
+    .every(([, v]) => v === true),
   "server computes all achievements",
 );
+assert.deepEqual(progress.counts, { plays: 5, games: 3 });
 await assert.rejects(submit(crypto.randomUUID(), "rps", 501));
 await assert.rejects(submit(crypto.randomUUID(), "unknown", 100));
 await assert.rejects(submit(crypto.randomUUID(), "shoot", -1));
@@ -98,10 +115,17 @@ assert.equal(
   "deleting an identity cascades its scores",
 );
 await identity(a);
-for(let i=0;i<15;i++) await submit(crypto.randomUUID(),'shoot',0);
-await assert.rejects(submit(crypto.randomUUID(),'shoot',0),'rate limit rejects the 21st new submission');
-await submit(one,'shoot',100,90);
-assert.equal((await db.query('select count(*)::int as n from public.arcade_runs')).rows[0].n,20);
+for (let i = 0; i < 15; i++) await submit(crypto.randomUUID(), "shoot", 0);
+await assert.rejects(
+  submit(crypto.randomUUID(), "shoot", 0),
+  "rate limit rejects the 21st new submission",
+);
+await submit(one, "shoot", 100, 90);
+assert.equal(
+  (await db.query("select count(*)::int as n from public.arcade_runs")).rows[0]
+    .n,
+  20,
+);
 await db.close();
 console.log(
   "PostgreSQL checks passed: migration, RLS, anonymous permissions, bounds, deduplication, rankings, achievements, deletion.",

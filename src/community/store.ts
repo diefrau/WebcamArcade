@@ -19,7 +19,24 @@ export const achievementIds = [
   "rps",
   "survivor",
 ] as const;
-export type Progress = Record<(typeof achievementIds)[number], boolean>;
+export type Progress = Record<(typeof achievementIds)[number], boolean> & {
+  counts?: { plays: number; games: number };
+  playedGames?: GameId[];
+};
+export function countProgress(progress: Progress, id: string) {
+  const target =
+    id === "first" ? 1 : id === "five" ? 5 : id === "variety" ? 3 : 0;
+  if (!target) return null;
+  const raw =
+    id === "variety" ? progress.counts?.games : progress.counts?.plays;
+  const value =
+    progress[id as keyof typeof progress] === true
+      ? target
+      : Number.isInteger(raw) && raw! >= 0
+        ? Math.min(target, raw!)
+        : 0;
+  return { value, target };
+}
 const caps: Record<GameId, number> = {
   shoot: 200000,
   circle: 1000,
@@ -56,6 +73,18 @@ export function writeRuns(runs: Run[]) {
   try {
     const previous = readProgress(),
       next = progressFor(runs);
+    next.playedGames = [
+      ...new Set([
+        ...(previous.playedGames || []),
+        ...(next.playedGames || []),
+      ]),
+    ];
+    next.counts = {
+      plays: Math.max(previous.counts?.plays || 0, next.counts!.plays),
+      games: Math.min(3, next.playedGames.length),
+    };
+    next.five ||= next.counts.plays >= 5;
+    next.variety ||= next.counts.games >= 3;
     for (const id of achievementIds) next[id] ||= previous[id];
     localStorage.setItem("arcade.community.progress", JSON.stringify(next));
     localStorage.setItem(
@@ -74,6 +103,24 @@ export function readProgress(): Progress {
       localStorage.getItem("arcade.community.progress") || "{}",
     );
     for (const id of achievementIds) progress[id] ||= old?.[id] === true;
+    const savedGames = Array.isArray(old?.playedGames)
+      ? old.playedGames.filter((id: GameId) => gameIds.includes(id))
+      : [];
+    progress.playedGames = [
+      ...new Set([...(progress.playedGames || []), ...savedGames]),
+    ] as GameId[];
+    const savedPlays = Number.isInteger(old?.counts?.plays)
+      ? Math.max(0, Math.min(5, old.counts.plays))
+      : 0;
+    progress.counts = {
+      plays: progress.five
+        ? 5
+        : Math.max(progress.first ? 1 : 0, progress.counts!.plays, savedPlays),
+      games: progress.variety ? 3 : Math.min(3, progress.playedGames.length),
+    };
+    progress.first ||= progress.counts.plays >= 1;
+    progress.five ||= progress.counts.plays >= 5;
+    progress.variety ||= progress.counts.games >= 3;
   } catch {
     /* Keep valid recent runs. */
   }
@@ -91,6 +138,11 @@ export function progressFor(runs: Run[]): Progress {
     reflex: runs.some((r) => r.game === "cham" && r.score >= 700),
     rps: runs.some((r) => r.game === "rps" && r.score >= 300),
     survivor: runs.some((r) => r.game === "dodge" && r.seconds >= 30),
+    counts: {
+      plays: Math.min(5, runs.length),
+      games: Math.min(3, new Set(runs.map((r) => r.game)).size),
+    },
+    playedGames: [...new Set(runs.map((r) => r.game))],
   };
 }
 export function localBest(game: GameId) {

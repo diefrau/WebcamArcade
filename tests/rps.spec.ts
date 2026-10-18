@@ -234,9 +234,16 @@ test.describe("RPS webcam", () => {
     await send(posePoints("paper"));
     await expect(page.locator(".rps-tracking")).toContainText("보");
     await page.getByRole("button", { name: "시작!", exact: true }).click();
-    for (let i = 0; i < 25; i++) {
+    // Stop at the observed feedback phase instead of assuming a fixed number
+    // of frames; clocked inference can run faster on a busy test machine.
+    for (let i = 0; i < 50; i++) {
       await send(posePoints("paper"));
       await page.clock.runFor(80);
+      if (
+        (await page.locator(".rps-cue").getAttribute("data-phase")) ===
+        "feedback"
+      )
+        break;
     }
     await expect(page.locator(".rps-cue")).toHaveAttribute(
       "data-phase",

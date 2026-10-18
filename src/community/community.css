@@ -252,6 +252,57 @@
   background: var(--lime);
   transform: rotate(-3deg);
 }
+.achievement-status {
+  display: grid;
+  gap: 12px;
+  align-self: end;
+}
+.achievement-meter {
+  display: grid;
+  gap: 7px;
+}
+.achievement-meter > span {
+  font-weight: 900;
+  font-size: 14px;
+  text-align: right;
+}
+.achievement-meter progress {
+  appearance: none;
+  display: block;
+  width: 100%;
+  min-width: 0;
+  height: 22px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eeeae1;
+}
+.achievement-meter progress::-webkit-progress-bar {
+  background: #eeeae1;
+  border-radius: 999px;
+}
+.achievement-meter progress::-webkit-progress-value {
+  background: repeating-linear-gradient(
+    125deg,
+    var(--badge-color) 0 12px,
+    #fff6 12px 20px
+  );
+  border-radius: 999px;
+}
+.achievement-meter progress::-moz-progress-bar {
+  background: repeating-linear-gradient(
+    125deg,
+    var(--badge-color) 0 12px,
+    #fff6 12px 20px
+  );
+  border-radius: 999px;
+}
+.achievement.unlocked .achievement-meter progress::-webkit-progress-value {
+  background: var(--lime);
+}
+.achievement.unlocked .achievement-meter progress::-moz-progress-bar {
+  background: var(--lime);
+}
 .community-disclaimer {
   font-size: 13px;
   line-height: 1.6;

@@ -60,6 +60,7 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
         reflex: false,
         rps: true,
         survivor: false,
+        counts: { plays: 2, games: 1 },
       };
     else if (url.includes("/rpc/arcade_board")) {
       status = broken ? 500 : 200;
@@ -125,4 +126,13 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
   await page.getByRole("button", { name: "온라인", exact: true }).click();
   await expect(page.locator(".achievement.unlocked")).toHaveCount(2);
   expect(submits).toBe(1);
+  await expect(
+    page.getByRole("progressbar", { name: "게임 5번 완료", exact: true }),
+  ).toHaveAttribute("value", "2");
+  await expect(
+    page.getByRole("progressbar", {
+      name: "서로 다른 게임 3종 완료",
+      exact: true,
+    }),
+  ).toHaveAttribute("value", "1");
 });

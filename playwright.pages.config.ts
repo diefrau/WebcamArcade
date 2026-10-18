@@ -2,6 +2,7 @@ import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./pages-tests",
+  outputDir: "test-results/pages",
   use: {
     baseURL: "http://127.0.0.1:4175",
     viewport: { width: 1440, height: 1000 },

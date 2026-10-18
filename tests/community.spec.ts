@@ -22,7 +22,11 @@ test("achievements require completed valid runs and game-specific thresholds", (
     run("rps", 300),
     run("dodge", 300, 0, 30),
   ]);
-  expect(Object.values(p).every(Boolean)).toBe(true);
+  expect(
+    Object.entries(p)
+      .filter(([key]) => key !== "counts" && key !== "playedGames")
+      .every(([, value]) => value === true),
+  ).toBe(true);
   expect(progressFor([run("shoot", 0, 100)]).sharp).toBe(false);
 });
 test("rankings and achievements show honest device data without network configuration", async ({
@@ -66,14 +70,16 @@ test("all completed game results integrate with local community history", async 
 });
 test("touch detection removes mouse hints but retains playable controls and navigation", async ({
   browser,
+  baseURL,
 }) => {
   const context = await browser.newContext({
+    baseURL,
     hasTouch: true,
     isMobile: true,
     viewport: { width: 390, height: 844 },
   });
   const page = await context.newPage();
-  await page.goto("http://127.0.0.1:5173/play/shoot");
+  await page.goto("/play/shoot");
   await expect(page.locator("html")).toHaveAttribute("data-input", "touch");
   await expect(
     page.getByRole("button", { name: "터치로 플레이", exact: true }).first(),
@@ -83,7 +89,7 @@ test("touch detection removes mouse hints but retains playable controls and navi
   await page.getByRole("button", { name: "시작!", exact: true }).tap();
   await page.getByTestId("target-1").tap();
   await expect(page.locator(".hud-panel").first()).toContainText("100");
-  await page.goto("http://127.0.0.1:5173/play/circle");
+  await page.goto("/play/circle");
   await expect(
     page.getByRole("button", { name: "터치로 플레이", exact: true }).first(),
   ).toBeVisible();
@@ -118,7 +124,7 @@ test("touch detection removes mouse hints but retains playable controls and navi
       () => JSON.parse(localStorage.getItem("arcade.circle.last")!).score,
     ),
   ).toBeGreaterThan(0);
-  await page.goto("http://127.0.0.1:5173/ranking");
+  await page.goto("/ranking");
   await expect(
     page.getByRole("link", { name: "도전과제", exact: true }),
   ).toBeVisible();
