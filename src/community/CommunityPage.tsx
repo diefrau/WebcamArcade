@@ -107,16 +107,13 @@ export function CommunityPage({
     <div className="community-page">
       <h1>
         {achievements ? (
-          <>
-            <Star />
-            {t("missions")}
-          </>
+          <Star aria-hidden="true" />
         ) : (
-          <>
-            <Crown />
-            {t("ranking")}
-          </>
+          <Crown aria-hidden="true" />
         )}
+        <span className="yellow-text">
+          {t(achievements ? "missions" : "ranking")}
+        </span>
       </h1>
       <div
         className="community-tabs"
