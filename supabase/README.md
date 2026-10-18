@@ -2,6 +2,8 @@
 
 앱의 `/ranking`, `/achievements`는 설정 없이 기기 기록으로 작동합니다. 실제 온라인 DB는 사용자의 Supabase 프로젝트에서 아래 설정을 마쳐야 연결됩니다. 이 저장소에는 프로젝트 관리자 키나 접속 비밀번호가 없습니다.
 
+현재 배포는 `apygsdlruttdvmfikkpm` 프로젝트에 연결되어 있습니다. 아래 SQL은 해당 프로젝트의 SQL Editor에서 이미 적용했고, Anonymous Sign-Ins도 활성화했습니다. 공개 연결 값은 GitHub Actions Variables와 Git에서 제외된 `.env.local`에 설정했습니다. 같은 프로젝트에 생성 SQL을 다시 실행할 필요는 없습니다. 아래 절차는 새 프로젝트를 연결할 때 사용합니다.
+
 ## Supabase 설정
 
 1. Supabase에 PostgreSQL 프로젝트를 만듭니다.
