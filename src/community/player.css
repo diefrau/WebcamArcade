@@ -53,6 +53,9 @@
 .app-shell.screen-home:has(.player-strip) {
   padding-bottom: 120px;
 }
+.app-shell.screen-home:has(.player-strip) > footer {
+  z-index: 0;
+}
 .player-dialog {
   position: fixed;
   inset: 0;
