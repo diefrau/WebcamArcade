@@ -967,9 +967,6 @@ footer button {
   margin: 0;
   flex: 1;
 }
-.selection-bottom .daily-progress {
-  display: none;
-}
 .selection-bottom > .arcade-button {
   font-size: 18px;
   max-width: 200px;

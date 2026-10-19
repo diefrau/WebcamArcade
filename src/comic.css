@@ -874,6 +874,10 @@ footer {
   min-width: 0;
   flex: 1;
   gap: 10px;
+  flex-wrap: wrap;
+}
+.selection-bottom .daily-progress {
+  min-width: min(100%, 220px);
 }
 .selection-bottom > .arcade-button {
   font-size: 22px;
