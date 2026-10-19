@@ -8,12 +8,19 @@ import {
 } from "./secrets";
 import {
   readRuns,
+  readProgress,
+  achievementIds,
   writeRuns,
   validRun,
   type Run,
   type GameId,
   type Progress,
 } from "./store";
+import {
+  announceAchievement,
+  achievementDescriptions,
+} from "./achievementNotices";
+import { secretDescriptions } from "./secrets";
 // Vite replaces only these public build variables. Never use server secret keys.
 const env = (import.meta as unknown as { env: Record<string, string> }).env;
 export const communityConfigured = !!(
@@ -146,6 +153,7 @@ export function syncRuns(resumeAfterCurrent = false): Promise<void> {
 }
 export function unlockSecret(id: SecretId) {
   if (!storeSecret(id)) return false;
+  announceAchievement({ id, title: secretDescriptions[id].name, secret: true });
   window.dispatchEvent(new Event("arcade:community"));
   if (communityConfigured) void syncRuns().catch(() => {});
   return true;
@@ -165,7 +173,17 @@ export function recordPlay(
     date: new Date().toISOString(),
   };
   if (!validRun(run)) return;
+  const before = readProgress();
   writeRuns([...readRuns(), run]);
+  const after = readProgress();
+  for (const id of achievementIds)
+    if (!before[id] && after[id]) {
+      announceAchievement({
+        id,
+        title: achievementDescriptions[id],
+        secret: false,
+      });
+    }
   window.dispatchEvent(new Event("arcade:community"));
   // The first-visit name choice opts this device into automatic result sync.
   if (communityConfigured) void syncRuns().catch(() => {});

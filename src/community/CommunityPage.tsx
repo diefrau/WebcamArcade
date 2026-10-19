@@ -21,6 +21,7 @@ import {
   type BoardRow,
 } from "./client";
 import "./community.css";
+import { achievementDescriptions as descriptions } from "./achievementNotices";
 import { SecretAchievements } from "./SecretAchievements";
 
 export function CommunityPage({
@@ -92,19 +93,6 @@ export function CommunityPage({
       request.current++;
     };
   }, [online, game, refresh, participating]);
-  const descriptions: Record<string, [string, string]> = {
-    first: ["첫 게임 완료", "Complete your first game"],
-    five: ["게임 5번 완료", "Complete five games"],
-    variety: ["서로 다른 게임 3종 완료", "Complete three different games"],
-    sharp: [
-      "쏴! 정확도 90% 이상 (점수 획득)",
-      "Shoot: score with 90% accuracy",
-    ],
-    artist: ["원 그리기 800점", "Circle: score 800"],
-    reflex: ["참참참 700점", "Cham: score 700"],
-    rps: ["가위바위보 300점", "Rock Paper Scissors: score 300"],
-    survivor: ["빨리 피해! 30초 생존", "Dodge: survive 30 seconds"],
-  };
   return (
     <div className="community-page">
       <h1>
@@ -246,10 +234,8 @@ export function CommunityPage({
                   </article>
                 );
               })}
+              <SecretAchievements unlocked={progress.secrets} />
             </div>
-          )}
-          {(!online || (participating && !loading && !error)) && (
-            <SecretAchievements unlocked={progress.secrets} />
           )}
         </>
       ) : (

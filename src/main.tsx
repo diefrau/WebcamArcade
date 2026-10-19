@@ -2,6 +2,7 @@ import { CommunityPage } from "./community/CommunityPage";
 import { recordPlay } from "./community/client";
 import { PlayerSession, PlayerWelcome } from "./community/PlayerWelcome";
 import { HomeEasterEggs } from "./community/HomeEasterEggs";
+import { AchievementToasts } from "./community/AchievementToasts";
 import {
   InputEnvironment,
   useInputEnvironment,
@@ -1546,6 +1547,7 @@ function App() {
   return (
     <Context.Provider value={{ sound, tone, records }}>
       <PlayerSession />
+      <AchievementToasts />
       <RouteContent key={pathname}>
         <div
           className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}

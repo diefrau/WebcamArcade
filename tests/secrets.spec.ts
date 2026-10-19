@@ -163,8 +163,8 @@ test.describe("desktop home combined tracking", () => {
       } as any;
     });
     await page.goto("/achievements");
-    await expect(page.locator(".secret-locked h3")).toHaveCount(6);
-    await expect(page.locator(".secret-section")).not.toContainText("어허");
+    await expect(page.locator(".secret-locked h2")).toHaveCount(6);
+    await expect(page.locator(".achievement-grid")).not.toContainText("어허");
     await page.getByRole("link", { name: "홈", exact: true }).click();
     await page
       .getByRole("button", { name: "카메라 연결", exact: true })
@@ -192,7 +192,7 @@ test.describe("desktop home combined tracking", () => {
       await page.clock.runFor(100);
     };
     for (let i = 0; i < 15; i++) await send(frame(i * 100, [hand("middle")]));
-    await expect(page.locator(".secret-toast")).toContainText(
+    await expect(page.locator(".achievement-toast")).toContainText(
       "어허, 그건 안돼요~",
     );
     expect(
@@ -218,7 +218,7 @@ test.describe("desktop home combined tracking", () => {
       .poll(() => page.evaluate(() => (window as any).homeInits))
       .toContain(false);
     await expect(page.locator(".secret-achievement.unlocked")).toHaveCount(1);
-    await expect(page.locator(".secret-locked h3")).toHaveCount(5);
+    await expect(page.locator(".secret-locked h2")).toHaveCount(5);
     await expect(page.locator(".secret-achievement.unlocked")).toContainText(
       "어허, 그건 안돼요~",
     );

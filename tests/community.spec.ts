@@ -45,7 +45,7 @@ test("rankings and achievements show honest device data without network configur
     page.getByRole("button", { name: "온라인", exact: true }),
   ).toBeDisabled();
   await page.getByRole("link", { name: "도전과제", exact: true }).click();
-  await expect(page.locator(".achievement-grid article")).toHaveCount(8);
+  await expect(page.locator(".achievement-grid article")).toHaveCount(14);
   await expect(page.locator(".achievement.unlocked")).toHaveCount(0);
 });
 test("all completed game results integrate with local community history", async ({
