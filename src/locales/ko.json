@@ -222,5 +222,8 @@
   "touchFire": "과녁 터치 = 발사",
   "touchCircle": "손가락을 누른 채 원을 그려보세요.",
   "touchRps": "바위·보·가위 버튼을 터치하세요",
-  "touchDodge": "화살표 버튼을 누르고 이동"
+  "touchDodge": "화살표 버튼을 누르고 이동",
+  "homeHands": "손 {{count}}/2",
+  "homeFaceReady": "얼굴 인식",
+  "homeFaceWaiting": "얼굴 대기"
 }

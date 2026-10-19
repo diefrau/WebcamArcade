@@ -21,6 +21,7 @@ import {
   type BoardRow,
 } from "./client";
 import "./community.css";
+import { SecretAchievements } from "./SecretAchievements";
 
 export function CommunityPage({
   achievements = false,
@@ -246,6 +247,9 @@ export function CommunityPage({
                 );
               })}
             </div>
+          )}
+          {(!online || (participating && !loading && !error)) && (
+            <SecretAchievements unlocked={progress.secrets} />
           )}
         </>
       ) : (

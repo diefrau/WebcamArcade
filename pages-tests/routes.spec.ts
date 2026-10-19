@@ -1,6 +1,13 @@
 import { expect, test } from "@playwright/test";
 
 test.beforeEach(async ({ page }) => {
+  await page.route("https://*.supabase.co/**", (route) =>
+    route.fulfill({
+      status: 400,
+      contentType: "application/json",
+      body: '{"message":"Isolated artifact check"}',
+    }),
+  );
   // Routing tests should depend only on the uploaded Pages artifact.
   await page.route("https://fonts.googleapis.com/**", (route) =>
     route.fulfill({ contentType: "text/css", body: "" }),

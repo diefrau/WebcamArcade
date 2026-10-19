@@ -1,6 +1,12 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { readPlayer, savePlayer } from "./player";
 import {
+  readSecrets,
+  writeSecrets,
+  storeSecret,
+  type SecretId,
+} from "./secrets";
+import {
   readRuns,
   writeRuns,
   validRun,
@@ -76,8 +82,12 @@ export async function joinCommunity(nickname: string) {
   });
 }
 let syncing: Promise<void> | null = null;
-export function syncRuns(): Promise<void> {
-  if (syncing) return syncing;
+let resumeRequested = false;
+export function syncRuns(resumeAfterCurrent = false): Promise<void> {
+  if (syncing) {
+    resumeRequested ||= resumeAfterCurrent;
+    return syncing;
+  }
   syncing = (async () => {
     if (!communityConfigured) return;
     const player = readPlayer();
@@ -87,16 +97,30 @@ export function syncRuns(): Promise<void> {
     else if (!(await joined())) return;
     setSyncState("syncing");
     // Drain again after every upload: a second completed game can arrive mid-sync.
-    let run: Run | undefined;
-    while ((run = readRuns().find((r) => !r.synced))) {
+    while (true) {
+      const run = readRuns().find((r) => !r.synced);
+      const secret = readSecrets().find((r) => !r.synced);
+      if (!run && !secret) break;
+      if (!run && secret) {
+        const { error } = await (
+          await api()
+        ).rpc("arcade_unlock_secret", { p_secret: secret.id });
+        if (error) throw error;
+        writeSecrets(
+          readSecrets().map((r) =>
+            r.id === secret.id ? { ...r, synced: true } : r,
+          ),
+        );
+        continue;
+      }
       const { error } = await (
         await api()
       ).rpc("arcade_submit", {
-        p_id: run.id,
-        p_game: run.game,
-        p_score: run.score,
-        p_accuracy: run.accuracy,
-        p_seconds: run.seconds,
+        p_id: run!.id,
+        p_game: run!.game,
+        p_score: run!.score,
+        p_accuracy: run!.accuracy,
+        p_seconds: run!.seconds,
       });
       if (error) throw error;
       // Re-read so a game completed during upload cannot be overwritten.
@@ -113,8 +137,18 @@ export function syncRuns(): Promise<void> {
     })
     .finally(() => {
       syncing = null;
+      if (resumeRequested) {
+        resumeRequested = false;
+        void syncRuns().catch(() => {});
+      }
     });
   return syncing;
+}
+export function unlockSecret(id: SecretId) {
+  if (!storeSecret(id)) return false;
+  window.dispatchEvent(new Event("arcade:community"));
+  if (communityConfigured) void syncRuns().catch(() => {});
+  return true;
 }
 export function recordPlay(
   game: GameId,

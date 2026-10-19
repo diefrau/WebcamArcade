@@ -7,6 +7,8 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
     signups = 0,
     broken = false,
     nickname = "";
+  let secretCalls = 0;
+  const secrets: Record<string, boolean> = {};
   const uid = "11111111-1111-4111-8111-111111111111";
   const user = {
     id: uid,
@@ -50,6 +52,10 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
     else if (url.includes("/rpc/arcade_submit")) {
       submits++;
       body = null;
+    } else if (url.includes("/rpc/arcade_unlock_secret")) {
+      secretCalls++;
+      secrets[data.p_secret] = true;
+      body = null;
     } else if (url.includes("/rpc/arcade_progress"))
       body = {
         first: true,
@@ -61,6 +67,7 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
         rps: true,
         survivor: false,
         counts: { plays: 2, games: 1 },
+        secrets,
       };
     else if (url.includes("/rpc/arcade_board")) {
       status = broken ? 500 : 200;
@@ -135,4 +142,26 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
       exact: true,
     }),
   ).toHaveAttribute("value", "1");
+  await page.evaluate(async () => {
+    const { unlockSecret } = await import("/src/community/client.ts");
+    unlockSecret("winkPeace");
+    unlockSecret("winkPeace");
+  });
+  await expect.poll(() => secretCalls).toBe(1);
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          JSON.parse(
+            localStorage.getItem("arcade.community.secrets") || "[]",
+          )[0]?.synced,
+      ),
+    )
+    .toBe(true);
+  await page.getByRole("button", { name: "이 기기", exact: true }).click();
+  await page.getByRole("button", { name: "온라인", exact: true }).click();
+  await expect(page.locator(".secret-achievement.unlocked")).toContainText(
+    "비밀 인사 접수!",
+  );
+  await expect(page.locator(".secret-locked")).toHaveCount(5);
 });

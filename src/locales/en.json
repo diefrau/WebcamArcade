@@ -222,5 +222,8 @@
   "touchFire": "Tap a target to shoot",
   "touchCircle": "Keep your finger down to draw a circle.",
   "touchRps": "Tap Rock, Paper or Scissors",
-  "touchDodge": "Hold an arrow button to move"
+  "touchDodge": "Hold an arrow button to move",
+  "homeHands": "Hands {{count}}/2",
+  "homeFaceReady": "Face detected",
+  "homeFaceWaiting": "Show your face"
 }

@@ -1,6 +1,7 @@
 import { CommunityPage } from "./community/CommunityPage";
 import { recordPlay } from "./community/client";
 import { PlayerSession, PlayerWelcome } from "./community/PlayerWelcome";
+import { HomeEasterEggs } from "./community/HomeEasterEggs";
 import {
   InputEnvironment,
   useInputEnvironment,
@@ -582,6 +583,7 @@ function HomePage() {
       </section>
       <RecordsBar />
       <PlayerWelcome />
+      <HomeEasterEggs />
     </>
   );
 }

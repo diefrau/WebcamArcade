@@ -14,6 +14,7 @@ self.onmessage = async ({ data: message }: MessageEvent) => {
         },
         runningMode: "VIDEO",
         numFaces: 1,
+        outputFaceBlendshapes: !!message.home,
         minFaceDetectionConfidence: 0.6,
         minFacePresenceConfidence: 0.6,
         minTrackingConfidence: 0.6,
@@ -26,6 +27,15 @@ self.onmessage = async ({ data: message }: MessageEvent) => {
         self.postMessage({
           type: "result",
           landmarks: result?.faceLandmarks[0],
+          expressions:
+            message.home === false
+              ? {}
+              : Object.fromEntries(
+                  (result?.faceBlendshapes[0]?.categories || []).map((c) => [
+                    c.categoryName,
+                    c.score,
+                  ]),
+                ),
           time: message.time,
           aspect: bitmap.width / bitmap.height,
         });

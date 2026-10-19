@@ -14,7 +14,7 @@ self.onmessage = async (event: MessageEvent) => {
           delegate: "CPU",
         },
         runningMode: "VIDEO",
-        numHands: 1,
+        numHands: message.home ? 2 : 1,
         minHandDetectionConfidence: 0.6,
         minTrackingConfidence: 0.6,
         minHandPresenceConfidence: 0.6,
@@ -27,6 +27,7 @@ self.onmessage = async (event: MessageEvent) => {
         self.postMessage({
           type: "result",
           landmarks: result?.landmarks[0],
+          hands: result?.landmarks,
           time: message.time,
           aspect: bitmap.width / bitmap.height,
         });
@@ -34,7 +35,10 @@ self.onmessage = async (event: MessageEvent) => {
         bitmap.close();
       }
     }
-  } catch {
-    self.postMessage({ type: "error" });
+  } catch (error) {
+    self.postMessage({
+      type: "error",
+      message: error instanceof Error ? error.message : String(error),
+    });
   }
 };

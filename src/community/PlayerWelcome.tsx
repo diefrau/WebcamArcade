@@ -11,14 +11,17 @@ export function PlayerSession() {
     const sync = () => {
       void syncRuns().catch(() => {});
     };
+    const reconnect = () => {
+      void syncRuns(true).catch(() => {});
+    };
     sync();
-    window.addEventListener("online", sync);
+    window.addEventListener("online", reconnect);
     window.addEventListener("arcade:player", sync);
     const timer = window.setInterval(() => {
       if (readPlayer() && getSyncState() === "offline") sync();
     }, 30000);
     return () => {
-      window.removeEventListener("online", sync);
+      window.removeEventListener("online", reconnect);
       window.removeEventListener("arcade:player", sync);
       clearInterval(timer);
     };

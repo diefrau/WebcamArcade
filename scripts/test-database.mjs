@@ -30,6 +30,15 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    new URL(
+      "../supabase/migrations/202610190003_secret_achievements.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
 const a = "11111111-1111-4111-8111-111111111111",
   b = "22222222-2222-4222-8222-222222222222";
 await db.query("insert into auth.users values($1),($2)", [a, b]);
@@ -72,11 +81,32 @@ const progress = (await db.query("select public.arcade_progress() as value"))
   .rows[0].value;
 assert.ok(
   Object.entries(progress)
-    .filter(([key]) => key !== "counts")
+    .filter(([key]) => key !== "counts" && key !== "secrets")
     .every(([, v]) => v === true),
   "server computes all achievements",
 );
 assert.deepEqual(progress.counts, { plays: 5, games: 3 });
+assert.deepEqual(progress.secrets, {});
+await db.query("select public.arcade_unlock_secret($1)", ["manners"]);
+await db.query("select public.arcade_unlock_secret($1)", ["manners"]);
+assert.deepEqual(
+  (await db.query("select public.arcade_progress() as value")).rows[0].value
+    .secrets,
+  { manners: true },
+);
+assert.equal(
+  (await db.query("select * from public.arcade_secrets")).rows.length,
+  1,
+);
+await assert.rejects(
+  db.query("select public.arcade_unlock_secret($1)", ["invented"]),
+);
+await assert.rejects(
+  db.query(
+    "insert into public.arcade_secrets(user_id,secret) values($1,'jazz')",
+    [a],
+  ),
+);
 await assert.rejects(submit(crypto.randomUUID(), "rps", 501));
 await assert.rejects(submit(crypto.randomUUID(), "unknown", 100));
 await assert.rejects(submit(crypto.randomUUID(), "shoot", -1));
@@ -91,6 +121,15 @@ await assert.rejects(
   ),
 );
 await identity(b);
+assert.deepEqual(
+  (await db.query("select public.arcade_progress() as value")).rows[0].value
+    .secrets,
+  {},
+);
+assert.equal(
+  (await db.query("select * from public.arcade_secrets")).rows.length,
+  0,
+);
 await db.query("select public.arcade_join($1)", [""]);
 const anonymousName = (
   await db.query("select anonymous_name from public.arcade_profiles")
@@ -122,6 +161,7 @@ assert.equal(rows[0].score, 200);
 assert.equal(rows[0].nickname, anonymousName);
 assert.deepEqual(Object.keys(rows[0]), ["place", "nickname", "score"]);
 await db.exec("reset role; set role anon");
+await assert.rejects(db.query("select public.arcade_unlock_secret('jazz')"));
 await assert.rejects(submit(crypto.randomUUID(), "shoot", 999));
 assert.equal(
   (await db.query("select * from public.arcade_board('shoot')")).rows.length,

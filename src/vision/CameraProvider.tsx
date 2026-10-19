@@ -11,6 +11,8 @@ import { emptyHand, GestureInterpreter, type HandSample } from "./gestures";
 import { useLocation } from "react-router-dom";
 import { emptyFace, faceSample, type FaceSample } from "./face";
 import { emptyBody, bodySample, type BodySample } from "./body";
+import { useInputEnvironment } from "../components/InputEnvironment";
+import type { HomeMotionFrame } from "./homeSecrets";
 
 export type CameraState =
   | "idle"
@@ -29,6 +31,8 @@ type CameraContextValue = {
   hand: HandSample;
   face: FaceSample;
   body: BodySample;
+  homeTracking: boolean;
+  homeMotion: HomeMotionFrame | null;
   tracking: "hand" | "face" | "body";
   shotSequence: number;
   connect: () => Promise<void>;
@@ -44,6 +48,9 @@ export function useCamera() {
 
 export function CameraProvider({ children }: { children: ReactNode }) {
   const path = useLocation().pathname;
+  const { compactTouch } = useInputEnvironment();
+  const homeTracking = path === "/" && !compactTouch;
+  const [homeMotion, setHomeMotion] = useState<HomeMotionFrame | null>(null);
   const tracking =
     path === "/play/dodge" ? "body" : path === "/play/cham" ? "face" : "hand";
   const [body, setBody] = useState<BodySample>(emptyBody);
@@ -68,6 +75,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     setHand({ ...emptyHand });
     setFace({ ...emptyFace });
     setBody({ ...emptyBody });
+    setHomeMotion(null);
   }, []);
   const connect = useCallback(async () => {
     if (pending.current || activeStream.current) return;
@@ -153,6 +161,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       setHand({ ...emptyHand });
       setFace({ ...emptyFace });
       setBody({ ...emptyBody });
+      setHomeMotion(null);
     };
     const fail = () => {
       if (disposed) return;
@@ -176,7 +185,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         busy ||
         video.readyState < 2 ||
         video.currentTime === lastFrame ||
-        time - lastRun < 42
+        time - lastRun < (homeTracking ? 84 : 42)
       )
         return;
       busy = true;
@@ -203,6 +212,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         setHand({ ...emptyHand });
         setFace({ ...emptyFace });
         setBody({ ...emptyBody });
+        setHomeMotion(null);
         worker =
           tracking === "body"
             ? new Worker(new URL("./body.worker.ts", import.meta.url), {
@@ -212,9 +222,13 @@ export function CameraProvider({ children }: { children: ReactNode }) {
               ? new Worker(new URL("./face.worker.ts", import.meta.url), {
                   type: "module",
                 })
-              : new Worker(new URL("./hand.worker.ts", import.meta.url), {
-                  type: "module",
-                });
+              : homeTracking
+                ? new Worker(new URL("./home.worker.ts", import.meta.url), {
+                    type: "module",
+                  })
+                : new Worker(new URL("./hand.worker.ts", import.meta.url), {
+                    type: "module",
+                  });
         startupTimer = setTimeout(fail, 30000);
         worker.onerror = fail;
         worker.onmessage = (event) => {
@@ -238,6 +252,26 @@ export function CameraProvider({ children }: { children: ReactNode }) {
               age >= 0 &&
               age < 900;
             const landmarks = fresh ? event.data.landmarks : undefined;
+            if (homeTracking) {
+              const points = fresh ? event.data.face : undefined;
+              const sample = faceSample(
+                points,
+                event.data.time,
+                event.data.aspect,
+              );
+              setFace(sample);
+              setHomeMotion(
+                fresh
+                  ? {
+                      time: event.data.time,
+                      aspect: event.data.aspect || 4 / 3,
+                      hands: event.data.hands || (landmarks ? [landmarks] : []),
+                      face: sample.detected ? points : [],
+                      expressions: event.data.expressions || {},
+                    }
+                  : null,
+              );
+            }
             if (fresh) staleTimer = setTimeout(invalidateTracking, 900 - age);
             if (tracking === "body") {
               setBody(bodySample(landmarks));
@@ -260,6 +294,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         };
         worker.postMessage({
           type: "init",
+          home: homeTracking,
           base: new URL(import.meta.env.BASE_URL, location.href).href,
         });
       } catch {
@@ -282,7 +317,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       video.srcObject = null;
       video.remove();
     };
-  }, [stream, attempt, disconnect, tracking]);
+  }, [stream, attempt, disconnect, tracking, homeTracking]);
   return (
     <CameraContext.Provider
       value={{
@@ -292,6 +327,8 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         hand,
         face,
         body,
+        homeTracking,
+        homeMotion,
         tracking,
         shotSequence,
         connect,

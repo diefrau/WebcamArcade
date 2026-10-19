@@ -1,3 +1,4 @@
+import { readSecrets, type SecretId } from "./secrets";
 export const gameIds = ["shoot", "circle", "cham", "rps", "dodge"] as const;
 export type GameId = (typeof gameIds)[number];
 export type Run = {
@@ -22,6 +23,7 @@ export const achievementIds = [
 export type Progress = Record<(typeof achievementIds)[number], boolean> & {
   counts?: { plays: number; games: number };
   playedGames?: GameId[];
+  secrets?: Partial<Record<SecretId, boolean>>;
 };
 export function countProgress(progress: Progress, id: string) {
   const target =
@@ -124,6 +126,7 @@ export function readProgress(): Progress {
   } catch {
     /* Keep valid recent runs. */
   }
+  progress.secrets = Object.fromEntries(readSecrets().map((r) => [r.id, true]));
   return progress;
 }
 export function progressFor(runs: Run[]): Progress {

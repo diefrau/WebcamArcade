@@ -28,6 +28,17 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
     camera.state === "requesting" || camera.state === "connecting";
   const live = camera.state === "ready";
   const problem = ["denied", "missing", "busy", "error"].includes(camera.state);
+  const shownHands = (
+    camera.homeTracking
+      ? camera.homeMotion?.hands || []
+      : camera.hand.detected
+        ? [camera.hand.landmarks]
+        : []
+  ).filter(
+    (points) =>
+      points.length === 21 &&
+      points.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y)),
+  );
   const status =
     camera.tracking === "body"
       ? camera.vision === "error"
@@ -73,32 +84,65 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
           className="camera-video"
           hidden={!camera.stream}
         />
-        {live && camera.tracking === "hand" && camera.hand.detected && (
+        {live && camera.tracking === "hand" && shownHands.length > 0 && (
           <svg
             className="hand-overlay"
             viewBox="0 0 640 480"
             aria-hidden="true"
           >
-            {connections.map((indices, index) => (
-              <polyline
-                key={index}
-                points={indices
-                  .map(
-                    (i) =>
-                      `${(1 - camera.hand.landmarks[i].x) * 640},${camera.hand.landmarks[i].y * 480}`,
-                  )
-                  .join(" ")}
-              />
-            ))}
-            {camera.hand.landmarks.map((point, index) => (
-              <circle
-                key={index}
-                cx={(1 - point.x) * 640}
-                cy={point.y * 480}
-                r={index === 4 || index === 8 ? 6 : 3}
-              />
+            {shownHands.map((points, handIndex) => (
+              <g key={handIndex} className={`tracked-hand hand-${handIndex}`}>
+                {connections.map((indices, index) => (
+                  <polyline
+                    key={index}
+                    points={indices
+                      .map(
+                        (i) =>
+                          `${(1 - points[i].x) * 640},${points[i].y * 480}`,
+                      )
+                      .join(" ")}
+                  />
+                ))}
+                {points.map((point, index) => (
+                  <circle
+                    key={index}
+                    cx={(1 - point.x) * 640}
+                    cy={point.y * 480}
+                    r={index === 4 || index === 8 ? 6 : 3}
+                  />
+                ))}
+              </g>
             ))}
           </svg>
+        )}
+        {live && camera.homeTracking && camera.vision === "ready" && (
+          <>
+            <span className="home-motion-status">
+              {t("homeHands", { count: shownHands.length })} ·{" "}
+              {t(camera.face.detected ? "homeFaceReady" : "homeFaceWaiting")}
+            </span>
+            {camera.face.detected && camera.homeMotion && (
+              <svg
+                className="hand-overlay face-overlay"
+                viewBox="0 0 640 480"
+                aria-hidden="true"
+              >
+                {[33, 263, 1, 61, 291, 13, 14].map((i) => {
+                  const p = camera.homeMotion!.face[i];
+                  return (
+                    p && (
+                      <circle
+                        key={i}
+                        cx={(1 - p.x) * 640}
+                        cy={p.y * 480}
+                        r={3}
+                      />
+                    )
+                  );
+                })}
+              </svg>
+            )}
+          </>
         )}
         {live && camera.tracking === "body" && camera.body.detected && (
           <svg
