@@ -1,0 +1,133 @@
+.player-strip {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 10px 16px;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  background: #fffdf6;
+  box-shadow: 3px 4px var(--ink);
+}
+.player-strip > svg {
+  flex-shrink: 0;
+}
+.player-strip > strong {
+  overflow-wrap: anywhere;
+}
+.player-strip > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  margin-left: auto;
+}
+.player-strip > span svg {
+  width: 18px;
+  flex-shrink: 0;
+}
+.player-strip > button,
+.player-cancel {
+  border: 2px solid var(--ink);
+  border-radius: 20px;
+  background: var(--cyan);
+  padding: 7px 12px;
+  font-weight: 900;
+}
+.player-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: min(520px, calc(100% - 32px));
+  max-height: calc(100dvh - 40px);
+  overflow-y: auto;
+  padding: 30px;
+  border: 4px solid var(--ink);
+  border-radius: 30px;
+  background:
+    radial-gradient(circle, #ffdf5980 1px, transparent 2px) 0 0 / 12px 12px,
+    #fffbed;
+  box-shadow: 7px 8px var(--ink);
+  text-align: center;
+}
+.player-dialog::backdrop {
+  background: #1119;
+  backdrop-filter: blur(5px);
+}
+.player-dialog-badge {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border: 3px solid var(--ink);
+  border-radius: 19px;
+  background: var(--pink);
+  transform: rotate(-8deg);
+  box-shadow: 3px 4px var(--ink);
+}
+.player-dialog-badge svg {
+  width: 40px;
+  height: 40px;
+  fill: var(--yellow);
+  stroke-width: 3px;
+}
+.player-dialog h2 {
+  font-family: "Bagel Fat One", sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.player-dialog p {
+  margin: 18px 0;
+  font-size: 14px;
+  font-weight: 800;
+}
+.player-dialog form {
+  display: grid;
+  gap: 12px;
+  text-align: left;
+}
+.player-dialog label {
+  font-weight: 900;
+}
+.player-dialog input {
+  width: 100%;
+  min-width: 0;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: white;
+  padding: 13px;
+  font: inherit;
+}
+.player-dialog .arcade-button {
+  width: 100%;
+  font-size: 18px;
+  min-height: 50px;
+}
+.player-dialog small {
+  display: block;
+  margin-top: 20px;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.player-cancel {
+  margin-top: 14px;
+  background: white;
+}
+@media (max-width: 600px) {
+  .player-dialog {
+    padding: 22px 18px;
+  }
+  .player-strip > span {
+    order: 4;
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+  .player-strip > button {
+    margin-left: auto;
+  }
+}

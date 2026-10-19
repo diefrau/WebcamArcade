@@ -1,5 +1,6 @@
 import { CommunityPage } from "./community/CommunityPage";
 import { recordPlay } from "./community/client";
+import { PlayerSession, PlayerWelcome } from "./community/PlayerWelcome";
 import {
   InputEnvironment,
   useInputEnvironment,
@@ -534,6 +535,7 @@ function HomePage() {
   const navigate = useNavigate();
   return (
     <>
+      <PlayerWelcome />
       <section className="hero">
         <div className="hero-copy">
           <span className="eyebrow">
@@ -1541,6 +1543,7 @@ function App() {
   }
   return (
     <Context.Provider value={{ sound, tone, records }}>
+      <PlayerSession />
       <RouteContent key={pathname}>
         <div
           className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}

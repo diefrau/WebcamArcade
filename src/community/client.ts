@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { readPlayer, savePlayer } from "./player";
 import {
   readRuns,
   writeRuns,
@@ -39,28 +40,55 @@ export async function joined() {
   if (result.error) throw result.error;
   return !!result.data;
 }
+export type SyncState = "idle" | "syncing" | "synced" | "offline";
+let syncState: SyncState = "idle";
+export const getSyncState = () => syncState;
+function setSyncState(value: SyncState) {
+  syncState = value;
+  window.dispatchEvent(new Event("arcade:sync"));
+}
+let appliedNickname: string | null = null;
 export async function joinCommunity(nickname: string) {
   const c = await api();
   const { data, error } = await c.auth.getSession();
   if (error) throw error;
+  let userId = data.session?.user.id;
   if (!data.session) {
     const signed = await c.auth.signInAnonymously();
     if (signed.error) throw signed.error;
+    userId = signed.data.user?.id;
   }
+  if (!userId) throw new Error("Missing player identity");
   const result = await c.rpc("arcade_join", { p_nickname: nickname.trim() });
   if (result.error) throw result.error;
-  try {
-    localStorage.setItem("arcade.community.nickname", nickname.trim());
-  } catch {
-    /* Optional display preference. */
-  }
+  const profile = await c
+    .from("arcade_profiles")
+    .select("nickname,anonymous_name")
+    .eq("user_id", userId)
+    .single();
+  if (profile.error) throw profile.error;
+  const previous = readPlayer();
+  appliedNickname = nickname.trim();
+  savePlayer({
+    nickname: profile.data.nickname,
+    anonymousName:
+      profile.data.anonymous_name || previous?.anonymousName || "익명",
+  });
 }
 let syncing: Promise<void> | null = null;
 export function syncRuns(): Promise<void> {
   if (syncing) return syncing;
   syncing = (async () => {
-    if (!(await joined())) return;
-    for (const run of readRuns().filter((r) => !r.synced)) {
+    if (!communityConfigured) return;
+    const player = readPlayer();
+    if (player) setSyncState("syncing");
+    if (player && appliedNickname !== player.nickname)
+      await joinCommunity(player.nickname);
+    else if (!(await joined())) return;
+    setSyncState("syncing");
+    // Drain again after every upload: a second completed game can arrive mid-sync.
+    let run: Run | undefined;
+    while ((run = readRuns().find((r) => !r.synced))) {
       const { error } = await (
         await api()
       ).rpc("arcade_submit", {
@@ -73,12 +101,19 @@ export function syncRuns(): Promise<void> {
       if (error) throw error;
       // Re-read so a game completed during upload cannot be overwritten.
       writeRuns(
-        readRuns().map((r) => (r.id === run.id ? { ...r, synced: true } : r)),
+        readRuns().map((r) => (r.id === run!.id ? { ...r, synced: true } : r)),
       );
     }
-  })().finally(() => {
-    syncing = null;
-  });
+    setSyncState("synced");
+    window.dispatchEvent(new Event("arcade:synced"));
+  })()
+    .catch((error) => {
+      setSyncState("offline");
+      throw error;
+    })
+    .finally(() => {
+      syncing = null;
+    });
   return syncing;
 }
 export function recordPlay(
@@ -98,7 +133,7 @@ export function recordPlay(
   if (!validRun(run)) return;
   writeRuns([...readRuns(), run]);
   window.dispatchEvent(new Event("arcade:community"));
-  // Online participation is opt-in. No anonymous identity is created here.
+  // The first-visit name choice opts this device into automatic result sync.
   if (communityConfigured) void syncRuns().catch(() => {});
 }
 export type BoardRow = { place: number; nickname: string; score: number };

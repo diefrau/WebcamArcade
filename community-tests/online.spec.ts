@@ -46,7 +46,7 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
       nickname = data.p_nickname;
       body = null;
     } else if (url.includes("/arcade_profiles"))
-      body = profile ? { nickname } : null;
+      body = profile ? { nickname, anonymous_name: "익명2352" } : null;
     else if (url.includes("/rpc/arcade_submit")) {
       submits++;
       body = null;

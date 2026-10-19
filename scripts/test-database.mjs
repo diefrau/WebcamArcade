@@ -21,6 +21,15 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    new URL(
+      "../supabase/migrations/202610190002_player_identity.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
 const a = "11111111-1111-4111-8111-111111111111",
   b = "22222222-2222-4222-8222-222222222222";
 await db.query("insert into auth.users values($1),($2)", [a, b]);
@@ -83,6 +92,18 @@ await assert.rejects(
 );
 await identity(b);
 await db.query("select public.arcade_join($1)", [""]);
+const anonymousName = (
+  await db.query("select anonymous_name from public.arcade_profiles")
+).rows[0].anonymous_name;
+assert.match(anonymousName, /^익명\d+$/);
+await db.query("select public.arcade_join($1)", ["토끼"]);
+await db.query("select public.arcade_join($1)", [""]);
+assert.equal(
+  (await db.query("select anonymous_name from public.arcade_profiles")).rows[0]
+    .anonymous_name,
+  anonymousName,
+  "anonymous identity survives name edits and retries",
+);
 assert.equal(
   (await db.query("select * from public.arcade_runs")).rows.length,
   0,
@@ -98,7 +119,7 @@ await submit(crypto.randomUUID(), "shoot", 150);
 let rows = (await db.query("select * from public.arcade_board('shoot')")).rows;
 assert.equal(rows.length, 2);
 assert.equal(rows[0].score, 200);
-assert.equal(rows[0].nickname, "익명");
+assert.equal(rows[0].nickname, anonymousName);
 assert.deepEqual(Object.keys(rows[0]), ["place", "nickname", "score"]);
 await db.exec("reset role; set role anon");
 await assert.rejects(submit(crypto.randomUUID(), "shoot", 999));
