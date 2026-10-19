@@ -535,7 +535,6 @@ function HomePage() {
   const navigate = useNavigate();
   return (
     <>
-      <PlayerWelcome />
       <section className="hero">
         <div className="hero-copy">
           <span className="eyebrow">
@@ -582,6 +581,7 @@ function HomePage() {
         </div>
       </section>
       <RecordsBar />
+      <PlayerWelcome />
     </>
   );
 }

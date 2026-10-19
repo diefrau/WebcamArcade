@@ -1,27 +1,33 @@
 .player-strip {
-  display: flex;
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) auto;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 0 0 14px;
-  padding: 10px 16px;
+  gap: 7px 8px;
+  width: min(300px, calc(100% - 36px));
+  margin: 16px 0 12px auto;
+  padding: 11px 12px;
   border: 3px solid var(--ink);
   border-radius: 22px;
   background: #fffdf6;
   box-shadow: 3px 4px var(--ink);
 }
 .player-strip > svg {
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
 .player-strip > strong {
+  font-size: 14px;
   overflow-wrap: anywhere;
 }
 .player-strip > span {
+  grid-column: 1 / -1;
+  grid-row: 2;
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 12px;
-  margin-left: auto;
+  font-size: 11px;
+  margin-left: 0;
 }
 .player-strip > span svg {
   width: 18px;
@@ -34,6 +40,11 @@
   background: var(--cyan);
   padding: 7px 12px;
   font-weight: 900;
+}
+.player-strip > button {
+  padding: 6px 9px;
+  font-size: 11px;
+  white-space: nowrap;
 }
 .player-dialog {
   position: fixed;
@@ -122,12 +133,7 @@
   .player-dialog {
     padding: 22px 18px;
   }
-  .player-strip > span {
-    order: 4;
-    flex-basis: 100%;
-    margin-left: 0;
-  }
-  .player-strip > button {
-    margin-left: auto;
+  .player-strip {
+    width: min(280px, 100%);
   }
 }
