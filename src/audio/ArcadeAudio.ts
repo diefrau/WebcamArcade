@@ -118,6 +118,7 @@ export class ArcadeAudio {
   private desiredMusic: MusicTrack | null = null;
   private musicEnabled: boolean;
   private musicVolume: number;
+  private musicMix = 1;
 
   constructor(options: ArcadeAudioOptions = {}) {
     this.enabled = options.enabled ?? true;
@@ -198,6 +199,29 @@ export class ArcadeAudio {
     this.musicVolume = this.clampVolume(value);
     this.music?.setVolume(this.musicVolume);
   }
+  setMusicMix(value: number, seconds = 0.8): void {
+    this.musicMix = this.clampVolume(value);
+    this.music?.setMix(this.musicMix, seconds);
+  }
+  prepareMusic(track: MusicTrack): void {
+    if (
+      this.disposed ||
+      !this.enabled ||
+      !this.musicEnabled ||
+      !this.context ||
+      !this.master
+    )
+      return;
+    this.music ??= new MusicChannel(this.context, this.master);
+    this.music.setVolume(this.musicVolume);
+    this.music.setMix(this.musicMix, 0);
+    this.music.prepare(track);
+  }
+  resetMusic(): void {
+    this.desiredMusic = null;
+    this.music?.dispose();
+    this.music = null;
+  }
   resumeMusic(): void {
     if (
       !this.isReady ||
@@ -210,6 +234,7 @@ export class ArcadeAudio {
       return;
     this.music ??= new MusicChannel(this.context, this.master);
     this.music.setVolume(this.musicVolume);
+    this.music.setMix(this.musicMix);
     this.updateVolume();
     this.music.play(this.desiredMusic);
   }

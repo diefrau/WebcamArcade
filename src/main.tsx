@@ -98,6 +98,12 @@ import {
 } from "./audio/soundManager";
 import { SoundFeedback } from "./audio/SoundFeedback";
 import { musicForPath } from "./audio/music";
+import { IntroSequence } from "./components/intro/IntroSequence";
+import {
+  INTRO_SEEN_KEY,
+  titleVisible,
+  type IntroPhase,
+} from "./components/intro/timeline";
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -540,7 +546,7 @@ function RecordsBar() {
     </section>
   );
 }
-function HomePage() {
+function HomePage({ introDone = true }: { introDone?: boolean }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   return (
@@ -591,8 +597,8 @@ function HomePage() {
         </div>
       </section>
       <RecordsBar />
-      <PlayerWelcome />
-      <HomeEasterEggs />
+      {introDone && <PlayerWelcome />}
+      {introDone && <HomeEasterEggs />}
     </>
   );
 }
@@ -1423,6 +1429,7 @@ function SettingsDialog({
   setMusic,
   musicVolume,
   setMusicVolume,
+  replayIntro,
 }: {
   close: () => void;
   motion: boolean;
@@ -1431,6 +1438,7 @@ function SettingsDialog({
   setMusic: (x: boolean) => void;
   musicVolume: number;
   setMusicVolume: (x: number) => void;
+  replayIntro: () => void;
 }) {
   const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
@@ -1501,6 +1509,9 @@ function SettingsDialog({
         <Camera />
         {t("privacy")}
       </p>
+      <button className="intro-replay-button" onClick={replayIntro}>
+        {t("replayIntro")}
+      </button>
       <Button onClick={close}>{t("close")}</Button>
     </dialog>
   );
@@ -1508,6 +1519,23 @@ function SettingsDialog({
 function App() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const navigate = useNavigate();
+  const [introActive, setIntroActive] = useState(
+    () => pathname === "/" && !read(INTRO_SEEN_KEY, false),
+  );
+  const [introPhase, setIntroPhase] = useState<IntroPhase>("entry");
+  const introBusy = useRef(introActive);
+  introBusy.current = introActive;
+  const introMusicReady = !introActive || titleVisible(introPhase);
+  const homeVisible =
+    !introActive || introPhase === "fade" || introPhase === "reveal";
+  const musicMix = introActive
+    ? introPhase === "reveal"
+      ? 0.7
+      : 1
+    : musicForPath(pathname) === "title"
+      ? 0.7
+      : 1;
   const [sound, setSound] = useState(() => read("arcade.sound", true));
   const [music, setMusic] = useState(() => read("arcade.music", true));
   const [musicVolume, setMusicVolume] = useState(() => {
@@ -1557,8 +1585,11 @@ function App() {
     audio.current?.setEnabled(sound);
   }, [sound]);
   useEffect(() => {
-    audio.current?.setMusic(musicForPath(pathname));
-  }, [pathname]);
+    audio.current?.setMusic(introMusicReady ? musicForPath(pathname) : null);
+  }, [pathname, introMusicReady]);
+  useEffect(() => {
+    audio.current?.setMusicMix(musicMix, 0.8);
+  }, [musicMix]);
   useEffect(() => {
     audio.current?.setMusicEnabled(music);
     save("arcade.music", music);
@@ -1578,6 +1609,8 @@ function App() {
     (type: SoundCue = "click", options?: PlayOptions) => {
       const engine = audio.current;
       if (!engine || document.hidden) return;
+      if (introBusy.current && !["ui.toggleOn", "ui.toggleOff"].includes(type))
+        return;
       if (engine.isReady) engine.play(type, options);
       else if (
         ["click", "ui.click", "ui.toggleOn", "start", "resume"].includes(
@@ -1593,6 +1626,54 @@ function App() {
     },
     [],
   );
+  const toggleSound = () => {
+    if (sound) tone("ui.toggleOff");
+    audio.current?.setEnabled(!sound);
+    setSound(!sound);
+    save("arcade.sound", !sound);
+    if (!sound) tone("ui.toggleOn");
+  };
+  const introBeat = useCallback((phase: IntroPhase) => {
+    setIntroPhase(phase);
+    const engine = audio.current;
+    if (!engine || document.hidden) return;
+    if (phase === "ready") engine.play("game.ready");
+    else if (["three", "two", "one"].includes(phase))
+      engine.play("game.countdown", {
+        step: ["three", "two", "one"].indexOf(phase),
+      });
+    else if (phase === "go") {
+      engine.play("game.start");
+      engine.play("navigation.transition");
+    } else if (phase === "title") {
+      engine.play("sticker.appear");
+      engine.setMusic("title");
+    } else if (phase === "reveal") engine.setMusicMix(0.7, 0.8);
+  }, []);
+  const completeIntro = useCallback((skipped: boolean) => {
+    if (skipped) {
+      audio.current?.stop();
+      audio.current?.setMusicMix(0.7, 0.8);
+      audio.current?.setMusic("title");
+    }
+    save(INTRO_SEEN_KEY, true);
+    setIntroPhase("complete");
+    setIntroActive(false);
+    requestAnimationFrame(() => {
+      if (!document.querySelector("dialog[open]"))
+        document
+          .querySelector<HTMLButtonElement>(".hero-cta")
+          ?.focus({ preventScroll: true });
+    });
+  }, []);
+  const replayIntro = () => {
+    setSettings(false);
+    audio.current?.stop();
+    audio.current?.resetMusic();
+    navigate("/");
+    setIntroPhase("entry");
+    setIntroActive(true);
+  };
   function finish(result: Result) {
     recordPlay("shoot", result.score, result.accuracy);
     const next = {
@@ -1629,92 +1710,115 @@ function App() {
       <SoundFeedback play={tone} />
       <PlayerSession />
       <AchievementToasts play={tone} />
-      <RouteContent key={pathname}>
+      {introActive && (
+        <IntroSequence
+          sound={sound}
+          onSound={toggleSound}
+          onPhase={introBeat}
+          onComplete={completeIntro}
+          onStart={() => {
+            const engine = audio.current;
+            if (engine) {
+              unlocked.current = engine.unlock();
+              engine.prepareMusic("title");
+            }
+          }}
+        />
+      )}
+      {homeVisible && (
         <div
-          className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}
+          className={introActive ? "entry-home-reveal" : undefined}
+          inert={introActive}
         >
-          <ComicDecor />
-          <Header
-            onSettings={() => {
-              window.dispatchEvent(new Event("arcade:pause"));
-              setSettings(true);
-            }}
-            onSound={() => {
-              if (sound) tone("ui.toggleOff");
-              audio.current?.setEnabled(!sound);
-              setSound(!sound);
-              save("arcade.sound", !sound);
-              if (!sound) tone("ui.toggleOn");
-            }}
-          />
-          <main>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/games" element={<GamesPage />} />
-              <Route
-                path="/play/shoot"
-                element={<PlayPage onFinish={finish} />}
-              />
-              <Route
-                path="/play/circle"
-                element={<CircleGamePage onFinish={finishCircle} tone={tone} />}
-              />
-              <Route path="/result/shoot" element={<ResultPage />} />
-              <Route
-                path="/result/circle"
-                element={<CircleResultPage tone={tone} />}
-              />
-              <Route
-                path="/play/cham"
-                element={<ChamGamePage onFinish={finishCham} tone={tone} />}
-              />
-              <Route
-                path="/result/cham"
-                element={<ChamResultPage tone={tone} />}
-              />
-              <Route
-                path="/play/rps"
-                element={<RpsGamePage onFinish={finishCham} tone={tone} />}
-              />
-              <Route
-                path="/result/rps"
-                element={<RpsResultPage tone={tone} />}
-              />
-              <Route
-                path="/play/dodge"
-                element={<DodgeGamePage onFinish={finishCham} tone={tone} />}
-              />
-              <Route
-                path="/result/dodge"
-                element={<DodgeResultPage tone={tone} />}
-              />
-              <Route path="/ranking" element={<CommunityPage />} />
-              <Route
-                path="/achievements"
-                element={<CommunityPage achievements />}
-              />
-              <Route path="*" element={<Navigate to="/games" replace />} />
-            </Routes>
-          </main>
-          {storageError && <p role="alert">{t("recordError")}</p>}
-          <footer>
-            <span>WEBCAM ARCADE © 2026</span>
-            <span>
-              {t("footer")} <Smile size={16} />
-            </span>
-            <button
-              onClick={() => {
-                const lang = i18n.language === "ko" ? "en" : "ko";
-                void i18n.changeLanguage(lang);
-                save("arcade.language", lang);
-              }}
+          <RouteContent key={pathname}>
+            <div
+              className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}
             >
-              <Languages size={16} />{" "}
-              {i18n.language === "ko" ? "한국어 / EN" : "EN / 한국어"}
-            </button>
-          </footer>
+              <ComicDecor />
+              <Header
+                onSettings={() => {
+                  window.dispatchEvent(new Event("arcade:pause"));
+                  setSettings(true);
+                }}
+                onSound={toggleSound}
+              />
+              <main>
+                <Routes>
+                  <Route
+                    path="/"
+                    element={<HomePage introDone={!introActive} />}
+                  />
+                  <Route path="/games" element={<GamesPage />} />
+                  <Route
+                    path="/play/shoot"
+                    element={<PlayPage onFinish={finish} />}
+                  />
+                  <Route
+                    path="/play/circle"
+                    element={
+                      <CircleGamePage onFinish={finishCircle} tone={tone} />
+                    }
+                  />
+                  <Route path="/result/shoot" element={<ResultPage />} />
+                  <Route
+                    path="/result/circle"
+                    element={<CircleResultPage tone={tone} />}
+                  />
+                  <Route
+                    path="/play/cham"
+                    element={<ChamGamePage onFinish={finishCham} tone={tone} />}
+                  />
+                  <Route
+                    path="/result/cham"
+                    element={<ChamResultPage tone={tone} />}
+                  />
+                  <Route
+                    path="/play/rps"
+                    element={<RpsGamePage onFinish={finishCham} tone={tone} />}
+                  />
+                  <Route
+                    path="/result/rps"
+                    element={<RpsResultPage tone={tone} />}
+                  />
+                  <Route
+                    path="/play/dodge"
+                    element={
+                      <DodgeGamePage onFinish={finishCham} tone={tone} />
+                    }
+                  />
+                  <Route
+                    path="/result/dodge"
+                    element={<DodgeResultPage tone={tone} />}
+                  />
+                  <Route path="/ranking" element={<CommunityPage />} />
+                  <Route
+                    path="/achievements"
+                    element={<CommunityPage achievements />}
+                  />
+                  <Route path="*" element={<Navigate to="/games" replace />} />
+                </Routes>
+              </main>
+              {storageError && <p role="alert">{t("recordError")}</p>}
+              <footer>
+                <span>WEBCAM ARCADE © 2026</span>
+                <span>
+                  {t("footer")} <Smile size={16} />
+                </span>
+                <button
+                  onClick={() => {
+                    const lang = i18n.language === "ko" ? "en" : "ko";
+                    void i18n.changeLanguage(lang);
+                    save("arcade.language", lang);
+                  }}
+                >
+                  <Languages size={16} />{" "}
+                  {i18n.language === "ko" ? "한국어 / EN" : "EN / 한국어"}
+                </button>
+              </footer>
+            </div>
+          </RouteContent>
         </div>
-      </RouteContent>
+      )}
       {settings && (
         <SettingsDialog
           close={() => setSettings(false)}
@@ -1724,6 +1828,7 @@ function App() {
           setMusic={setMusic}
           musicVolume={musicVolume}
           setMusicVolume={setMusicVolume}
+          replayIntro={replayIntro}
         />
       )}
     </Context.Provider>

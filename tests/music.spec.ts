@@ -23,6 +23,7 @@ class Node {
   }
 }
 class Media {
+  muted = false;
   src = "";
   preload = "";
   loop = false;
@@ -143,4 +144,26 @@ test("late loads cannot play after replacement, mute or disposal; rejected playb
   channel.dispose();
   channel.play("quick");
   expect(media).toHaveLength(3);
+});
+
+test("intro primes muted music and applies the 30 percent home reduction without restarting", async () => {
+  const { channel, media, gains } = setup();
+  channel.prepare("title");
+  expect(media[0].muted).toBe(true);
+  expect(gains[0].gain.value).toBe(0);
+  await Promise.resolve();
+  expect(media[0].paused).toBe(true);
+  channel.play("title");
+  await Promise.resolve();
+  expect(media).toHaveLength(1);
+  expect(media[0].muted).toBe(false);
+  const titleLevel = gains[0].gain.value;
+  media[0].currentTime = 2;
+  channel.setMix(0.7, 0.8);
+  expect(gains[0].gain.value).toBeCloseTo(titleLevel * 0.7);
+  expect(gains[0].gain.events.at(-1)!.time).toBeCloseTo(10.8);
+  channel.play("title");
+  expect(media[0].currentTime).toBe(2);
+  expect(media[0].plays).toBe(2);
+  channel.dispose();
 });

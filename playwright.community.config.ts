@@ -4,7 +4,18 @@ export default defineConfig({
   outputDir: "test-results/community",
   workers: 1,
   reporter: "list",
-  use: { baseURL: "http://127.0.0.1:5176" },
+  use: {
+    baseURL: "http://127.0.0.1:5176",
+    storageState: {
+      cookies: [],
+      origins: [
+        {
+          origin: "http://127.0.0.1:5176",
+          localStorage: [{ name: "arcade.intro.seen.v1", value: "true" }],
+        },
+      ],
+    },
+  },
   webServer: {
     command: "npm run dev -- --port 5176 --strictPort",
     url: "http://127.0.0.1:5176",

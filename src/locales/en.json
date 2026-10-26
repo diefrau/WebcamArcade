@@ -227,5 +227,6 @@
   "homeFaceReady": "Face detected",
   "homeFaceWaiting": "Show your face",
   "backgroundMusic": "Background music",
-  "musicVolume": "Music volume"
+  "musicVolume": "Music volume",
+  "replayIntro": "Replay intro"
 }

@@ -1,0 +1,416 @@
+.intro-sequence {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  background: #fff7e7;
+  color: var(--ink);
+  overflow: hidden;
+  padding: 28px;
+  touch-action: manipulation;
+}
+.intro-sequence::before,
+.intro-sequence::after {
+  content: "";
+  position: absolute;
+  width: clamp(200px, 38vw, 600px);
+  aspect-ratio: 1;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  background: var(--yellow);
+  z-index: -1;
+  pointer-events: none;
+}
+.intro-sequence::before {
+  top: -32%;
+  left: -15%;
+  background: var(--cyan);
+  transform: rotate(-15deg);
+}
+.intro-sequence::after {
+  bottom: -45%;
+  right: -15%;
+  background: var(--pink);
+}
+.intro-confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+.intro-confetti i {
+  position: absolute;
+  width: 20px;
+  height: 75px;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  background: var(--lime);
+  transform: rotate(-25deg);
+}
+.intro-confetti i:nth-child(1) {
+  left: 12%;
+  bottom: 24%;
+}
+.intro-confetti i:nth-child(2) {
+  right: 15%;
+  top: 17%;
+  background: var(--pink);
+  transform: rotate(28deg);
+}
+.intro-confetti i:nth-child(3) {
+  right: 8%;
+  bottom: 28%;
+  height: 45px;
+  background: var(--cyan);
+  transform: rotate(-40deg);
+}
+.intro-confetti i:nth-child(4) {
+  left: 23%;
+  top: 11%;
+  height: 38px;
+  background: var(--yellow);
+  transform: rotate(35deg);
+}
+.intro-entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(48px, 9vh, 100px);
+}
+.intro-sequence .intro-logo {
+  width: max-content;
+  max-width: min(540px, 75vw);
+  min-width: 0;
+  line-height: 0.9;
+  transform: rotate(-5deg);
+  letter-spacing: -0.02em;
+}
+.intro-sequence .logo-webcam {
+  font-size: clamp(44px, 9.2vw, 95px);
+  letter-spacing: -0.02em;
+  -webkit-text-stroke-width: clamp(5px, 0.7vw, 10px);
+}
+.intro-sequence .logo-arcade {
+  font-size: clamp(54px, 11vw, 114px);
+  letter-spacing: -0.02em;
+  -webkit-text-stroke-width: clamp(5px, 0.7vw, 10px);
+}
+.intro-sequence .logo-star {
+  width: clamp(35px, 6vw, 70px);
+  height: auto;
+  right: 0;
+  top: -27%;
+}
+.intro-sequence .intro-start {
+  font-family: "Bagel Fat One", sans-serif;
+  font-size: clamp(24px, 4vw, 40px);
+  letter-spacing: -0.02em;
+  min-width: min(290px, 75vw);
+  justify-content: center;
+  border-width: 4px;
+  box-shadow: 5px 7px var(--ink);
+}
+.intro-start svg {
+  width: 32px;
+  height: 32px;
+}
+.intro-sound,
+.intro-skip {
+  position: absolute;
+  z-index: 3;
+  border: 3px solid var(--ink);
+  background: #fffbed;
+  box-shadow: 3px 4px var(--ink);
+  font-weight: 900;
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: 18px;
+}
+.intro-sound {
+  top: max(22px, env(safe-area-inset-top));
+  right: max(22px, env(safe-area-inset-right));
+  width: 48px;
+  padding: 10px;
+}
+.intro-skip {
+  bottom: max(24px, env(safe-area-inset-bottom));
+  right: max(24px, env(safe-area-inset-right));
+  font-size: 14px;
+}
+.intro-sequence button:focus-visible {
+  outline: 4px solid var(--cyan);
+  outline-offset: 7px;
+}
+.intro-countdown {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  text-align: center;
+}
+.intro-word {
+  --twist: -3deg;
+  display: block;
+  font-family: "Bagel Fat One", sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  font-size: clamp(120px, 24vw, 270px);
+  color: var(--yellow);
+  -webkit-text-stroke: clamp(5px, 1vw, 14px) var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 6px 10px var(--ink);
+  animation: intro-bounce 0.22s both;
+}
+.intro-word[data-beat="ready"] {
+  font-size: clamp(62px, 13.5vw, 180px);
+  color: var(--yellow);
+}
+.intro-word[data-beat="three"] {
+  --twist: -5deg;
+  color: var(--pink);
+}
+.intro-word[data-beat="two"] {
+  --twist: 4deg;
+  color: var(--cyan);
+}
+.intro-word[data-beat="one"] {
+  --twist: -3deg;
+  color: var(--yellow);
+}
+.intro-word[data-beat="go"] {
+  --twist: 3deg;
+  color: var(--lime);
+  font-size: clamp(120px, 25vw, 310px);
+  text-shadow:
+    8px 12px var(--pink),
+    13px 18px var(--ink);
+  animation-name: intro-go;
+}
+.intro-wipe {
+  position: absolute;
+  inset: 0;
+  background: #fffbed;
+  animation: intro-wipe 0.1s both;
+  pointer-events: none;
+}
+.intro-title-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: min(700px, 90vw);
+  height: min(720px, 88dvh);
+  gap: 24px;
+}
+.intro-title-logo {
+  z-index: 2;
+  animation: intro-bounce 0.3s both;
+}
+.intro-sequence .intro-aki {
+  width: auto;
+  max-width: min(50vw, 300px);
+  height: min(42dvh, 340px);
+  object-fit: contain;
+  animation: intro-aki 0.5s cubic-bezier(0.2, 1.4, 0.5, 1) both;
+}
+.intro-star {
+  position: absolute;
+  width: clamp(36px, 6vw, 72px);
+  height: auto;
+  stroke: var(--ink);
+  stroke-width: 2.5;
+  fill: var(--yellow);
+  animation: intro-star 0.5s both;
+}
+.intro-star-left {
+  left: 1%;
+  top: 52%;
+  transform: rotate(-18deg);
+}
+.intro-star-right {
+  right: 1%;
+  top: 67%;
+  fill: var(--cyan);
+  animation-delay: 0.08s;
+}
+.intro-title-card.is-fading {
+  animation: intro-fade-out 0.8s both;
+}
+.intro-phase-fade,
+.intro-phase-reveal {
+  background: transparent;
+}
+.intro-phase-fade::before,
+.intro-phase-fade::after,
+.intro-phase-fade > .intro-confetti,
+.intro-phase-reveal::before,
+.intro-phase-reveal::after,
+.intro-phase-reveal > .intro-confetti {
+  display: none;
+}
+.intro-phase-fade {
+  animation: intro-backdrop-out 0.8s both;
+}
+.entry-home-reveal .hero,
+.entry-home-reveal .hero-mascot,
+.entry-home-reveal .featured,
+.entry-home-reveal .top-nav {
+  animation: intro-home-in 0.45s both;
+}
+.entry-home-reveal .hero {
+  animation-delay: 0.6s;
+}
+.entry-home-reveal .hero-mascot {
+  animation-delay: 0.68s;
+}
+.entry-home-reveal .featured {
+  animation-delay: 0.76s;
+}
+.entry-home-reveal .top-nav {
+  animation-delay: 0.84s;
+}
+.intro-replay-button {
+  display: block;
+  width: 100%;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 2px solid var(--ink);
+  border-radius: 14px;
+  background: var(--cyan);
+  font-weight: 900;
+}
+@keyframes intro-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.6) rotate(var(--twist, -4deg));
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15) rotate(1deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes intro-go {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-5deg);
+  }
+  65% {
+    opacity: 1;
+    transform: scale(1.35) rotate(4deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+}
+@keyframes intro-aki {
+  from {
+    opacity: 0;
+    transform: translateY(80px) rotate(8deg);
+  }
+  70% {
+    opacity: 1;
+    transform: translateY(-15px) rotate(-3deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes intro-star {
+  from {
+    opacity: 0;
+    scale: 0.3;
+  }
+  70% {
+    opacity: 1;
+    scale: 1.2;
+  }
+  to {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes intro-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+@keyframes intro-backdrop-out {
+  from {
+    background: #fff7e7;
+  }
+  to {
+    background: transparent;
+  }
+}
+@keyframes intro-wipe {
+  from {
+    clip-path: circle(0% at center);
+  }
+  to {
+    clip-path: circle(75% at center);
+  }
+}
+@keyframes intro-home-in {
+  from {
+    opacity: 0;
+    translate: 0 18px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+@media (max-height: 600px) {
+  .intro-title-card {
+    gap: 12px;
+  }
+  .intro-sequence .intro-aki {
+    height: 34dvh;
+  }
+  .intro-sequence .intro-logo {
+    width: min(390px, 68vw);
+  }
+  .intro-sequence .logo-webcam {
+    font-size: clamp(40px, 8vw, 72px);
+  }
+  .intro-sequence .logo-arcade {
+    font-size: clamp(48px, 10vw, 90px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .intro-sequence *,
+  .entry-home-reveal * {
+    animation: none !important;
+    transition: none !important;
+  }
+  .intro-wipe {
+    display: none;
+  }
+  .intro-title-card.is-fading {
+    opacity: 0;
+  }
+}
+html[data-motion="reduced"] .intro-sequence *,
+html[data-motion="reduced"] .entry-home-reveal * {
+  animation: none !important;
+  transition: none !important;
+}
+html[data-motion="reduced"] .intro-wipe {
+  display: none;
+}
+html[data-motion="reduced"] .intro-title-card.is-fading {
+  opacity: 0;
+}

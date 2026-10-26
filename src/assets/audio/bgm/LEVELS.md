@@ -22,7 +22,9 @@ source hashes and measured loudness ranges.
 Runtime mix: existing master 0.65, default music volume 0.65. Relative track
 gains are title 0.90, bounce 0.75, quick 0.70 and leisure 0.80. Approximate music
 levels before shared output compression are respectively −28.7, −30.2, −30.8
-and −29.7 LUFS at these defaults. These are calculated playback levels, not
+and −29.7 LUFS at these defaults. The title figure is the intro title-card
+level; the home/menu adds a 0.7 mix multiplier after reveal (about −31.8 LUFS)
+without changing the user's saved music volume. These are calculated playback levels, not
 additional file measurements, and listeners can adjust the music slider.
 
 Routing: menus → title; shoot/RPS and their results → bounce; cham/dodge and

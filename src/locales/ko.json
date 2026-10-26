@@ -227,5 +227,6 @@
   "homeFaceReady": "얼굴 인식",
   "homeFaceWaiting": "얼굴 대기",
   "backgroundMusic": "배경음악",
-  "musicVolume": "배경음악 볼륨"
+  "musicVolume": "배경음악 볼륨",
+  "replayIntro": "인트로 다시 보기"
 }
