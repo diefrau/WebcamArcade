@@ -7,6 +7,8 @@ import {
   type SoundCue,
   type PlayOptions,
 } from "./sounds";
+import { MusicChannel } from "./MusicChannel";
+import type { MusicTrack } from "./music";
 export type { SoundCue, PlayOptions } from "./sounds";
 type LegacyCue =
   | "click"
@@ -80,6 +82,8 @@ export type ArcadeAudioOptions = {
   /** Allows deterministic tests and browsers with a prefixed AudioContext. */
   createContext?: () => AudioContext | null;
   loadSample?: (url: string) => Promise<ArrayBuffer>;
+  musicEnabled?: boolean;
+  musicVolume?: number;
 };
 
 function createBrowserContext(): AudioContext | null {
@@ -110,9 +114,15 @@ export class ArcadeAudio {
   private readonly abort = new AbortController();
   private readonly loadSample: (url: string) => Promise<ArrayBuffer>;
   private volume = 0.65;
+  private music: MusicChannel | null = null;
+  private desiredMusic: MusicTrack | null = null;
+  private musicEnabled: boolean;
+  private musicVolume: number;
 
   constructor(options: ArcadeAudioOptions = {}) {
     this.enabled = options.enabled ?? true;
+    this.musicEnabled = options.musicEnabled ?? true;
+    this.musicVolume = this.clampVolume(options.musicVolume ?? 0.65);
     this.createContext = options.createContext ?? createBrowserContext;
     this.loadSample =
       options.loadSample ??
@@ -171,6 +181,39 @@ export class ArcadeAudio {
     this.updateVolume();
   }
 
+  private clampVolume(value: number) {
+    return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0.65;
+  }
+  setMusic(track: MusicTrack | null): void {
+    this.desiredMusic = track;
+    if (track) this.resumeMusic();
+    else this.music?.pause();
+  }
+  setMusicEnabled(enabled: boolean): void {
+    this.musicEnabled = enabled;
+    if (!enabled) this.music?.pause();
+    else this.resumeMusic();
+  }
+  setMusicVolume(value: number): void {
+    this.musicVolume = this.clampVolume(value);
+    this.music?.setVolume(this.musicVolume);
+  }
+  resumeMusic(): void {
+    if (
+      !this.isReady ||
+      !this.enabled ||
+      !this.musicEnabled ||
+      !this.desiredMusic ||
+      !this.master ||
+      !this.context
+    )
+      return;
+    this.music ??= new MusicChannel(this.context, this.master);
+    this.music.setVolume(this.musicVolume);
+    this.updateVolume();
+    this.music.play(this.desiredMusic);
+  }
+
   get isReady(): boolean {
     return !this.disposed && this.unlocked && this.context?.state === "running";
   }
@@ -180,6 +223,7 @@ export class ArcadeAudio {
     if (this.disposed) return Promise.resolve(false);
     if (this.pendingUnlock) return this.pendingUnlock;
     if (this.unlocked && this.context?.state === "running") {
+      this.resumeMusic();
       return Promise.resolve(true);
     }
     this.pendingUnlock = this.resumeContext().finally(() => {
@@ -211,6 +255,7 @@ export class ArcadeAudio {
       if (this.disposed || this.context.state !== "running") return false;
       this.unlocked = true;
       this.updateVolume();
+      this.resumeMusic();
       void this.preload();
       return true;
     } catch {
@@ -223,6 +268,7 @@ export class ArcadeAudio {
     this.enabled = enabled;
     if (!enabled) this.stop();
     this.updateVolume();
+    if (enabled) this.resumeMusic();
   }
 
   private updateVolume(): void {
@@ -370,6 +416,7 @@ export class ArcadeAudio {
 
   /** Cancels live and future notes. Useful before page transitions or muting. */
   stop(): void {
+    this.music?.pause();
     if (this.context && this.master) {
       const now = this.context.currentTime;
       this.master.gain.cancelScheduledValues(now);
@@ -402,6 +449,7 @@ export class ArcadeAudio {
     this.decodes.clear();
     this.unlocked = false;
     this.stop();
+    this.music?.dispose();
     this.master?.disconnect();
     this.limiter?.disconnect();
     this.decoder = null;

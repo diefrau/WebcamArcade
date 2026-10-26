@@ -17,6 +17,8 @@ const types = {
   ".svg": "image/svg+xml",
   ".wasm": "application/wasm",
   ".woff2": "font/woff2",
+  ".mp3": "audio/mpeg",
+  ".wav": "audio/wav",
 };
 
 createServer(async (request, response) => {

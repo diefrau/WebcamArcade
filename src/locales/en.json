@@ -225,5 +225,7 @@
   "touchDodge": "Hold an arrow button to move",
   "homeHands": "Hands {{count}}/2",
   "homeFaceReady": "Face detected",
-  "homeFaceWaiting": "Show your face"
+  "homeFaceWaiting": "Show your face",
+  "backgroundMusic": "Background music",
+  "musicVolume": "Music volume"
 }

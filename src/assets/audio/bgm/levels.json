@@ -1,0 +1,58 @@
+{
+  "WebArcMainTitle": {
+    "sourceSHA256": "c221c6af845b199fe7ecea093942dc2da1068203ca0fc31ff5f9e244d1035b01",
+    "source": {
+      "integratedLUFS": -13.32,
+      "truePeakDBTP": 0.18,
+      "loudnessRangeLU": 2.1
+    },
+    "release": {
+      "integratedLUFS": -20.26,
+      "truePeakDBTP": -6.87,
+      "loudnessRangeLU": 2.2
+    },
+    "loudnessChangeDB": -6.94
+  },
+  "WebArcBounce": {
+    "sourceSHA256": "397db4fd35d658ff05f78f40fb923f576020fbe11105c6a99eabed2ef955ff37",
+    "source": {
+      "integratedLUFS": -14.83,
+      "truePeakDBTP": 0.35,
+      "loudnessRangeLU": 2.4
+    },
+    "release": {
+      "integratedLUFS": -20.26,
+      "truePeakDBTP": -4.82,
+      "loudnessRangeLU": 2.4
+    },
+    "loudnessChangeDB": -5.43
+  },
+  "WebArcQS": {
+    "sourceSHA256": "d72fa174337c2d0753fa61a665182aef1b37702d321504f9bfea7dd2b3de0b20",
+    "source": {
+      "integratedLUFS": -13.98,
+      "truePeakDBTP": -0.56,
+      "loudnessRangeLU": 2.3
+    },
+    "release": {
+      "integratedLUFS": -20.26,
+      "truePeakDBTP": -6.92,
+      "loudnessRangeLU": 2.4
+    },
+    "loudnessChangeDB": -6.28
+  },
+  "WebArcLTR": {
+    "sourceSHA256": "397db4fd35d658ff05f78f40fb923f576020fbe11105c6a99eabed2ef955ff37",
+    "source": {
+      "integratedLUFS": -14.83,
+      "truePeakDBTP": 0.35,
+      "loudnessRangeLU": 2.4
+    },
+    "release": {
+      "integratedLUFS": -20.26,
+      "truePeakDBTP": -4.82,
+      "loudnessRangeLU": 2.4
+    },
+    "loudnessChangeDB": -5.43
+  }
+}

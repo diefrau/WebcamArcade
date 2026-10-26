@@ -3,6 +3,7 @@ dist
 test-results
 playwright-report
 artifacts/audio-source/
+artifacts/audio-tools/
 public/vision/wasm
 
 .env

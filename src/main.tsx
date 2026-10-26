@@ -97,6 +97,7 @@ import {
   type PlayOptions,
 } from "./audio/soundManager";
 import { SoundFeedback } from "./audio/SoundFeedback";
+import { musicForPath } from "./audio/music";
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -1418,10 +1419,18 @@ function SettingsDialog({
   close,
   motion,
   setMotion,
+  music,
+  setMusic,
+  musicVolume,
+  setMusicVolume,
 }: {
   close: () => void;
   motion: boolean;
   setMotion: (x: boolean) => void;
+  music: boolean;
+  setMusic: (x: boolean) => void;
+  musicVolume: number;
+  setMusicVolume: (x: number) => void;
 }) {
   const { t } = useTranslation();
   const dialog = useRef<HTMLDialogElement>(null);
@@ -1466,6 +1475,28 @@ function SettingsDialog({
           onChange={(e) => setMotion(e.target.checked)}
         />
       </label>
+      <label>
+        <Volume2 />
+        {t("backgroundMusic")}
+        <input
+          type="checkbox"
+          checked={music}
+          onChange={(e) => setMusic(e.target.checked)}
+        />
+      </label>
+      <label className="music-volume-control">
+        <span>{t("musicVolume")}</span>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value={Math.round(musicVolume * 100)}
+          disabled={!music}
+          onChange={(e) => setMusicVolume(Number(e.target.value) / 100)}
+        />
+        <output>{Math.round(musicVolume * 100)}%</output>
+      </label>
       <p>
         <Camera />
         {t("privacy")}
@@ -1478,6 +1509,11 @@ function App() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const [sound, setSound] = useState(() => read("arcade.sound", true));
+  const [music, setMusic] = useState(() => read("arcade.music", true));
+  const [musicVolume, setMusicVolume] = useState(() => {
+    const value = read("arcade.music.volume", 0.65);
+    return Number.isFinite(value) ? Math.max(0, Math.min(1, value)) : 0.65;
+  });
   const [motion, setMotion] = useState(() => read("arcade.motion", false));
   const [settings, setSettings] = useState(false);
   const [records, setRecords] = useState<Records>(() => {
@@ -1490,7 +1526,11 @@ function App() {
   const audio = useRef<SoundManager | null>(null);
   const unlocked = useRef<Promise<boolean> | null>(null);
   useEffect(() => {
-    const engine = new SoundManager({ enabled: read("arcade.sound", true) });
+    const engine = new SoundManager({
+      enabled: read("arcade.sound", true),
+      musicEnabled: read("arcade.music", true),
+      musicVolume: read("arcade.music.volume", 0.65),
+    });
     audio.current = engine;
     const unlock = (event: Event) => {
       if (!event.isTrusted || (event instanceof KeyboardEvent && event.repeat))
@@ -1499,6 +1539,7 @@ function App() {
     };
     const hidden = () => {
       if (document.hidden) engine.stop();
+      else engine.resumeMusic();
     };
     window.addEventListener("pointerdown", unlock, true);
     window.addEventListener("keydown", unlock, true);
@@ -1515,6 +1556,17 @@ function App() {
   useEffect(() => {
     audio.current?.setEnabled(sound);
   }, [sound]);
+  useEffect(() => {
+    audio.current?.setMusic(musicForPath(pathname));
+  }, [pathname]);
+  useEffect(() => {
+    audio.current?.setMusicEnabled(music);
+    save("arcade.music", music);
+  }, [music]);
+  useEffect(() => {
+    audio.current?.setMusicVolume(musicVolume);
+    save("arcade.music.volume", musicVolume);
+  }, [musicVolume]);
   useEffect(() => {
     document.documentElement.lang = i18n.language;
   }, [i18n.language]);
@@ -1668,6 +1720,10 @@ function App() {
           close={() => setSettings(false)}
           motion={motion}
           setMotion={setMotion}
+          music={music}
+          setMusic={setMusic}
+          musicVolume={musicVolume}
+          setMusicVolume={setMusicVolume}
         />
       )}
     </Context.Provider>

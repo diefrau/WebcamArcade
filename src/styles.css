@@ -1647,6 +1647,21 @@ footer button {
   height: 22px;
   accent-color: var(--pink);
 }
+.settings-dialog .music-volume-control {
+  display: grid;
+  grid-template-columns: auto minmax(60px, 1fr) 42px;
+  gap: 10px;
+}
+.settings-dialog .music-volume-control input {
+  width: 100%;
+  min-width: 0;
+  margin: 0;
+  height: 32px;
+}
+.music-volume-control output {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
 .settings-dialog p {
   font-size: 12px;
   display: flex;

@@ -156,7 +156,7 @@ npm run preview
 - 음원: 버튼·토글·뒤로가기·이동, 시작 명령, 성공/실패, 결과/최고 기록, 카메라 연결·인식, 발사/명중/빗나감, 그리기 시작·완료, 스티커·캐릭터 반응.
 - 기본 master volume 0.65. 개별 상대 볼륨, hover 100ms 제한, 감지 전환 제한, 최대 16개 voice와 출력 압축으로 겹침을 제어합니다. 음소거·탭 숨김·dispose는 예약 음까지 취소합니다.
 - 음원은 미리 fetch하고 OfflineAudioContext로 디코딩·캐시합니다. 실제 출력은 사용자의 클릭·터치·키보드 입력 후 활성화합니다. 준비 전이나 다운로드 실패 시 기존의 조용한 합성으로 즉시 대체하며, 다운로드 완료 후 지난 이벤트를 재생하지 않습니다.
-- 음원은 [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)와 [Impact Sounds](https://kenney.nl/assets/impact-sounds)의 CC0 파일을 잘라 짧게 페이드·정규화한 WAV입니다. 약 304KB이며 Vite가 배포 경로를 처리합니다. [음원별 출처와 변환 내역](src/assets/audio/SOURCES.md), 두 원본 라이선스를 포함합니다. BGM·음성은 추가하지 않았습니다.
+- 효과음은 [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)와 [Impact Sounds](https://kenney.nl/assets/impact-sounds)의 CC0 파일을 잘라 짧게 페이드·정규화한 WAV입니다. 약 304KB이며 Vite가 배포 경로를 처리합니다. [음원별 출처와 변환 내역](src/assets/audio/SOURCES.md), 두 원본 라이선스를 포함합니다. 음성은 추가하지 않았습니다.
 
 ```ts
 sound.play("ui.click");                    // sampled plastic/wood click
@@ -164,6 +164,15 @@ sound.play("game.combo", { step: 3 });     // synthesized pitch variation
 sound.play("shoot.fire");                  // sampled toy pop
 sound.setEnabled(false);                   // stop both backends immediately
 ```
+
+## 배경음악
+
+사용자가 제공한 네 MP3의 전체 곡 음량과 true peak를 측정하고, 원본을 보존하면서 재생용 사본을 약 −20.26 LUFS로 맞췄습니다. 측정값·변환 방식·원본 해시는 [BGM 레벨 보고서](src/assets/audio/bgm/LEVELS.md)에 있습니다. scripts/normalize-bgm.py로 FFmpeg의 2-pass linear loudnorm을 재현할 수 있습니다.
+
+- MainTitle: 홈·게임 선택·랭킹·도전과제. Bounce: 쏴!·가위바위보. QS: 참참참·빨리 피해!. LTR: 원 그리기. 결과 화면은 해당 게임 곡을 이어갑니다.
+- 최초 클릭·터치·키보드 입력 후 현재 곡만 스트리밍하며, 메뉴 사이에서는 재시작하지 않습니다. 곡 변경은 700ms 교차 전환, 탭 숨김·음소거는 즉시 일시정지하고 돌아오면 같은 위치에서 재개합니다.
+- 기존 SoundManager의 AudioContext·master에 BGM 채널을 연결했습니다. 설정의 BGM 켜기/끄기와 0–100% 볼륨은 별도로 저장되며, 상단 사운드 끄기는 효과음과 BGM을 함께 끕니다.
+- 기본 BGM 볼륨은 65%이며, 효과음이 앞에서 들리도록 곡별 상대 게인을 추가 적용합니다. 원본 Bounce와 LTR은 동일한 파일이므로 두 역할은 현재 같은 음악을 사용합니다.
 
 ## 검증
 
