@@ -148,6 +148,23 @@ npm run preview
 - 얼굴 게임은 더 작은 움직임을 100ms 유지하면 판정하고, 잠깐의 추적 상실에도 라운드를 진행합니다. 추적이 없을 때 임의의 방향을 만들지 않습니다. 3초 연속 상실이나 카메라 오류에는 일시정지합니다. 모델이 완전한 옆얼굴까지 항상 인식하는 것은 아니므로 실제 장치에서 확인이 필요합니다.
 - JavaScript에서 `maxTouchPoints`, 주 포인터의 `pointer: coarse`, 현재 폭을 함께 확인합니다. 터치 환경에는 터치 안내와 44px 이상의 버튼을 제공하고 손 메뉴 커서·마우스 조준선·일부 장식을 숨깁니다. 화면 폭만으로 터치 장치라고 간주하지 않으며, 키보드·마우스를 주로 쓰는 넓은 터치 노트북은 데스크톱 조작을 유지합니다. 웹캠 모드는 선택할 수 있습니다.
 
+## 하이브리드 효과음
+
+`src/audio/soundManager.ts`의 `SoundManager`는 기존 `ArcadeAudio` 엔진을 확장한 공통 매니저입니다. `sound.play("ui.click")`처럼 같은 인터페이스로 음원 파일과 합성을 재생합니다. 기존 `click`, `start`, `success` 등의 호출도 별칭으로 유지합니다.
+
+- 합성: 작은 hover/tick, 화면 숫자에 맞춘 countdown, 5단계 pitch의 combo, 점수와 원 그리기 진행음.
+- 음원: 버튼·토글·뒤로가기·이동, 시작 명령, 성공/실패, 결과/최고 기록, 카메라 연결·인식, 발사/명중/빗나감, 그리기 시작·완료, 스티커·캐릭터 반응.
+- 기본 master volume 0.65. 개별 상대 볼륨, hover 100ms 제한, 감지 전환 제한, 최대 16개 voice와 출력 압축으로 겹침을 제어합니다. 음소거·탭 숨김·dispose는 예약 음까지 취소합니다.
+- 음원은 미리 fetch하고 OfflineAudioContext로 디코딩·캐시합니다. 실제 출력은 사용자의 클릭·터치·키보드 입력 후 활성화합니다. 준비 전이나 다운로드 실패 시 기존의 조용한 합성으로 즉시 대체하며, 다운로드 완료 후 지난 이벤트를 재생하지 않습니다.
+- 음원은 [Kenney Interface Sounds](https://kenney.nl/assets/interface-sounds)와 [Impact Sounds](https://kenney.nl/assets/impact-sounds)의 CC0 파일을 잘라 짧게 페이드·정규화한 WAV입니다. 약 304KB이며 Vite가 배포 경로를 처리합니다. [음원별 출처와 변환 내역](src/assets/audio/SOURCES.md), 두 원본 라이선스를 포함합니다. BGM·음성은 추가하지 않았습니다.
+
+```ts
+sound.play("ui.click");                    // sampled plastic/wood click
+sound.play("game.combo", { step: 3 });     // synthesized pitch variation
+sound.play("shoot.fire");                  // sampled toy pop
+sound.setEnabled(false);                   // stop both backends immediately
+```
+
 ## 검증
 
 ```sh

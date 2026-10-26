@@ -91,7 +91,12 @@ import {
   readDodge,
 } from "./games/DodgeGamePage";
 import { CountUp, ResultCelebration } from "./components/ResultCelebration";
-import { ArcadeAudio, type SoundCue } from "./audio/ArcadeAudio";
+import {
+  SoundManager,
+  type SoundCue,
+  type PlayOptions,
+} from "./audio/soundManager";
+import { SoundFeedback } from "./audio/SoundFeedback";
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -143,7 +148,7 @@ function today() {
 }
 const Context = createContext({
   sound: true,
-  tone: (_type?: SoundCue) => {},
+  tone: (_type?: SoundCue, _options?: PlayOptions) => {},
   records: emptyRecords,
 });
 const games: { id: GameId; color: string; duration: number; badge: string }[] =
@@ -298,13 +303,11 @@ function Button({
   className = "",
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & { color?: string }) {
-  const { tone } = useContext(Context);
   return (
     <button
       {...props}
       className={`arcade-button ${color} ${className}`}
       onClick={(e) => {
-        tone("click");
         props.onClick?.(e);
       }}
     >
@@ -380,6 +383,7 @@ function Header({
         </button>
         <button
           className="lime"
+          data-sound-toggle
           onClick={onSound}
           aria-label={sound ? t("soundOn") : t("soundOff")}
         >
@@ -957,6 +961,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
   }, []);
   function shot(id?: number) {
     if (phase !== "playing" || finished.current) return;
+    tone("shoot.fire");
     const s = stats.current;
     s.shots++;
     if (id !== undefined) {
@@ -967,7 +972,8 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       setScore(s.score);
       setCombo(s.combo);
       setFeedback("hit");
-      tone(s.combo % 5 === 0 ? "combo" : "success");
+      tone("shoot.hit");
+      if (s.combo > 1) tone("game.combo", { step: Math.min(4, s.combo - 2) });
       setTargets((prev) =>
         prev.map((target) =>
           target.id === id
@@ -985,7 +991,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       setCombo(0);
       setLives(s.lives);
       setFeedback("miss");
-      tone("fail");
+      tone("shoot.miss");
       if (s.lives <= 0) finishRef.current();
     }
   }
@@ -1034,6 +1040,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
         </button>
         <button
           className={inputMode === "hand" ? "active" : ""}
+          data-sound={!camera.stream ? "none" : undefined}
           onClick={() => {
             setInputMode("hand");
             if (!camera.stream) void camera.connect();
@@ -1480,10 +1487,10 @@ function App() {
       : emptyRecords;
   });
   const [storageError, setStorageError] = useState(false);
-  const audio = useRef<ArcadeAudio | null>(null);
+  const audio = useRef<SoundManager | null>(null);
   const unlocked = useRef<Promise<boolean> | null>(null);
   useEffect(() => {
-    const engine = new ArcadeAudio({ enabled: read("arcade.sound", true) });
+    const engine = new SoundManager({ enabled: read("arcade.sound", true) });
     audio.current = engine;
     const unlock = (event: Event) => {
       if (!event.isTrusted || (event instanceof KeyboardEvent && event.repeat))
@@ -1515,16 +1522,25 @@ function App() {
     document.documentElement.dataset.motion = motion ? "reduced" : "full";
     save("arcade.motion", motion);
   }, [motion]);
-  const tone = useCallback((type: SoundCue = "click") => {
-    const engine = audio.current;
-    if (!engine || document.hidden) return;
-    if (engine.isReady) engine.play(type);
-    else if (["click", "start", "resume"].includes(type) && unlocked.current) {
-      void unlocked.current.then(() => {
-        if (audio.current === engine) engine.play(type);
-      });
-    }
-  }, []);
+  const tone = useCallback(
+    (type: SoundCue = "click", options?: PlayOptions) => {
+      const engine = audio.current;
+      if (!engine || document.hidden) return;
+      if (engine.isReady) engine.play(type, options);
+      else if (
+        ["click", "ui.click", "ui.toggleOn", "start", "resume"].includes(
+          type,
+        ) &&
+        unlocked.current
+      ) {
+        void unlocked.current.then(() => {
+          if (audio.current === engine && !document.hidden)
+            engine.play(type, options);
+        });
+      }
+    },
+    [],
+  );
   function finish(result: Result) {
     recordPlay("shoot", result.score, result.accuracy);
     const next = {
@@ -1558,8 +1574,9 @@ function App() {
   }
   return (
     <Context.Provider value={{ sound, tone, records }}>
+      <SoundFeedback play={tone} />
       <PlayerSession />
-      <AchievementToasts />
+      <AchievementToasts play={tone} />
       <RouteContent key={pathname}>
         <div
           className={`app-shell screen-${pathname.startsWith("/play") ? "play" : pathname.startsWith("/result") ? "result" : pathname === "/games" ? "games" : "home"}`}
@@ -1571,9 +1588,11 @@ function App() {
               setSettings(true);
             }}
             onSound={() => {
+              if (sound) tone("ui.toggleOff");
               audio.current?.setEnabled(!sound);
               setSound(!sound);
               save("arcade.sound", !sound);
+              if (!sound) tone("ui.toggleOn");
             }}
           />
           <main>

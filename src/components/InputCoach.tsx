@@ -193,7 +193,11 @@ export function InputCoach({
           role="group"
           aria-label={text("연습 입력 방식", "Practice input")}
         >
-          <button aria-pressed={cameraMode} onClick={() => mode(true)}>
+          <button
+            data-sound={!camera.stream ? "none" : undefined}
+            aria-pressed={cameraMode}
+            onClick={() => mode(true)}
+          >
             <Camera />
             {text("웹캠", "Webcam")}
           </button>

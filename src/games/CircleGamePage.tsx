@@ -229,6 +229,19 @@ export function CircleGamePage({
   const pathRef = useRef<Point[]>([]);
   const elapsed = useRef(0);
   const finished = useRef(false);
+  const progressSound = useRef(false);
+  useEffect(() => {
+    if (phase !== "playing" || progressSound.current || path.length < 28)
+      return;
+    let length = 0;
+    for (let i = 1; i < path.length; i++) {
+      if (!path[i].move) length += distance(path[i - 1], path[i]);
+    }
+    if (length > 0.9 && distance(path[0], path[path.length - 1]) < 0.12) {
+      progressSound.current = true;
+      tone("circle.progress");
+    }
+  }, [path, phase, tone]);
   const updatePath = useCallback((next: Point[]) => {
     pathRef.current = next;
     setPath(next);
@@ -270,7 +283,7 @@ export function CircleGamePage({
         return;
       }
       finished.current = true;
-      tone("success");
+      tone("circle.complete");
       const best = read<number>("arcade.circle.best", 0);
       const next = {
         ...result,
@@ -329,6 +342,7 @@ export function CircleGamePage({
       return;
     }
     const newStroke = !drawing.current;
+    if (newStroke) tone("circle.start");
     drawing.current = true;
     if (
       newStroke ||
@@ -366,6 +380,7 @@ export function CircleGamePage({
   const start = () => {
     tone("start");
     finished.current = false;
+    progressSound.current = false;
     drawing.current = false;
     updatePath([]);
     setFeedback("");
@@ -376,6 +391,7 @@ export function CircleGamePage({
   const pointerDown = (event: React.PointerEvent<HTMLCanvasElement>) => {
     if (mode !== "mouse" || phase !== "playing") return;
     event.currentTarget.setPointerCapture(event.pointerId);
+    tone("circle.start");
     drawing.current = true;
     updatePath([getPoint(event)]);
   };
@@ -442,6 +458,7 @@ export function CircleGamePage({
         </button>
         <button
           className={mode === "hand" ? "active" : ""}
+          data-sound={!camera.stream ? "none" : undefined}
           onClick={() => {
             setMode("hand");
             if (!camera.stream) void camera.connect();

@@ -4,7 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Sparkles, Trophy } from "lucide-react";
 import type { AchievementNotice } from "./achievementNotices";
 import "./secrets.css";
-export function AchievementToasts() {
+import type { PlaySound } from "../audio/useGameSound";
+export function AchievementToasts({ play }: { play?: PlaySound }) {
   const { i18n } = useTranslation();
   const [queue, setQueue] = useState<AchievementNotice[]>([]);
   const [leaving, setLeaving] = useState(false);
@@ -23,6 +24,7 @@ export function AchievementToasts() {
   }, []);
   useEffect(() => {
     if (!active) return;
+    play?.("sticker.appear");
     setLeaving(false);
     const hide = setTimeout(() => setLeaving(true), 3000);
     const remove = setTimeout(() => {
@@ -33,7 +35,7 @@ export function AchievementToasts() {
       clearTimeout(hide);
       clearTimeout(remove);
     };
-  }, [active]);
+  }, [active, play]);
   if (!active) return null;
   const ko = i18n.language.startsWith("ko");
   return createPortal(

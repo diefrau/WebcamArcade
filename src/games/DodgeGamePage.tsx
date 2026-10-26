@@ -19,6 +19,7 @@ import { WebcamFrame } from "../components/WebcamFrame";
 import { Character } from "../components/Character";
 import { CountUp, ResultCelebration } from "../components/ResultCelebration";
 import type { SoundCue } from "../audio/ArcadeAudio";
+import { useGameSound } from "../audio/useGameSound";
 import {
   advanceDodge,
   dodgeFinished,
@@ -98,6 +99,7 @@ export function DodgeGamePage({
   const [state, setState] = useState(newDodge);
   const game = useRef(state);
   const [countdown, setCountdown] = useState(3);
+  useGameSound(phase, countdown, 0, tone);
   const count = useRef(3);
   const finished = useRef(false);
   const calibration = useRef({ x: 0.5, width: 0.3 });
@@ -140,7 +142,7 @@ export function DodgeGamePage({
     setCountdown(3);
     finished.current = false;
     transition("countdown");
-    tone("start");
+    tone("game.ready");
   }
   function finish(s: DodgeState) {
     if (finished.current) return;
@@ -318,6 +320,7 @@ export function DodgeGamePage({
         </button>
         <button
           className={mode === "body" ? "active" : ""}
+          data-sound={!camera.stream ? "none" : undefined}
           onClick={() => changeMode("body")}
         >
           <MoveHorizontal />

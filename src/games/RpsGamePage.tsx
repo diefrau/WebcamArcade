@@ -11,6 +11,7 @@ import { HandMenuCursor } from "../components/HandMenuCursor";
 import { Character } from "../components/Character";
 import { CountUp, ResultCelebration } from "../components/ResultCelebration";
 import type { SoundCue } from "../audio/ArcadeAudio";
+import { useGameSound } from "../audio/useGameSound";
 import {
   classifyRps,
   rpsChoices,
@@ -105,6 +106,7 @@ export function RpsGamePage({
   const [remaining, setRemaining] = useState(COUNTDOWN);
   const remainingRef = useRef(COUNTDOWN);
   const [rounds, setRounds] = useState<Round[]>([]);
+  useGameSound(phase, Math.ceil(remaining / 500), rounds.length, tone);
   const roundsRef = useRef<Round[]>([]);
   const computer = useRef<RpsChoice>("rock");
   const finished = useRef(false);
@@ -323,6 +325,7 @@ export function RpsGamePage({
         </button>
         <button
           className={mode === "hand" ? "active" : ""}
+          data-sound={!camera.stream ? "none" : undefined}
           onClick={() => {
             pause();
             setMode("hand");
@@ -463,7 +466,7 @@ export function RpsGamePage({
                   className="arcade-button pink"
                   disabled={!canPlay}
                   onClick={() => {
-                    tone(phase === "ready" ? "start" : "resume");
+                    tone(phase === "ready" ? "game.ready" : "resume");
                     phase === "ready"
                       ? nextRound()
                       : transition(resumePhase.current);

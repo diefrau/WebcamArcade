@@ -12,6 +12,7 @@ import "./cham.css";
 import { winsRound } from "./chamRules";
 import { CountUp, ResultCelebration } from "../components/ResultCelebration";
 import type { SoundCue } from "../audio/ArcadeAudio";
+import { useGameSound } from "../audio/useGameSound";
 
 export const directions: Direction[] = ["left", "up", "down", "right"];
 const arrows = { left: "←", right: "→", up: "↑", down: "↓", center: "•" };
@@ -65,6 +66,7 @@ export function ChamGamePage({
   const [rounds, setRounds] = useState<Round[]>([]);
   const [computer, setComputer] = useState<Direction>("left");
   const [remaining, setRemaining] = useState(COUNTDOWN_MS);
+  useGameSound(phase, Math.ceil(remaining / 500), rounds.length, tone);
   const [neutral, setNeutral] = useState<{ x: number; y: number } | null>(null);
   const [calibrating, setCalibrating] = useState(false);
   const [calibrationCount, setCalibrationCount] = useState(0);
@@ -158,6 +160,7 @@ export function ChamGamePage({
   }
   function answer(player: Direction | null) {
     if (phaseRef.current !== "respond") return;
+    if (player) tone("cham.move");
     const win = winsRound(computer, player);
     const next = [...roundsRef.current, { computer, player, win }];
     roundsRef.current = next;
@@ -170,8 +173,8 @@ export function ChamGamePage({
       win
         ? (streak < 0 ? next.length : streak) % 3 === 0
           ? "combo"
-          : "success"
-        : "fail",
+          : "cham.success"
+        : "cham.fail",
     );
     transition("feedback", FEEDBACK_MS);
   }
@@ -320,6 +323,7 @@ export function ChamGamePage({
       <div className="cham-mode">
         <button
           className={mode === "face" ? "active" : ""}
+          data-sound={!camera.stream ? "none" : undefined}
           onClick={() => selectMode("face")}
         >
           <Camera />
@@ -521,7 +525,7 @@ export function ChamGamePage({
                   className="arcade-button pink"
                   disabled={!canPlay || calibrating}
                   onClick={() => {
-                    tone(phase === "ready" ? "start" : "resume");
+                    tone(phase === "ready" ? "game.ready" : "resume");
                     if (phase === "ready") nextRound();
                     else {
                       candidate.current = { direction: "center", since: 0 };
