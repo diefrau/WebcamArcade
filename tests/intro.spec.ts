@@ -289,3 +289,98 @@ test("skipping from the title continues the same music immediately at home volum
     await page.evaluate(() => (window as any).introMedia.at(-1).currentTime),
   ).toBeGreaterThanOrEqual(before.time);
 });
+
+test("intro buttons use the shared click, hover and back sounds once without cutting skip feedback", async ({
+  page,
+}) => {
+  await firstVisit(page);
+  await page.clock.install();
+  await page.goto("/");
+  await page.evaluate(async () => {
+    const { SoundManager } = await import("/src/audio/soundManager.ts");
+    (window as any).introUiEvents = [];
+    const play = SoundManager.prototype.play,
+      stop = SoundManager.prototype.stop;
+    SoundManager.prototype.play = function (cue: any, options: any) {
+      const accepted = play.call(this, cue, options);
+      (window as any).introUiEvents.push({ cue, accepted });
+      return accepted;
+    };
+    SoundManager.prototype.stop = function () {
+      (window as any).introUiEvents.push({ cue: "stop" });
+      return stop.call(this);
+    };
+  });
+  const count = (cue: string) =>
+    page.evaluate(
+      (cue) =>
+        (window as any).introUiEvents.filter(
+          (x: any) => x.cue === cue && x.accepted,
+        ).length,
+      cue,
+    );
+  await page.getByRole("button", { name: "START!", exact: true }).hover();
+  expect(await count("ui.hover")).toBe(0); // Hover cannot unlock autoplay.
+  await page.getByRole("button", { name: "START!", exact: true }).click();
+  await expect.poll(() => count("ui.click")).toBe(1);
+  await page.mouse.move(0, 0);
+  await page
+    .getByRole("button", { name: "인트로 건너뛰기", exact: true })
+    .hover();
+  expect(await count("ui.hover")).toBe(1);
+  await page.clock.runFor(120);
+  await page.locator(".intro-skip svg").hover();
+  expect(await count("ui.hover")).toBe(1);
+  await page
+    .getByRole("button", { name: "인트로 건너뛰기", exact: true })
+    .click();
+  await expect.poll(() => count("ui.back")).toBe(1);
+  expect(await count("ui.click")).toBe(1);
+  const events = await page.evaluate(() => (window as any).introUiEvents);
+  expect(events.findIndex((x: any) => x.cue === "stop")).toBeLessThan(
+    events.findIndex((x: any) => x.cue === "ui.back"),
+  );
+});
+
+test("intro sound control plays one enable cue and keeps muted button feedback silent", async ({
+  page,
+}) => {
+  await firstVisit(page);
+  await page.goto("/");
+  await page.evaluate(async () => {
+    const { SoundManager } = await import("/src/audio/soundManager.ts");
+    (window as any).buttonCues = [];
+    const original = SoundManager.prototype.play;
+    SoundManager.prototype.play = function (cue: any, options: any) {
+      const accepted = original.call(this, cue, options);
+      if (accepted) (window as any).buttonCues.push(cue);
+      return accepted;
+    };
+  });
+  await page.getByRole("button", { name: "사운드 끄기", exact: true }).click();
+  const before = await page.evaluate(() => (window as any).buttonCues.length);
+  await page.getByRole("button", { name: "START!", exact: true }).hover();
+  expect(await page.evaluate(() => (window as any).buttonCues.length)).toBe(
+    before,
+  );
+  await page.getByRole("button", { name: "사운드 켜기", exact: true }).click();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          (window as any).buttonCues.filter(
+            (cue: string) => cue === "ui.toggleOn",
+          ).length,
+      ),
+    )
+    .toBe(1);
+  expect(await page.evaluate(() => (window as any).introMedia.length)).toBe(0);
+  await page.getByRole("button", { name: "사운드 끄기", exact: true }).click();
+  const muted = await page.evaluate(() => (window as any).buttonCues.length);
+  await page
+    .getByRole("button", { name: "인트로 건너뛰기", exact: true })
+    .click();
+  expect(await page.evaluate(() => (window as any).buttonCues.length)).toBe(
+    muted,
+  );
+});

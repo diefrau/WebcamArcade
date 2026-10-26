@@ -15,12 +15,14 @@ export function IntroSequence({
   onComplete,
   sound,
   onSound,
+  onHover,
 }: {
   onStart: () => void;
   onPhase: (phase: IntroPhase) => void;
   onComplete: (skipped: boolean) => void;
   sound: boolean;
   onSound: () => void;
+  onHover: () => void;
 }) {
   const { i18n } = useTranslation();
   const ko = i18n.language.startsWith("ko");
@@ -129,6 +131,16 @@ export function IntroSequence({
       aria-modal="true"
       aria-label={ko ? "WEBCAM ARCADE 입장" : "Enter WEBCAM ARCADE"}
       data-phase={phase}
+      onPointerOver={(event) => {
+        if (event.pointerType !== "mouse") return;
+        const button = (event.target as Element).closest("button");
+        if (
+          button &&
+          (!(event.relatedTarget instanceof Node) ||
+            !button.contains(event.relatedTarget))
+        )
+          onHover();
+      }}
       onClick={() => {
         if (phase !== "entry") finish();
       }}

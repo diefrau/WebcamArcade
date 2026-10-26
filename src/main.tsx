@@ -1553,6 +1553,7 @@ function App() {
   const [storageError, setStorageError] = useState(false);
   const audio = useRef<SoundManager | null>(null);
   const unlocked = useRef<Promise<boolean> | null>(null);
+  const introControlGeneration = useRef(0);
   useEffect(() => {
     const engine = new SoundManager({
       enabled: read("arcade.sound", true),
@@ -1626,7 +1627,23 @@ function App() {
     },
     [],
   );
+  const introUi = useCallback((cue: "ui.hover" | "ui.click" | "ui.back") => {
+    const engine = audio.current;
+    if (!engine || document.hidden) return;
+    const generation = introControlGeneration.current;
+    if (engine.isReady) engine.play(cue);
+    else if (cue !== "ui.hover" && unlocked.current)
+      void unlocked.current.then(() => {
+        if (
+          audio.current === engine &&
+          introControlGeneration.current === generation &&
+          !document.hidden
+        )
+          engine.play(cue);
+      });
+  }, []);
   const toggleSound = () => {
+    if (introBusy.current) introControlGeneration.current++;
     if (sound) tone("ui.toggleOff");
     audio.current?.setEnabled(!sound);
     setSound(!sound);
@@ -1650,23 +1667,29 @@ function App() {
       engine.setMusic("title");
     } else if (phase === "reveal") engine.setMusicMix(0.7, 0.8);
   }, []);
-  const completeIntro = useCallback((skipped: boolean) => {
-    if (skipped) {
-      audio.current?.stop();
-      audio.current?.setMusicMix(0.7, 0.8);
-      audio.current?.setMusic("title");
-    }
-    save(INTRO_SEEN_KEY, true);
-    setIntroPhase("complete");
-    setIntroActive(false);
-    requestAnimationFrame(() => {
-      if (!document.querySelector("dialog[open]"))
-        document
-          .querySelector<HTMLButtonElement>(".hero-cta")
-          ?.focus({ preventScroll: true });
-    });
-  }, []);
+  const completeIntro = useCallback(
+    (skipped: boolean) => {
+      introControlGeneration.current++;
+      if (skipped) {
+        audio.current?.stop();
+        audio.current?.setMusicMix(0.7, 0.8);
+        audio.current?.setMusic("title");
+        introUi("ui.back");
+      }
+      save(INTRO_SEEN_KEY, true);
+      setIntroPhase("complete");
+      setIntroActive(false);
+      requestAnimationFrame(() => {
+        if (!document.querySelector("dialog[open]"))
+          document
+            .querySelector<HTMLButtonElement>(".hero-cta")
+            ?.focus({ preventScroll: true });
+      });
+    },
+    [introUi],
+  );
   const replayIntro = () => {
+    introControlGeneration.current++;
     setSettings(false);
     audio.current?.stop();
     audio.current?.resetMusic();
@@ -1714,13 +1737,16 @@ function App() {
         <IntroSequence
           sound={sound}
           onSound={toggleSound}
+          onHover={() => introUi("ui.hover")}
           onPhase={introBeat}
           onComplete={completeIntro}
           onStart={() => {
+            introControlGeneration.current++;
             const engine = audio.current;
             if (engine) {
               unlocked.current = engine.unlock();
               engine.prepareMusic("title");
+              introUi("ui.click");
             }
           }}
         />
