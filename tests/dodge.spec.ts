@@ -164,10 +164,12 @@ test("three collisions end early, blocked storage keeps result and both language
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
-      await expect(page.locator(".game-overlay .arcade-button")).toBeVisible();
-      const box = await page
-        .locator(".game-overlay .arcade-button")
-        .boundingBox();
+      const start = page.getByRole("button", {
+        name: lang === "ko" ? "게임 시작!" : "LET’S PLAY!",
+        exact: true,
+      });
+      await expect(start).toBeVisible();
+      const box = await start.boundingBox();
       expect(box!.x + box!.width).toBeLessThanOrEqual(width);
     }
   }
@@ -253,21 +255,25 @@ test("webcam calibrates off-center, moves smoothly, pauses on body loss and supp
     .toBeGreaterThan(60);
   await send(page, undefined);
   await expect(page.locator(".game-overlay")).toBeVisible();
-  await expect(page.locator(".game-overlay .arcade-button")).toBeDisabled();
+  await expect(
+    page.locator(".game-overlay .arcade-button:visible"),
+  ).toBeDisabled();
   const timer = await page.locator(".cham-toolbar strong").textContent();
   await page.waitForTimeout(1200);
   expect(await page.locator(".cham-toolbar strong").textContent()).toBe(timer);
   await send(page, shoulders(0.7));
-  await expect(page.locator(".game-overlay .arcade-button")).toBeEnabled();
+  await expect(
+    page.locator(".game-overlay .arcade-button:visible"),
+  ).toBeEnabled();
   await page.getByRole("button", { name: "현재 위치를 중앙으로" }).click();
-  await page.locator(".game-overlay .arcade-button").click();
+  await page.locator(".game-overlay .arcade-button:visible").click();
   await page.getByRole("button", { name: "카메라 끄기", exact: true }).click();
   await expect(page.locator(".game-overlay")).toBeVisible();
   await page
     .locator(".game-overlay")
     .getByRole("button", { name: "방향키 / 버튼", exact: true })
     .click();
-  await page.locator(".game-overlay .arcade-button").click();
+  await page.locator(".game-overlay .arcade-button:visible").click();
   await expect(page.locator(".dodge-controls button").first()).toBeEnabled();
 });
 test("real local pose model loads; camera stream survives switching back to a hand game", async ({
@@ -303,7 +309,9 @@ test("body model failure can retry without blocking button play", async ({
     .locator(".game-overlay")
     .getByRole("button", { name: "방향키 / 버튼", exact: true })
     .click();
-  await expect(page.locator(".game-overlay .arcade-button")).toBeEnabled();
+  await expect(
+    page.locator(".game-overlay .arcade-button:visible"),
+  ).toBeEnabled();
   await page.unroute("**/vision/pose_landmarker_lite.task");
   await page.locator(".camera-note button").click();
   await expect(page.locator(".camera-note")).toContainText("어깨가 모두", {

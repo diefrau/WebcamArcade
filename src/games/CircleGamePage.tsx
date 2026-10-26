@@ -27,6 +27,7 @@ import { useGameInput } from "../vision/useGameInput";
 import { CountUp, ResultCelebration } from "../components/ResultCelebration";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { DrawingCursor } from "../vision/DrawingCursor";
+import { InputCoach } from "../components/InputCoach";
 
 type Point = { x: number; y: number; move?: boolean };
 export type CircleResult = {
@@ -527,6 +528,13 @@ export function CircleGamePage({
                         : "circleMouseReady",
                   )}
                 </small>
+                {phase === "ready" && (
+                  <InputCoach
+                    game="circle"
+                    cameraMode={mode === "hand"}
+                    onModeChange={(value) => setMode(value ? "hand" : "mouse")}
+                  />
+                )}
                 <ArcadeButton
                   data-hand-click
                   onClick={() => {

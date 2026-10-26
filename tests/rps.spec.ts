@@ -170,7 +170,9 @@ test("empty and malformed records stay honest; Korean and English fit narrow scr
           () => document.documentElement.scrollWidth <= innerWidth,
         ),
       ).toBe(true);
-      await expect(page.locator("[data-hand-click]")).toBeVisible();
+      await expect(
+        page.locator(".arcade-button[data-hand-click]"),
+      ).toBeVisible();
     }
   }
 });
@@ -256,12 +258,14 @@ test.describe("RPS webcam", () => {
       "data-phase",
       "paused",
     );
-    await expect(page.locator("[data-hand-click]")).toBeDisabled();
+    await expect(
+      page.locator(".arcade-button[data-hand-click]"),
+    ).toBeDisabled();
     await page
       .locator(".cham-dialog")
       .getByRole("button", { name: "버튼으로 플레이", exact: true })
       .click();
-    await page.locator("[data-hand-click]").click();
+    await page.locator(".arcade-button[data-hand-click]").click();
     await expect(page.locator(".rps-cue")).not.toHaveAttribute(
       "data-phase",
       "paused",

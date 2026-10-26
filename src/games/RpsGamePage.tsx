@@ -20,6 +20,7 @@ import {
   type RpsOutcome,
 } from "./rpsRules";
 import "./rps.css";
+import { InputCoach } from "../components/InputCoach";
 
 const symbols: Record<RpsChoice, string> = {
   rock: "✊",
@@ -450,6 +451,13 @@ export function RpsGamePage({
                 <p>{t("rpsRules")}</p>
                 <small>{t(mode === "hand" ? "rpsHold" : "rpsKeyHint")}</small>
                 {mode === "hand" && !handReady && <p>{t("handReady")}</p>}
+                {phase === "ready" && (
+                  <InputCoach
+                    game="rps"
+                    cameraMode={mode === "hand"}
+                    onModeChange={(value) => setMode(value ? "hand" : "mouse")}
+                  />
+                )}
                 <button
                   data-hand-click
                   className="arcade-button pink"

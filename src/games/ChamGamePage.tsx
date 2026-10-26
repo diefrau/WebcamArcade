@@ -42,6 +42,7 @@ export function readCham(): {
 }
 type Phase = "ready" | "countdown" | "respond" | "feedback" | "paused";
 
+import { InputCoach } from "../components/InputCoach";
 export function ChamGamePage({
   onFinish,
   tone,
@@ -89,6 +90,13 @@ export function ChamGamePage({
       camera.face.detected &&
       neutral !== null);
   const direction = neutral ? faceDirection(camera.face, neutral) : "center";
+  function beginCalibration() {
+    calibration.current = [];
+    baseline.current = null;
+    setNeutral(null);
+    setCalibrationCount(0);
+    setCalibrating(true);
+  }
   const label = (d: Direction | "center") =>
     ko
       ? {
@@ -363,13 +371,7 @@ export function ChamGamePage({
               <button
                 className="cham-calibrate"
                 disabled={!camera.face.detected || active || calibrating}
-                onClick={() => {
-                  calibration.current = [];
-                  baseline.current = null;
-                  setNeutral(null);
-                  setCalibrationCount(0);
-                  setCalibrating(true);
-                }}
+                onClick={beginCalibration}
               >
                 {calibrating
                   ? `${calibrationCount} / 24`
@@ -502,6 +504,18 @@ export function ChamGamePage({
                           "First use Calibrate center in the camera panel.",
                         )}
                   </p>
+                )}
+                {phase === "ready" && (
+                  <InputCoach
+                    game="cham"
+                    cameraMode={mode === "face"}
+                    onModeChange={(value) =>
+                      selectMode(value ? "face" : "buttons")
+                    }
+                    faceNeutral={neutral}
+                    onCalibrate={beginCalibration}
+                    calibrating={calibrating}
+                  />
                 )}
                 <button
                   className="arcade-button pink"

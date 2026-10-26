@@ -3,6 +3,8 @@ import { recordPlay } from "./community/client";
 import { PlayerSession, PlayerWelcome } from "./community/PlayerWelcome";
 import { HomeEasterEggs } from "./community/HomeEasterEggs";
 import { AchievementToasts } from "./community/AchievementToasts";
+import { InputCoach } from "./components/InputCoach";
+import { InputBadge } from "./components/InputBadge";
 import {
   InputEnvironment,
   useInputEnvironment,
@@ -426,6 +428,7 @@ function GameCard({ id, color, duration, badge }: (typeof games)[number]) {
           {t("onePlayer")}
         </span>
         <span>◷ {t("seconds", { count: duration })}</span>
+        <InputBadge game={id} />
         {available ? (
           <span className="card-arrow">
             <ArrowRight />
@@ -1165,6 +1168,15 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                   )}
                 </p>
                 <small>{t("readyDetail")}</small>
+                {phase === "ready" && (
+                  <InputCoach
+                    game="shoot"
+                    cameraMode={inputMode === "hand"}
+                    onModeChange={(value) =>
+                      setInputMode(value ? "hand" : "mouse")
+                    }
+                  />
+                )}
                 <Button
                   data-hand-click
                   disabled={

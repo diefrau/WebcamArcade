@@ -1,4 +1,5 @@
 import { useInputEnvironment } from "../components/InputEnvironment";
+import { InputCoach } from "../components/InputCoach";
 import { recordPlay } from "../community/client";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -402,6 +403,15 @@ export function DodgeGamePage({
                 <p>{t("dodgeInstructions")}</p>
                 {mode === "body" && (
                   <p>{t(bodyReady ? "dodgeCenter" : "showBody")}</p>
+                )}
+                {phase === "ready" && (
+                  <InputCoach
+                    game="dodge"
+                    cameraMode={mode === "body"}
+                    onModeChange={(value) =>
+                      changeMode(value ? "body" : "buttons")
+                    }
+                  />
                 )}
                 <button
                   className="arcade-button pink"

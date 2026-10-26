@@ -61,7 +61,8 @@ for (const game of ["shoot", "circle", "rps"]) {
     await expect(page.locator(".camera-note")).toContainText(
       "손바닥을 카메라에 보여주세요!",
     );
-    const button = page.locator("[data-hand-click]");
+    await page.evaluate(() => document.fonts.ready);
+    const button = page.locator(".arcade-button[data-hand-click]");
     const box = await button.boundingBox();
     const viewport = page.viewportSize()!;
     let x = 1 - (0.12 + ((box!.x + box!.width / 2) / viewport.width) * 0.76);
@@ -83,7 +84,14 @@ for (const game of ["shoot", "circle", "rps"]) {
     // Entering with a closed pinch must not activate anything.
     await send(true);
     await expect(button).toBeVisible();
-    await send(false);
+    await expect(button).toBeEnabled();
+    // Recognition replaces the ready guidance and can move the start button.
+    const readyBox = await button.boundingBox();
+    x =
+      1 -
+      (0.12 + ((readyBox!.x + readyBox!.width / 2) / viewport.width) * 0.76);
+    y = 0.12 + ((readyBox!.y + readyBox!.height / 2) / viewport.height) * 0.76;
+    for (let i = 0; i < 5; i++) await send(false);
     await expect(button).toHaveClass(/hand-hovered/);
     await send(true);
     await expect(button).toHaveCount(0);
