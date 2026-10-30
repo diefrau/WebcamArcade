@@ -23,7 +23,7 @@ export const introTimeline: readonly { at: number; phase: IntroPhase }[] = [
   { at: 3000, phase: "title" },
   { at: 4500, phase: "fade" },
   { at: 5100, phase: "reveal" },
-  { at: 5800, phase: "complete" },
+  { at: 6500, phase: "complete" },
 ];
 export function introPhaseAt(elapsed: number): IntroPhase {
   return (

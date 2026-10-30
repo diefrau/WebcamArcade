@@ -240,41 +240,15 @@
   fill: var(--cyan);
   animation-delay: 0.08s;
 }
-.intro-title-card.is-fading {
-  animation: intro-fade-out 0.8s both;
-}
-.intro-phase-fade,
-.intro-phase-reveal {
-  background: transparent;
-}
-.intro-phase-fade::before,
-.intro-phase-fade::after,
-.intro-phase-fade > .intro-confetti,
-.intro-phase-reveal::before,
-.intro-phase-reveal::after,
-.intro-phase-reveal > .intro-confetti {
-  display: none;
-}
-.intro-phase-fade {
-  animation: intro-backdrop-out 0.8s both;
+.intro-sequence.is-dissolving {
+  animation: intro-dissolve-out 2s ease-in-out both;
+  will-change: opacity;
 }
 .entry-home-reveal .hero,
 .entry-home-reveal .hero-mascot,
 .entry-home-reveal .featured,
 .entry-home-reveal .top-nav {
-  animation: intro-home-in 0.45s both;
-}
-.entry-home-reveal .hero {
-  animation-delay: 0.6s;
-}
-.entry-home-reveal .hero-mascot {
-  animation-delay: 0.68s;
-}
-.entry-home-reveal .featured {
-  animation-delay: 0.76s;
-}
-.entry-home-reveal .top-nav {
-  animation-delay: 0.84s;
+  animation: none;
 }
 .intro-replay-button {
   display: block;
@@ -342,17 +316,12 @@
     scale: 1;
   }
 }
-@keyframes intro-fade-out {
+@keyframes intro-dissolve-out {
+  from {
+    opacity: 1;
+  }
   to {
     opacity: 0;
-  }
-}
-@keyframes intro-backdrop-out {
-  from {
-    background: #fff7e7;
-  }
-  to {
-    background: transparent;
   }
 }
 @keyframes intro-wipe {
@@ -361,16 +330,6 @@
   }
   to {
     clip-path: circle(75% at center);
-  }
-}
-@keyframes intro-home-in {
-  from {
-    opacity: 0;
-    translate: 0 18px;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
   }
 }
 @media (max-height: 600px) {
@@ -399,8 +358,8 @@
   .intro-wipe {
     display: none;
   }
-  .intro-title-card.is-fading {
-    opacity: 0;
+  .intro-sequence.is-dissolving {
+    animation-duration: 0.2s;
   }
 }
 html[data-motion="reduced"] .intro-sequence *,
@@ -411,6 +370,6 @@ html[data-motion="reduced"] .entry-home-reveal * {
 html[data-motion="reduced"] .intro-wipe {
   display: none;
 }
-html[data-motion="reduced"] .intro-title-card.is-fading {
-  opacity: 0;
+html[data-motion="reduced"] .intro-sequence.is-dissolving {
+  animation-duration: 0.2s;
 }

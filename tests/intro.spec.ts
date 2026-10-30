@@ -2,7 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { introPhaseAt } from "../src/components/intro/timeline";
 test("intro has fixed beats rather than a loading-progress gate", () => {
   const times = [
-    0, 199, 200, 899, 900, 1450, 2000, 2550, 2900, 3000, 4500, 5100, 5800,
+    0, 199, 200, 899, 900, 1450, 2000, 2550, 2900, 3000, 4500, 5100, 6500,
   ];
   expect(times.map(introPhaseAt)).toEqual([
     "blank",
@@ -99,9 +99,39 @@ test("first entry follows all beats, starts one title track, reduces its mix and
   await page.clock.runFor(1500);
   await expect(sequence).toHaveAttribute("data-phase", "fade");
   await expect(page.locator(".entry-home-reveal")).toHaveAttribute("inert", "");
+  const midFade = await sequence.evaluate((el) => {
+    const animation = el
+      .getAnimations()
+      .find((a) => (a as CSSAnimation).animationName === "intro-dissolve-out")!;
+    animation.pause();
+    animation.currentTime = 1000;
+    (window as any).dissolveAnimation = animation;
+    return {
+      opacity: Number(getComputedStyle(el).opacity),
+      duration: animation.effect!.getTiming().duration,
+    };
+  });
+  expect(midFade.duration).toBe(2000);
+  expect(midFade.opacity).toBeGreaterThan(0.4);
+  expect(midFade.opacity).toBeLessThan(0.6);
+  expect(
+    await page
+      .locator(".hero")
+      .evaluate((el) => getComputedStyle(el).animationName),
+  ).toBe("none");
   await page.clock.runFor(600);
   await expect(sequence).toHaveAttribute("data-phase", "reveal");
-  await page.clock.runFor(750);
+  expect(
+    await sequence.evaluate((el) =>
+      el.getAnimations().includes((window as any).dissolveAnimation),
+    ),
+  ).toBe(true);
+  const endOpacity = await sequence.evaluate((el) => {
+    (window as any).dissolveAnimation.currentTime = 1950;
+    return Number(getComputedStyle(el).opacity);
+  });
+  expect(endOpacity).toBeLessThan(0.01);
+  await page.clock.runFor(1450);
   await expect(sequence).toHaveCount(0);
   await expect(page.locator(".hero")).toBeVisible();
   expect(
@@ -238,7 +268,7 @@ test("saved sound off stays silent throughout the intro and home reveal", async 
   });
   await page.goto("/");
   await page.getByRole("button", { name: "START!", exact: true }).click();
-  await page.clock.runFor(6000);
+  await page.clock.runFor(7000);
   await expect(page.locator(".intro-sequence")).toHaveCount(0);
   expect(await page.evaluate(() => (window as any).introSources)).toBe(0);
   expect(await page.evaluate(() => (window as any).introMedia.length)).toBe(0);

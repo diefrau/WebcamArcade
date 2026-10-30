@@ -126,7 +126,9 @@ export function IntroSequence({
   return createPortal(
     <section
       ref={root}
-      className={"intro-sequence intro-phase-" + phase}
+      className={
+        "intro-sequence intro-phase-" + phase + (fading ? " is-dissolving" : "")
+      }
       role="dialog"
       aria-modal="true"
       aria-label={ko ? "WEBCAM ARCADE 입장" : "Enter WEBCAM ARCADE"}
@@ -154,7 +156,7 @@ export function IntroSequence({
       {phase === "entry" ? (
         <EntryGate start={start} />
       ) : titleVisible(phase) ? (
-        <TitleCard fading={fading} />
+        <TitleCard />
       ) : (
         <CountdownIntro phase={phase} />
       )}

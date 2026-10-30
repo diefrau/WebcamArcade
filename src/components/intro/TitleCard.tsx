@@ -13,9 +13,9 @@ export function IntroLogo() {
     </div>
   );
 }
-export function TitleCard({ fading }: { fading: boolean }) {
+export function TitleCard() {
   return (
-    <div className={"intro-title-card" + (fading ? " is-fading" : "")}>
+    <div className="intro-title-card">
       <div className="intro-title-logo">
         <IntroLogo />
       </div>
