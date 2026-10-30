@@ -74,6 +74,19 @@ test("shooting, pause, timer, results, replay and storage", async ({
   );
   expect(records.plays).toBe(1);
   expect(records.best).toBe(900);
+  const evidence = await page.evaluate(() => ({
+    run: JSON.parse(localStorage.getItem("arcade.community.runs")!)[0],
+    state: JSON.parse(localStorage.getItem("arcade.achievements.v1")!),
+  }));
+  expect(evidence.run.details).toMatchObject({
+    hits: 6,
+    shots: 6,
+    misses: 0,
+    maxCombo: 6,
+  });
+  expect(evidence.state.stats.totalGamesCompleted).toBe(1);
+  expect(evidence.state.unlockedIds).toContain("shootFive");
+  expect(evidence.state.unlockedIds).not.toContain("shootPerfect");
   await page.getByRole("button", { name: "다시 하기" }).click();
   await page.getByRole("button", { name: "시작!", exact: true }).click();
   for (let i = 0; i < 5; i++)

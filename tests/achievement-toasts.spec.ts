@@ -10,10 +10,10 @@ test("ordinary and secret rewards queue, survive navigation and slide out after 
     client.recordPlay("circle", 800, 0, 20);
   });
   const toast = page.locator(".achievement-toast");
-  await expect(toast).toContainText("첫 게임 완료");
+  await expect(toast).toContainText("첫 발을 내딛다!");
   await expect(toast).toHaveAttribute("data-state", "visible");
   await page.getByRole("link", { name: "도전과제", exact: true }).click();
-  await expect(toast).toContainText("첫 게임 완료");
+  await expect(toast).toContainText("첫 발을 내딛다!");
   await page.evaluate(async () => {
     const client = await import("/src/community/client.ts");
     client.unlockSecret("manners");
@@ -26,15 +26,16 @@ test("ordinary and secret rewards queue, survive navigation and slide out after 
     "achievement-exit",
   );
   await page.clock.runFor(350);
-  await expect(toast).toContainText("원 그리기 800점");
+  await expect(toast).toContainText("동그라미 입문");
   await expect(toast).toHaveAttribute("data-state", "visible");
-  await page.clock.runFor(3350);
+  for (let i = 0; i < 3; i++) await page.clock.runFor(3350);
   await expect(toast).toContainText("어허, 그건 안돼요~");
   await expect(toast).toHaveClass(/secret-reward/);
+  await expect(toast).toContainText("SECRET FOUND!");
   await page.clock.runFor(3350);
   await expect(toast).toHaveCount(0);
   await expect(page.locator(".achievement-grid")).toHaveCount(1);
-  await expect(page.locator(".achievement-grid article")).toHaveCount(14);
+  await expect(page.locator(".achievement-grid article")).toHaveCount(74);
   await expect(
     page.getByText(
       "PC 홈에서 웹캠을 켜고, 손과 표정으로 숨겨진 순간을 찾아보세요.",

@@ -3,11 +3,9 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Crown, Star, Trophy } from "lucide-react";
 import {
-  achievementIds,
   gameIds,
   localBest,
   readProgress,
-  countProgress,
   type GameId,
   type Progress,
 } from "./store";
@@ -21,8 +19,7 @@ import {
   type BoardRow,
 } from "./client";
 import "./community.css";
-import { achievementDescriptions as descriptions } from "./achievementNotices";
-import { SecretAchievements } from "./SecretAchievements";
+import { AchievementsPanel } from "../achievements/AchievementsPanel";
 
 export function CommunityPage({
   achievements = false,
@@ -201,41 +198,10 @@ export function CommunityPage({
               )}
             </p>
           ) : online && (loading || error) ? null : (
-            <div className="achievement-grid">
-              {achievementIds.map((id) => {
-                const counter = countProgress(progress, id);
-                return (
-                  <article
-                    className={`panel achievement ${progress[id] ? "unlocked" : ""}`}
-                    key={id}
-                  >
-                    <Trophy />
-                    <h2>{text(...descriptions[id])}</h2>
-                    <div className="achievement-status">
-                      {counter && (
-                        <div className="achievement-meter">
-                          <span>
-                            {counter.value} / {counter.target}
-                          </span>
-                          <progress
-                            aria-label={text(...descriptions[id])}
-                            value={counter.value}
-                            max={counter.target}
-                          />
-                        </div>
-                      )}
-                      <strong>
-                        {text(
-                          progress[id] ? "달성!" : "도전 중",
-                          progress[id] ? "Unlocked!" : "In progress",
-                        )}
-                      </strong>
-                    </div>
-                  </article>
-                );
-              })}
-              <SecretAchievements unlocked={progress.secrets} />
-            </div>
+            <AchievementsPanel
+              online={online}
+              remote={online ? progress : undefined}
+            />
           )}
         </>
       ) : (

@@ -89,6 +89,18 @@ test("ten rounds support buttons, timeout, pause, records and replay", async ({
   );
   expect(record.plays).toBe(1);
   expect(record.last.rounds).toHaveLength(10);
+  const evidence = await page.evaluate(
+    () => JSON.parse(localStorage.getItem("arcade.community.runs")!)[0].details,
+  );
+  expect(evidence.rounds).toHaveLength(10);
+  expect(evidence.rounds.filter((r: { win: boolean }) => r.win)).toHaveLength(
+    9,
+  );
+  expect(
+    evidence.rounds
+      .filter((r: { win: boolean }) => r.win)
+      .every((r: { responseMs: number }) => Number.isFinite(r.responseMs)),
+  ).toBe(true);
   await page.reload();
   await expectRouteReady(page);
   await page.clock.fastForward(900);

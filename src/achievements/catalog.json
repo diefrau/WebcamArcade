@@ -1,0 +1,577 @@
+[
+  {
+    "id": "first",
+    "category": "general",
+    "metric": "total",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "five",
+    "category": "general",
+    "metric": "total",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "variety",
+    "category": "general",
+    "metric": "variety",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "regular",
+    "category": "general",
+    "metric": "total",
+    "target": 20,
+    "pending": false
+  },
+  {
+    "id": "resident",
+    "category": "general",
+    "metric": "total",
+    "target": 50,
+    "pending": false
+  },
+  {
+    "id": "allrounder",
+    "category": "general",
+    "metric": "variety",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "sessionAll",
+    "category": "general",
+    "metric": "session",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "replayFive",
+    "category": "general",
+    "metric": "same",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "warmup",
+    "category": "general",
+    "metric": "warmup",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "collector",
+    "category": "general",
+    "metric": "records",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "dayTen",
+    "category": "general",
+    "metric": "daily",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "chamFirst",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "plays.cham",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "chamStreak3",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "cham.streak",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "chamStreak5",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "cham.streak",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "chamStreak10",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "cham.streak",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "chamFast",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "cham.fast",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "chamPerfect",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "cham.perfect",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "reflex",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "score.cham",
+    "target": 700,
+    "pending": false
+  },
+  {
+    "id": "chamMaster",
+    "category": "game",
+    "gameId": "cham",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "circleFirst",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "circle.complete",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "circle700",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "score.circle",
+    "target": 700,
+    "pending": false
+  },
+  {
+    "id": "artist",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "score.circle",
+    "target": 800,
+    "pending": false
+  },
+  {
+    "id": "circle900",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "score.circle",
+    "target": 900,
+    "pending": false
+  },
+  {
+    "id": "circle950",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "score.circle",
+    "target": 950,
+    "pending": false
+  },
+  {
+    "id": "circleUnbroken",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "circle.unbroken",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "circleFast",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "circle.fast",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "circleStreak",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "circle.streak",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "circleTen",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "plays.circle",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "circle990",
+    "category": "game",
+    "gameId": "circle",
+    "metric": "score.circle",
+    "target": 990,
+    "pending": false
+  },
+  {
+    "id": "shootFirst",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.hits",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "shootTen",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.hits",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "shootPrecise",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.precise",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "shootPerfect",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.perfect",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "shootFive",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.combo",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "shootFast",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.fast",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "shootCombo",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.combo",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "shootAll",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "shootHigh",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "score.shoot",
+    "target": 2000,
+    "pending": false
+  },
+  {
+    "id": "shootHundred",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "shoot.totalHits",
+    "target": 100,
+    "pending": false
+  },
+  {
+    "id": "sharp",
+    "category": "game",
+    "gameId": "shoot",
+    "metric": "legacy.sharp",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "rpsFirst",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.wins",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "rpsStreak3",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.streak",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "rpsStreak5",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.streak",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "rpsStreak10",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.streak",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "rps",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "score.rps",
+    "target": 300,
+    "pending": false
+  },
+  {
+    "id": "rpsFast",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.fast",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "rpsRecognized",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.recognized",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "rpsTrio",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.trio",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "rpsRock",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.rock",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "rpsPaper",
+    "category": "game",
+    "gameId": "rps",
+    "metric": "rps.paper",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "dodgeFirst",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "dodge.avoids",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "dodgeTen",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "duration.dodge",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "survivor",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "duration.dodge",
+    "target": 30,
+    "pending": false
+  },
+  {
+    "id": "dodgeMinute",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "pending",
+    "target": 60,
+    "pending": true
+  },
+  {
+    "id": "dodgeClean",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "dodge.safe",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "dodgeNear",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "dodgeStreak",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "dodge.streak",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "dodgeDance",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "dodgePeak",
+    "category": "game",
+    "gameId": "dodge",
+    "metric": "duration.dodge",
+    "target": 25,
+    "pending": false
+  },
+  {
+    "id": "poseFirst",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "pose80",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "pose95",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "poseQuick",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "poseFive",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "poseTen",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "poseHint",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "poseFull",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "poseRegular",
+    "category": "game",
+    "gameId": "pose",
+    "metric": "pending",
+    "target": 1,
+    "pending": true
+  },
+  {
+    "id": "manners",
+    "category": "secret",
+    "metric": "secret",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "mystery",
+    "category": "secret",
+    "metric": "secret",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "jazz",
+    "category": "secret",
+    "metric": "secret",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "doublePeace",
+    "category": "secret",
+    "metric": "secret",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "winkPeace",
+    "category": "secret",
+    "metric": "secret",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "surprise",
+    "category": "secret",
+    "metric": "secret",
+    "target": 1,
+    "pending": false
+  }
+]

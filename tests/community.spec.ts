@@ -45,7 +45,7 @@ test("rankings and achievements show honest device data without network configur
     page.getByRole("button", { name: "온라인", exact: true }),
   ).toBeDisabled();
   await page.getByRole("link", { name: "도전과제", exact: true }).click();
-  await expect(page.locator(".achievement-grid article")).toHaveCount(14);
+  await expect(page.locator(".achievement-grid article")).toHaveCount(74);
   await expect(page.locator(".achievement.unlocked")).toHaveCount(0);
 });
 test("all completed game results integrate with local community history", async ({
@@ -63,10 +63,19 @@ test("all completed game results integrate with local community history", async 
   expect(runs).toHaveLength(1);
   expect(runs[0].game).toBe("dodge");
   expect(runs[0].seconds).toBe(30);
+  expect(runs[0].details.metadata.maxSafeSeconds).toBeGreaterThanOrEqual(29.9);
+  expect(runs[0].details.metadata.maxAvoidStreak).toBeGreaterThanOrEqual(10);
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem("arcade.achievements.v1")!).stats
+          .totalGamesCompleted,
+    ),
+  ).toBe(1);
   await page.getByRole("link", { name: "도전과제", exact: true }).click();
-  await expect(page.locator(".achievement.unlocked")).toHaveCount(2);
+  await expect(page.locator(".achievement.unlocked")).toHaveCount(7);
   await page.reload();
-  await expect(page.locator(".achievement.unlocked")).toHaveCount(2);
+  await expect(page.locator(".achievement.unlocked")).toHaveCount(7);
 });
 test("touch detection removes mouse hints but retains playable controls and navigation", async ({
   browser,

@@ -24,7 +24,7 @@ export function AchievementToasts({ play }: { play?: PlaySound }) {
   }, []);
   useEffect(() => {
     if (!active) return;
-    play?.("sticker.appear");
+    play?.(active.secret ? "achievement.secret" : "achievement.unlock");
     setLeaving(false);
     const hide = setTimeout(() => setLeaving(true), 3000);
     const remove = setTimeout(() => {
@@ -51,7 +51,13 @@ export function AchievementToasts({ play }: { play?: PlaySound }) {
         <Trophy aria-hidden="true" />
       )}
       <div>
-        <small>{ko ? "도전과제 달성!" : "Achievement unlocked!"}</small>
+        <small>
+          {active.secret
+            ? "SECRET FOUND!"
+            : ko
+              ? "도전과제 달성!"
+              : "Achievement unlocked!"}
+        </small>
         <strong>{active.title[ko ? 0 : 1]}</strong>
       </div>
     </aside>,

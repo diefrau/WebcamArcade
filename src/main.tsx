@@ -134,6 +134,7 @@ type Result = {
   hits: number;
   shots: number;
   newBest: boolean;
+  evidence?: import("./achievements/types").GameResultDetails;
 };
 type Records = {
   best: number;
@@ -862,6 +863,8 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
     lives: 5,
   });
   const elapsed = useRef(0);
+  const targetBirth = useRef(new Map<number, number>());
+  const fastestHit = useRef(Infinity);
   const lastTime = useRef(0);
   const finished = useRef(false);
   const field = useRef<HTMLDivElement>(null);
@@ -922,6 +925,32 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       shots: s.shots,
       accuracy: s.shots ? Math.round((s.hits / s.shots) * 100) : 0,
       newBest: s.score > records.best,
+      evidence: {
+        inputMode,
+        shots: s.shots,
+        hits: s.hits,
+        misses: s.shots - s.hits,
+        maxCombo: s.maxCombo,
+        fastestSuccessMs: Number.isFinite(fastestHit.current)
+          ? fastestHit.current
+          : undefined,
+        duration: Math.min(
+          30,
+          (elapsed.current +
+            (lastTime.current
+              ? Math.max(0, performance.now() - lastTime.current)
+              : 0)) /
+            1000,
+        ),
+        newBest: s.score > records.best,
+        metadata: {
+          passed:
+            s.hits > 0 &&
+            s.shots === s.hits &&
+            s.lives > 0 &&
+            elapsed.current >= 30000,
+        },
+      },
     });
     navigate("/result/shoot", { replace: true });
   };
@@ -972,6 +1001,16 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
     const s = stats.current;
     s.shots++;
     if (id !== undefined) {
+      const now =
+        elapsed.current +
+        (lastTime.current
+          ? Math.max(0, performance.now() - lastTime.current)
+          : 0);
+      fastestHit.current = Math.min(
+        fastestHit.current,
+        Math.max(0, now - (targetBirth.current.get(id) ?? 0)),
+      );
+      targetBirth.current.set(id, now);
       s.hits++;
       s.combo++;
       s.maxCombo = Math.max(s.maxCombo, s.combo);
@@ -1698,7 +1737,13 @@ function App() {
     setIntroActive(true);
   };
   function finish(result: Result) {
-    recordPlay("shoot", result.score, result.accuracy);
+    recordPlay(
+      "shoot",
+      result.score,
+      result.accuracy,
+      result.evidence?.duration ?? 0,
+      result.evidence,
+    );
     const next = {
       best: Math.max(records.best, result.score),
       plays: records.plays + 1,
@@ -1710,7 +1755,13 @@ function App() {
     setStorageError(!save("arcade.records", next));
   }
   function finishCircle(_result: CircleResult) {
-    recordPlay("circle", _result.score, _result.accuracy, _result.duration);
+    recordPlay(
+      "circle",
+      _result.score,
+      _result.accuracy,
+      _result.duration,
+      _result.evidence,
+    );
     const next = {
       ...records,
       day: today(),

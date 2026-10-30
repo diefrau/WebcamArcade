@@ -39,6 +39,24 @@ const sample = (
   cooldown = 0.08,
 ): SoundDefinition => ({ cooldown, layers: [{ file, gain }] });
 export const sounds = {
+  "achievement.unlock": {
+    cooldown: 0.5,
+    layers: [
+      { file: "sticker", gain: 0.24 },
+      { file: "bell", gain: 0.2, at: 0.12, rate: 1.2 },
+      { file: "bell", gain: 0.18, at: 0.26, rate: 1.5 },
+    ],
+  },
+  "achievement.secret": {
+    cooldown: 0.5,
+    layers: [
+      { file: "character", gain: 0.24, rate: 0.8 },
+      { file: "sticker", gain: 0.22, at: 0.1 },
+      { file: "bell", gain: 0.18, at: 0.2, rate: 1.25 },
+      { file: "bell", gain: 0.16, at: 0.36, rate: 1.6 },
+      { file: "bell", gain: 0.14, at: 0.5, rate: 2 },
+    ],
+  },
   "ui.hover": { cooldown: 0.1, group: "hover", layers: [], synth: "tick" },
   "ui.tick": { cooldown: 0.08, layers: [], synth: "tick" },
   "ui.click": {

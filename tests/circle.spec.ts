@@ -33,6 +33,11 @@ test("circle drawing evaluates, stores a record and can replay", async ({
   );
   expect(result.score).toBeGreaterThan(0);
   expect(result.accuracy).toBeGreaterThan(0);
+  const evidence = await page.evaluate(
+    () => JSON.parse(localStorage.getItem("arcade.community.runs")!)[0].details,
+  );
+  expect(evidence.metadata.drawComplete).toBe(true);
+  expect(evidence.inputMode).toBe("mouse");
   await page.getByRole("button", { name: "다시 하기" }).click();
   await expect(page).toHaveURL(/\/play\/circle$/);
 });

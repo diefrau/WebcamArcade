@@ -1,4 +1,5 @@
 import { readSecrets, type SecretId } from "./secrets";
+import type { GameResultDetails } from "../achievements/types";
 export const gameIds = ["shoot", "circle", "cham", "rps", "dodge"] as const;
 export type GameId = (typeof gameIds)[number];
 export type Run = {
@@ -9,6 +10,7 @@ export type Run = {
   seconds: number;
   date: string;
   synced?: boolean;
+  details?: GameResultDetails;
 };
 export const achievementIds = [
   "first",

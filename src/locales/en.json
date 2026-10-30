@@ -228,5 +228,305 @@
   "homeFaceWaiting": "Show your face",
   "backgroundMusic": "Background music",
   "musicVolume": "Music volume",
-  "replayIntro": "Replay intro"
+  "replayIntro": "Replay intro",
+  "achievements": {
+    "items": {
+      "first": {
+        "title": "First steps!",
+        "description": "Complete one game"
+      },
+      "five": {
+        "title": "Getting warmed up?",
+        "description": "Complete five games"
+      },
+      "variety": {
+        "title": "A little of everything",
+        "description": "Complete three different games"
+      },
+      "regular": {
+        "title": "Arcade regular",
+        "description": "Complete 20 games"
+      },
+      "resident": {
+        "title": "Do you live here?",
+        "description": "Complete 50 games"
+      },
+      "allrounder": {
+        "title": "All-rounder",
+        "description": "Complete all five playable games"
+      },
+      "sessionAll": {
+        "title": "All in one sitting",
+        "description": "Complete all five games before refreshing"
+      },
+      "replayFive": {
+        "title": "One more!",
+        "description": "Complete the same game five times in a row"
+      },
+      "warmup": {
+        "title": "Warm-up complete",
+        "description": "Finish three different games consecutively without a failure"
+      },
+      "collector": {
+        "title": "Record collector",
+        "description": "Set a personal best in three different games"
+      },
+      "dayTen": {
+        "title": "A perfect day",
+        "description": "Complete ten games on one local date"
+      },
+      "chamFirst": {
+        "title": "Read the room",
+        "description": "Complete Cham for the first time"
+      },
+      "chamStreak3": {
+        "title": "Getting the hang of it",
+        "description": "Succeed 3 rounds in a row"
+      },
+      "chamStreak5": {
+        "title": "Where are you looking?",
+        "description": "Succeed 5 rounds in a row"
+      },
+      "chamStreak10": {
+        "title": "I saw that coming",
+        "description": "Succeed 10 rounds in a row"
+      },
+      "chamFast": {
+        "title": "Lightning judgement",
+        "description": "Succeed within 400 ms of the response cue"
+      },
+      "chamPerfect": {
+        "title": "Never fooled",
+        "description": "Win all ten rounds in one game"
+      },
+      "reflex": {
+        "title": "700 points!",
+        "description": "Score at least 700 in Cham"
+      },
+      "chamMaster": {
+        "title": "Cham master",
+        "description": "Reach the hardest difficulty when that mode is available"
+      },
+      "circleFirst": {
+        "title": "Circle beginner",
+        "description": "Finish a valid drawing once"
+      },
+      "circle700": {
+        "title": "That looks round!",
+        "description": "Score at least 700"
+      },
+      "artist": {
+        "title": "800 points!",
+        "description": "Score at least 800"
+      },
+      "circle900": {
+        "title": "Are you a compass?",
+        "description": "Score at least 900"
+      },
+      "circle950": {
+        "title": "Perfectionist",
+        "description": "Score at least 950"
+      },
+      "circleUnbroken": {
+        "title": "In one go!",
+        "description": "Complete a drawing with uninterrupted webcam hand tracking"
+      },
+      "circleFast": {
+        "title": "Quick and round",
+        "description": "Score at least 800 within three seconds"
+      },
+      "circleStreak": {
+        "title": "Consistency wins",
+        "description": "Score at least 800 in three consecutive Circle games"
+      },
+      "circleTen": {
+        "title": "Well-rounded",
+        "description": "Complete Circle ten times"
+      },
+      "circle990": {
+        "title": "A human drew that?",
+        "description": "Score at least 990"
+      },
+      "shootFirst": {
+        "title": "First hit!",
+        "description": "Hit your first target"
+      },
+      "shootTen": {
+        "title": "Sharpshooter in training",
+        "description": "Hit ten targets in one game"
+      },
+      "shootPrecise": {
+        "title": "Almost perfect",
+        "description": "Fire at least ten shots, score points and reach 90% accuracy"
+      },
+      "shootPerfect": {
+        "title": "Every shot counts",
+        "description": "Fire at least ten shots with 100% accuracy"
+      },
+      "shootFive": {
+        "title": "Keep firing!",
+        "description": "Hit five targets in a row"
+      },
+      "shootFast": {
+        "title": "Faster than thought",
+        "description": "Hit a target within 350 ms of its appearance"
+      },
+      "shootCombo": {
+        "title": "Combo machine",
+        "description": "Reach a ten-hit combo"
+      },
+      "shootAll": {
+        "title": "Nothing gets away",
+        "description": "Hit every target when finite waves are available"
+      },
+      "shootHigh": {
+        "title": "High-scoring shooter",
+        "description": "Score at least 2,000 in Shoot"
+      },
+      "shootHundred": {
+        "title": "Target clean-up",
+        "description": "Hit 100 targets in total"
+      },
+      "sharp": {
+        "title": "Accurate aim (legacy)",
+        "description": "Legacy challenge: score points with at least 90% accuracy"
+      },
+      "rpsFirst": {
+        "title": "Rock, paper, scissors!",
+        "description": "Win your first round"
+      },
+      "rpsStreak3": {
+        "title": "A winning streak",
+        "description": "Win 3 rounds consecutively, across RPS games"
+      },
+      "rpsStreak5": {
+        "title": "On a roll",
+        "description": "Win 5 rounds consecutively, across RPS games"
+      },
+      "rpsStreak10": {
+        "title": "Mind reader",
+        "description": "Win 10 rounds consecutively, across RPS games"
+      },
+      "rps": {
+        "title": "300 points!",
+        "description": "Score at least 300 in RPS"
+      },
+      "rpsFast": {
+        "title": "Instant answer!",
+        "description": "Recognize a webcam hand shape within 500 ms of GO"
+      },
+      "rpsRecognized": {
+        "title": "Without hesitation",
+        "description": "Finish a webcam game without tracking loss or unanswered rounds"
+      },
+      "rpsTrio": {
+        "title": "The three essentials",
+        "description": "Win with scissors, rock and paper in one game"
+      },
+      "rpsRock": {
+        "title": "Trust the fist",
+        "description": "Win three rounds with rock in one game"
+      },
+      "rpsPaper": {
+        "title": "Pacifist?",
+        "description": "Win three rounds with paper in one game"
+      },
+      "dodgeFirst": {
+        "title": "Whoops!",
+        "description": "Dodge your first obstacle"
+      },
+      "dodgeTen": {
+        "title": "My body moved first",
+        "description": "Survive ten seconds"
+      },
+      "survivor": {
+        "title": "Still alive!",
+        "description": "Survive 30 seconds"
+      },
+      "dodgeMinute": {
+        "title": "Survival expert",
+        "description": "Survive 60 seconds when a longer mode is available"
+      },
+      "dodgeClean": {
+        "title": "Not a scratch",
+        "description": "Go ten consecutive seconds without a hit"
+      },
+      "dodgeNear": {
+        "title": "That was close!",
+        "description": "Available when near-miss detection is added"
+      },
+      "dodgeStreak": {
+        "title": "Dodge instinct",
+        "description": "Dodge ten obstacles consecutively"
+      },
+      "dodgeDance": {
+        "title": "Is this a dance?",
+        "description": "Available when vertical movement is added"
+      },
+      "dodgePeak": {
+        "title": "Phoenix",
+        "description": "Reach the final five seconds of increasing difficulty"
+      },
+      "poseFirst": {
+        "title": "Copy that pose!",
+        "description": "Succeed at the first pose · game coming soon"
+      },
+      "pose80": {
+        "title": "Pretty close!",
+        "description": "Reach 80% accuracy · game coming soon"
+      },
+      "pose95": {
+        "title": "Are you a mirror?",
+        "description": "Reach 95% accuracy · game coming soon"
+      },
+      "poseQuick": {
+        "title": "Click!",
+        "description": "Succeed in half the allotted time · game coming soon"
+      },
+      "poseFive": {
+        "title": "Pose genius",
+        "description": "Succeed five times in a row · game coming soon"
+      },
+      "poseTen": {
+        "title": "Say it with your body",
+        "description": "Succeed ten times in a row · game coming soon"
+      },
+      "poseHint": {
+        "title": "One look is enough",
+        "description": "Succeed immediately without a hint · game coming soon"
+      },
+      "poseFull": {
+        "title": "Full-body action!",
+        "description": "Succeed at a complex full-body pose · game coming soon"
+      },
+      "poseRegular": {
+        "title": "Made for the camera",
+        "description": "Complete Pose ten times · game coming soon"
+      },
+      "manners": {
+        "title": "Hey, mind your manners!",
+        "description": "Held up only the middle finger for 1.2 seconds."
+      },
+      "mystery": {
+        "title": "What… is that?",
+        "description": "Covered and uncovered the center with a close hand three times within five seconds while a face remained visible."
+      },
+      "jazz": {
+        "title": "Double hands, double fun!",
+        "description": "Showed a face and two open palms for two seconds."
+      },
+      "doublePeace": {
+        "title": "Double peace!",
+        "description": "Held two V signs for 1.5 seconds."
+      },
+      "winkPeace": {
+        "title": "Secret greeting received!",
+        "description": "Held a V sign and a one-eye wink for one second."
+      },
+      "surprise": {
+        "title": "Oh, wow!",
+        "description": "Held two open hands and an open-mouth expression for one second."
+      }
+    }
+  }
 }

@@ -228,5 +228,305 @@
   "homeFaceWaiting": "얼굴 대기",
   "backgroundMusic": "배경음악",
   "musicVolume": "배경음악 볼륨",
-  "replayIntro": "인트로 다시 보기"
+  "replayIntro": "인트로 다시 보기",
+  "achievements": {
+    "items": {
+      "first": {
+        "title": "첫 발을 내딛다!",
+        "description": "게임 1회 완료"
+      },
+      "five": {
+        "title": "슬슬 몸 풀렸지?",
+        "description": "누적 게임 5회 완료"
+      },
+      "variety": {
+        "title": "이것저것 해보는 중",
+        "description": "서로 다른 게임 3종 완료"
+      },
+      "regular": {
+        "title": "아케이드 단골",
+        "description": "누적 게임 20회 완료"
+      },
+      "resident": {
+        "title": "여기서 사세요?",
+        "description": "누적 게임 50회 완료"
+      },
+      "allrounder": {
+        "title": "올라운더",
+        "description": "플레이 가능한 5종 게임 모두 완료"
+      },
+      "sessionAll": {
+        "title": "오늘은 다 한다",
+        "description": "새로고침 전 5종 게임 모두 완료"
+      },
+      "replayFive": {
+        "title": "한 번 더!",
+        "description": "동일한 게임 연속 5회 완료"
+      },
+      "warmup": {
+        "title": "워밍업 끝",
+        "description": "실패 없이 서로 다른 게임 3종 연속 완료"
+      },
+      "collector": {
+        "title": "기록 수집가",
+        "description": "서로 다른 게임 3종에서 개인 최고기록 갱신"
+      },
+      "dayTen": {
+        "title": "완벽한 하루",
+        "description": "같은 로컬 날짜에 게임 10회 완료"
+      },
+      "chamFirst": {
+        "title": "눈치 게임 시작",
+        "description": "참참참 첫 완료"
+      },
+      "chamStreak3": {
+        "title": "감이 왔어",
+        "description": "3회 연속 성공"
+      },
+      "chamStreak5": {
+        "title": "어딜 보시는 거죠?",
+        "description": "5회 연속 성공"
+      },
+      "chamStreak10": {
+        "title": "읽고 있었다",
+        "description": "10회 연속 성공"
+      },
+      "chamFast": {
+        "title": "번개 같은 판단",
+        "description": "응답 구간에서 400ms 이내 성공"
+      },
+      "chamPerfect": {
+        "title": "한 번도 안 속아",
+        "description": "한 판 10라운드 모두 성공"
+      },
+      "reflex": {
+        "title": "700점 돌파!",
+        "description": "참참참 700점 이상"
+      },
+      "chamMaster": {
+        "title": "참참참 마스터",
+        "description": "최고 난이도 모드 도달 · 모드 추가 후 활성화"
+      },
+      "circleFirst": {
+        "title": "동그라미 입문",
+        "description": "원을 1회 완성"
+      },
+      "circle700": {
+        "title": "제법 동그랗네?",
+        "description": "700점 이상"
+      },
+      "artist": {
+        "title": "800점 돌파!",
+        "description": "800점 이상"
+      },
+      "circle900": {
+        "title": "컴퍼스인가요?",
+        "description": "900점 이상"
+      },
+      "circle950": {
+        "title": "완벽주의자",
+        "description": "950점 이상"
+      },
+      "circleUnbroken": {
+        "title": "단번에!",
+        "description": "웹캠 손 추적이 끊기지 않고 원 완성"
+      },
+      "circleFast": {
+        "title": "빠르고 둥글게",
+        "description": "3초 이내에 800점 이상"
+      },
+      "circleStreak": {
+        "title": "꾸준함의 승리",
+        "description": "800점 이상을 3회 연속 달성"
+      },
+      "circleTen": {
+        "title": "원만한 사람",
+        "description": "원 그리기 10회 완료"
+      },
+      "circle990": {
+        "title": "이게 사람이 그린 원이라고?",
+        "description": "990점 이상"
+      },
+      "shootFirst": {
+        "title": "첫 명중!",
+        "description": "타깃 첫 명중"
+      },
+      "shootTen": {
+        "title": "명사수의 시작",
+        "description": "한 판에서 10회 명중"
+      },
+      "shootPrecise": {
+        "title": "거의 완벽해",
+        "description": "최소 10발 발사 · 점수 획득 · 정확도 90% 이상"
+      },
+      "shootPerfect": {
+        "title": "백발백중",
+        "description": "최소 10발 발사 · 정확도 100%"
+      },
+      "shootFive": {
+        "title": "연속 사격!",
+        "description": "5개 타깃 연속 명중"
+      },
+      "shootFast": {
+        "title": "손이 먼저 움직였다",
+        "description": "타깃 등장 후 350ms 이내 명중"
+      },
+      "shootCombo": {
+        "title": "콤보 머신",
+        "description": "10 Combo 달성"
+      },
+      "shootAll": {
+        "title": "놓치지 않아",
+        "description": "모든 타깃 명중 · 유한 웨이브 모드 추가 후 활성화"
+      },
+      "shootHigh": {
+        "title": "고득점 사수",
+        "description": "쏴! 2,000점 이상"
+      },
+      "shootHundred": {
+        "title": "악당 청소부",
+        "description": "누적 타깃 100개 명중"
+      },
+      "sharp": {
+        "title": "정확한 첫 조준 (기존)",
+        "description": "기존 과제: 점수 획득 · 정확도 90% 이상"
+      },
+      "rpsFirst": {
+        "title": "가위바위보!",
+        "description": "첫 승리"
+      },
+      "rpsStreak3": {
+        "title": "연승 시작",
+        "description": "3라운드 연승 · 다음 판에도 이어짐"
+      },
+      "rpsStreak5": {
+        "title": "오늘 좀 되는데?",
+        "description": "5라운드 연승 · 다음 판에도 이어짐"
+      },
+      "rpsStreak10": {
+        "title": "독심술사",
+        "description": "10라운드 연승 · 다음 판에도 이어짐"
+      },
+      "rps": {
+        "title": "300점 돌파!",
+        "description": "가위바위보 300점 이상"
+      },
+      "rpsFast": {
+        "title": "즉답!",
+        "description": "GO 이후 500ms 이내 웹캠 손 모양 인식"
+      },
+      "rpsRecognized": {
+        "title": "한 치의 망설임도 없이",
+        "description": "웹캠 한 판에서 추적 상실·무응답 0회"
+      },
+      "rpsTrio": {
+        "title": "삼신기",
+        "description": "한 판에서 가위·바위·보 각각 한 번 이상 승리"
+      },
+      "rpsRock": {
+        "title": "주먹만 믿는다",
+        "description": "한 판에서 바위로 3회 승리"
+      },
+      "rpsPaper": {
+        "title": "평화주의자?",
+        "description": "한 판에서 보로 3회 승리"
+      },
+      "dodgeFirst": {
+        "title": "어이쿠!",
+        "description": "장애물 첫 회피"
+      },
+      "dodgeTen": {
+        "title": "몸이 먼저 반응했다",
+        "description": "10초 생존"
+      },
+      "survivor": {
+        "title": "아직 살아있다!",
+        "description": "30초 생존"
+      },
+      "dodgeMinute": {
+        "title": "생존 전문가",
+        "description": "60초 생존 · 장기 모드 추가 후 활성화"
+      },
+      "dodgeClean": {
+        "title": "스치지도 않았어",
+        "description": "10초 동안 연속 피격 0회"
+      },
+      "dodgeNear": {
+        "title": "간발의 차!",
+        "description": "Near Miss 시스템 추가 후 활성화"
+      },
+      "dodgeStreak": {
+        "title": "회피 본능",
+        "description": "장애물 10개 연속 회피"
+      },
+      "dodgeDance": {
+        "title": "이쯤 되면 춤인데?",
+        "description": "상하 이동 모드 추가 후 활성화"
+      },
+      "dodgePeak": {
+        "title": "불사조",
+        "description": "마지막 5초의 난이도 구간 진입"
+      },
+      "poseFirst": {
+        "title": "그대로 따라해!",
+        "description": "첫 포즈 성공 · 게임 준비 중"
+      },
+      "pose80": {
+        "title": "제법 비슷한데?",
+        "description": "정확도 80% 이상 · 게임 준비 중"
+      },
+      "pose95": {
+        "title": "거울인가요?",
+        "description": "정확도 95% 이상 · 게임 준비 중"
+      },
+      "poseQuick": {
+        "title": "찰칵!",
+        "description": "제한시간 절반 이내 성공 · 게임 준비 중"
+      },
+      "poseFive": {
+        "title": "포즈 천재",
+        "description": "5개 연속 성공 · 게임 준비 중"
+      },
+      "poseTen": {
+        "title": "몸으로 말해요",
+        "description": "10개 연속 성공 · 게임 준비 중"
+      },
+      "poseHint": {
+        "title": "한 번 보고 척",
+        "description": "힌트 없이 즉시 성공 · 게임 준비 중"
+      },
+      "poseFull": {
+        "title": "전신 가동!",
+        "description": "복잡한 전신 포즈 성공 · 게임 준비 중"
+      },
+      "poseRegular": {
+        "title": "카메라 체질",
+        "description": "포즈 따라해 10회 완료 · 게임 준비 중"
+      },
+      "manners": {
+        "title": "어허, 그건 안돼요~",
+        "description": "가운데 손가락만 펴고 1.2초 유지했어요."
+      },
+      "mystery": {
+        "title": "이게... 뭐죠?",
+        "description": "얼굴이 보이는 상태에서 5초 안에 손으로 중앙을 가렸다 치우기를 3번 반복했어요."
+      },
+      "jazz": {
+        "title": "손이 두 배, 신남도 두 배!",
+        "description": "얼굴과 펼친 두 손을 2초 동안 보여줬어요."
+      },
+      "doublePeace": {
+        "title": "평화는 두 손으로!",
+        "description": "양손 브이를 1.5초 유지했어요."
+      },
+      "winkPeace": {
+        "title": "비밀 인사 접수!",
+        "description": "브이와 한쪽 눈 윙크를 1초 유지했어요."
+      },
+      "surprise": {
+        "title": "세상에, 대박!",
+        "description": "펼친 두 손과 입을 벌린 표정을 1초 유지했어요."
+      }
+    }
+  }
 }

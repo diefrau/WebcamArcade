@@ -41,38 +41,30 @@ test("device progress bars persist across reload and preserve game variety beyon
   );
   await page.goto("/achievements");
   await expect(
-    page.getByRole("progressbar", { name: "게임 5번 완료", exact: true }),
+    page.getByRole("progressbar", { name: "슬슬 몸 풀렸지?", exact: true }),
   ).toHaveAttribute("value", "2");
   await expect(
     page.getByRole("progressbar", {
-      name: "서로 다른 게임 3종 완료",
+      name: "이것저것 해보는 중",
       exact: true,
     }),
   ).toHaveAttribute("value", "1");
   await page.reload();
   await expect(
-    page.getByRole("progressbar", { name: "게임 5번 완료", exact: true }),
+    page.getByRole("progressbar", { name: "슬슬 몸 풀렸지?", exact: true }),
   ).toHaveAttribute("value", "2");
   await page.evaluate(async () => {
-    const store = await import("/src/community/store.ts");
-    const r = (game: string) => ({
-      id: crypto.randomUUID(),
-      game,
-      score: 0,
-      accuracy: 0,
-      seconds: 0,
-      date: new Date().toISOString(),
-    });
-    store.writeRuns([...store.readRuns(), r("circle")]);
-    store.writeRuns(Array.from({ length: 100 }, () => r("rps")));
+    const client = await import("/src/community/client.ts");
+    client.recordPlay("circle", 0);
+    for (let i = 0; i < 100; i++) client.recordPlay("rps", 0);
   });
   await page.reload();
   await expect(
-    page.getByRole("progressbar", { name: "게임 5번 완료", exact: true }),
+    page.getByRole("progressbar", { name: "슬슬 몸 풀렸지?", exact: true }),
   ).toHaveAttribute("value", "5");
   await expect(
     page.getByRole("progressbar", {
-      name: "서로 다른 게임 3종 완료",
+      name: "이것저것 해보는 중",
       exact: true,
     }),
   ).toHaveAttribute("value", "3");

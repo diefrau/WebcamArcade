@@ -37,6 +37,8 @@ type Round = {
   player: RpsChoice | null;
   computer: RpsChoice;
   outcome: RpsOutcome;
+  responseMs?: number;
+  webcam?: boolean;
 };
 export type RpsResult = {
   score: number;
@@ -106,6 +108,8 @@ export function RpsGamePage({
   const [remaining, setRemaining] = useState(COUNTDOWN);
   const remainingRef = useRef(COUNTDOWN);
   const [rounds, setRounds] = useState<Round[]>([]);
+  const recognitionFailures = useRef(0);
+  const lostTracking = useRef(false);
   useGameSound(phase, Math.ceil(remaining / 500), rounds.length, tone);
   const roundsRef = useRef<Round[]>([]);
   const computer = useRef<RpsChoice>("rock");
@@ -124,6 +128,16 @@ export function RpsGamePage({
     camera.vision === "ready" &&
     camera.hand.detected;
   const canPlay = mode === "mouse" || handReady;
+  useEffect(() => {
+    if (
+      mode !== "hand" ||
+      !["countdown", "respond", "feedback"].includes(phase)
+    ) {
+      return;
+    }
+    if (!handReady && !lostTracking.current) recognitionFailures.current++;
+    lostTracking.current = !handReady;
+  }, [mode, phase, handReady]);
   const settings = camera.stream?.getVideoTracks()[0]?.getSettings();
   const pose = handReady
     ? classifyRps(
@@ -183,7 +197,22 @@ export function RpsGamePage({
     } catch {
       result.saved = false;
     }
-    recordPlay("rps", score);
+    recordPlay("rps", score, 0, 0, {
+      inputMode: mode,
+      newBest: result.newBest,
+      recognitionFailures: recognitionFailures.current,
+      rounds: played.map((r) => ({
+        win: r.outcome === "win",
+        choice: r.player ?? undefined,
+        responseMs: r.responseMs,
+        webcam: r.webcam,
+      })),
+      metadata: {
+        passed:
+          played.length === 5 &&
+          played.every((r) => r.player && r.outcome !== "lose"),
+      },
+    });
     onFinish();
     navigate("/result/rps", { replace: true, state: result });
   }
@@ -195,9 +224,18 @@ export function RpsGamePage({
     )
       return;
     const outcome = rpsOutcome(player, computer.current);
+    if (mode === "hand" && !player) recognitionFailures.current++;
     const next = [
       ...roundsRef.current,
-      { player, computer: computer.current, outcome },
+      {
+        player,
+        computer: computer.current,
+        outcome,
+        responseMs: player
+          ? Math.max(0, RESPONSE - remainingRef.current)
+          : undefined,
+        webcam: mode === "hand",
+      },
     ];
     roundsRef.current = next;
     setRounds(next);

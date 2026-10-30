@@ -134,11 +134,11 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
   await expect(page.locator(".achievement.unlocked")).toHaveCount(2);
   expect(submits).toBe(1);
   await expect(
-    page.getByRole("progressbar", { name: "게임 5번 완료", exact: true }),
+    page.getByRole("progressbar", { name: "슬슬 몸 풀렸지?", exact: true }),
   ).toHaveAttribute("value", "2");
   await expect(
     page.getByRole("progressbar", {
-      name: "서로 다른 게임 3종 완료",
+      name: "이것저것 해보는 중",
       exact: true,
     }),
   ).toHaveAttribute("value", "1");

@@ -19,7 +19,12 @@ const arrows = { left: "←", right: "→", up: "↑", down: "↓", center: "•
 const COUNTDOWN_MS = 1500;
 const RESPONSE_MS = 900;
 const FEEDBACK_MS = 1000;
-type Round = { computer: Direction; player: Direction | null; win: boolean };
+type Round = {
+  computer: Direction;
+  player: Direction | null;
+  win: boolean;
+  responseMs?: number;
+};
 export type ChamResult = {
   score: number;
   wins: number;
@@ -154,7 +159,12 @@ export function ChamGamePage({
     } catch {
       result.saved = false;
     }
-    recordPlay("cham", score);
+    recordPlay("cham", score, 0, 0, {
+      inputMode: mode,
+      newBest: result.newBest,
+      rounds: played.map((r) => ({ win: r.win, responseMs: r.responseMs })),
+      metadata: { passed: played.length === 10 && played.every((r) => r.win) },
+    });
     onFinish();
     navigate("/result/cham", { replace: true, state: result });
   }
@@ -162,7 +172,17 @@ export function ChamGamePage({
     if (phaseRef.current !== "respond") return;
     if (player) tone("cham.move");
     const win = winsRound(computer, player);
-    const next = [...roundsRef.current, { computer, player, win }];
+    const next = [
+      ...roundsRef.current,
+      {
+        computer,
+        player,
+        win,
+        responseMs: player
+          ? Math.max(0, RESPONSE_MS - remainingRef.current)
+          : undefined,
+      },
+    ];
     roundsRef.current = next;
     setRounds(next);
     const streak = next

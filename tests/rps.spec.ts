@@ -115,6 +115,13 @@ test("five button rounds preserve pause, store exact records, reload and replay"
   expect(record.best).toBe(500);
   expect(record.plays).toBe(1);
   expect(record.last.wins).toBe(5);
+  const evidence = await page.evaluate(() => ({
+    run: JSON.parse(localStorage.getItem("arcade.community.runs")!)[0],
+    state: JSON.parse(localStorage.getItem("arcade.achievements.v1")!),
+  }));
+  expect(evidence.run.details.rounds).toHaveLength(5);
+  expect(evidence.state.unlockedIds).toContain("rpsStreak5");
+  expect(evidence.state.unlockedIds).not.toContain("rpsRecognized");
   expect(
     await page.evaluate(
       () => JSON.parse(localStorage.getItem("arcade.records")!).daily,

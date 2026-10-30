@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { useCamera } from "../vision/CameraProvider";
 import { HomeSecretDetector } from "../vision/homeSecrets";
 import { unlockSecret } from "./client";
+import { readSecrets } from "./secrets";
 import "./secrets.css";
 export function HomeEasterEggs() {
   const camera = useCamera();
@@ -25,7 +26,10 @@ export function HomeEasterEggs() {
       detector.current.reset();
       return;
     }
-    for (const id of detector.current.update(camera.homeMotion))
+    for (const id of detector.current.update(
+      camera.homeMotion,
+      new Set(readSecrets().map((r) => r.id)),
+    ))
       unlockSecret(id);
   }, [camera.homeMotion, camera.homeTracking, camera.state, camera.vision]);
   return null;

@@ -72,12 +72,23 @@ test("sustained geometry distinguishes the six secrets; gaps and ambiguous hands
   expect(handPose(collapsed)).toBeNull();
   expect(held([collapsed], {}, 3000)).not.toContain("manners");
 });
-test("five-second flicker requires reacquisition, a visible face and a stable centered hand", () => {
+test("three observed cover and release cycles unlock; tracking flicker never counts", () => {
+  const close = hand("open").map((p) => ({
+    x: 0.5 + (p.x - 0.5) * 2.2,
+    y: 0.5 + (p.y - 0.5) * 1.5,
+  }));
+  const cover = new HomeSecretDetector();
+  const awards: string[] = [];
+  for (let t = 0; t <= 1800; t += 100)
+    awards.push(
+      ...cover.update(frame(t, [t % 600 < 300 ? close : hand("open")])),
+    );
+  expect(awards.filter((id) => id === "mystery")).toHaveLength(1);
   const detector = new HomeSecretDetector();
   let result: string[] = [];
   for (let t = 0; t <= 6000; t += 100)
     result = detector.update(frame(t, t % 600 < 300 ? [hand("peace")] : []));
-  expect(result).toContain("mystery");
+  expect(result).not.toContain("mystery");
   for (const mode of ["empty", "absentFace", "longLoss", "moving", "edge"]) {
     const d = new HomeSecretDetector();
     const awards: string[] = [];

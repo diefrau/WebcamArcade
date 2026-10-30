@@ -121,7 +121,7 @@ async function records(page: Page) {
   return page.evaluate(() =>
     Object.fromEntries(
       Object.entries(localStorage).filter(([key]) =>
-        /^arcade\.(records|circle|cham|rps|dodge|community\.(runs|progress|secrets))/.test(
+        /^arcade\.(records|circle|cham|rps|dodge|achievements|community\.(runs|progress|secrets))/.test(
           key,
         ),
       ),

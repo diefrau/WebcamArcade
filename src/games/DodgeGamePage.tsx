@@ -169,7 +169,17 @@ export function DodgeGamePage({
     } catch {
       result.saved = false;
     }
-    recordPlay("dodge", result.score, 0, result.seconds);
+    recordPlay("dodge", result.score, 0, result.seconds, {
+      inputMode: mode,
+      newBest: result.newBest,
+      hits: result.hits,
+      metadata: {
+        passed: result.cleared,
+        dodged: s.dodged,
+        maxSafeSeconds: s.maxSafeSeconds,
+        maxAvoidStreak: s.maxAvoidStreak,
+      },
+    });
     onFinish();
     navigate("/result/dodge", { replace: true, state: result });
   }

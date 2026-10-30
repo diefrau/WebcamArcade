@@ -1,0 +1,159 @@
+.achievements-panel {
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.achievement-summary {
+  padding: 22px;
+  background: #fffbed;
+  display: grid;
+  gap: 14px;
+}
+.achievement-summary > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.achievement-summary strong {
+  font-size: 24px;
+  white-space: nowrap;
+}
+.achievement-summary b {
+  display: inline-block;
+  padding: 5px 12px;
+  margin-left: 8px;
+  background: var(--yellow);
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+}
+.achievement-summary > progress {
+  appearance: none;
+  width: 100%;
+  height: 24px;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  overflow: hidden;
+  background: #eeeae1;
+}
+.achievement-summary > progress::-webkit-progress-bar {
+  background: #eeeae1;
+}
+.achievement-summary > progress::-webkit-progress-value {
+  background: repeating-linear-gradient(
+    125deg,
+    var(--lime) 0 12px,
+    #cfff84 12px 20px
+  );
+}
+.achievement-summary > progress::-moz-progress-bar {
+  background: repeating-linear-gradient(
+    125deg,
+    var(--lime) 0 12px,
+    #cfff84 12px 20px
+  );
+}
+.achievement-summary p {
+  font-size: 13px;
+  font-weight: 800;
+}
+.achievement-summary p span {
+  color: #666;
+}
+.achievement-sync-note {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #5b5953;
+}
+.achievement-filters button {
+  display: grid;
+  gap: 4px;
+  text-align: center;
+}
+.achievement-filters small {
+  font-size: 11px;
+}
+.achievement-play {
+  justify-self: start;
+  font-size: 14px;
+}
+.achievement-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.achievement-card-top > span {
+  font-size: 11px;
+  font-weight: 900;
+  border: 2px solid var(--ink);
+  border-radius: 9px;
+  background: #fffbed;
+  padding: 3px 7px;
+}
+.achievement-status > strong {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+.achievement-status > strong svg {
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: none;
+}
+.achievement-status time {
+  font-size: 11px;
+  color: #5b5953;
+}
+.achievement-pending {
+  opacity: 0.62;
+}
+.achievement-pending h2 {
+  filter: none;
+}
+.achievement p {
+  font-size: 13px;
+  line-height: 1.65;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.achievement .achievement-status {
+  display: grid;
+  gap: 8px;
+}
+@media (max-width: 640px) {
+  .achievement-summary {
+    padding: 16px;
+  }
+  .community-page .achievement-summary h2 {
+    font-size: 20px;
+  }
+  .achievement-summary strong {
+    font-size: 20px;
+  }
+  .achievement-card-top {
+    align-items: start;
+    flex-wrap: wrap;
+  }
+  .achievement-card-top > span {
+    font-size: 10px;
+  }
+  .achievement p {
+    font-size: 12px;
+  }
+  .achievement-filters {
+    gap: 9px;
+  }
+  .achievement-filters button {
+    min-width: 85px;
+    flex: 1;
+    padding: 10px;
+  }
+  .achievement-play {
+    font-size: 12px;
+  }
+}

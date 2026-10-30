@@ -36,6 +36,7 @@ export type CircleResult = {
   duration: number;
   points: number;
   newBest: boolean;
+  evidence?: import("../achievements/types").GameResultDetails;
 };
 const read = <T,>(key: string, fallback: T): T => {
   try {
@@ -229,6 +230,23 @@ export function CircleGamePage({
   const pathRef = useRef<Point[]>([]);
   const elapsed = useRef(0);
   const finished = useRef(false);
+  const trackingLosses = useRef(0),
+    previousTracking = useRef(true),
+    usedMouse = useRef(false),
+    hadRetry = useRef(false);
+  useEffect(() => {
+    if (phase !== "playing") return;
+    if (mode !== "hand") {
+      usedMouse.current = true;
+      return;
+    }
+    const present =
+      camera.hand.detected &&
+      camera.state === "ready" &&
+      camera.vision === "ready";
+    if (!present && previousTracking.current) trackingLosses.current++;
+    previousTracking.current = present;
+  }, [phase, mode, camera.hand.detected, camera.state, camera.vision]);
   const progressSound = useRef(false);
   useEffect(() => {
     if (phase !== "playing" || progressSound.current || path.length < 28)
@@ -267,6 +285,12 @@ export function CircleGamePage({
             duration: 20,
             points: points.length,
             newBest: false,
+            evidence: {
+              inputMode: mode,
+              duration: 20,
+              trackingLosses: trackingLosses.current,
+              metadata: { drawComplete: false, passed: false },
+            },
           };
           save("arcade.circle.last", next);
           save("arcade.circle.best", best);
@@ -277,6 +301,7 @@ export function CircleGamePage({
           return;
         }
         setFeedback("circleTooShort");
+        hadRetry.current = true;
         tone("fail");
         updatePath([]);
         setTimeout(() => setFeedback(""), 800);
@@ -285,11 +310,26 @@ export function CircleGamePage({
       finished.current = true;
       tone("circle.complete");
       const best = read<number>("arcade.circle.best", 0);
-      const next = {
+      const next: CircleResult = {
         ...result,
         duration: Math.max(1, Math.round(elapsed.current / 1000)),
         points: points.length,
         newBest: result.score > best,
+        evidence: {
+          inputMode:
+            mode === "hand" && !usedMouse.current
+              ? "hand"
+              : mode === "mouse"
+                ? "mouse"
+                : "unknown",
+          duration: elapsed.current / 1000,
+          trackingLosses: trackingLosses.current,
+          newBest: result.score > best,
+          metadata: {
+            drawComplete: true,
+            passed: result.score > 0 && !hadRetry.current,
+          },
+        },
       };
       save("arcade.circle.last", next);
       save("arcade.circle.best", Math.max(best, result.score));
@@ -298,7 +338,7 @@ export function CircleGamePage({
       onFinish(next);
       navigate("/result/circle", { replace: true });
     },
-    [navigate, onFinish, updatePath, tone],
+    [navigate, onFinish, updatePath, tone, mode],
   );
   useEffect(() => {
     if (phase !== "playing") return;
@@ -380,6 +420,10 @@ export function CircleGamePage({
   const start = () => {
     tone("start");
     finished.current = false;
+    trackingLosses.current = 0;
+    previousTracking.current = true;
+    usedMouse.current = mode !== "hand";
+    hadRetry.current = false;
     progressSound.current = false;
     drawing.current = false;
     updatePath([]);

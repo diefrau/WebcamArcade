@@ -40,7 +40,8 @@ test("first entry follows all beats, starts one title track, reduces its mix and
   page,
 }) => {
   await firstVisit(page);
-  await page.clock.install();
+  await page.clock.install({ time: new Date("2026-10-30T00:00:00Z") });
+  await page.clock.pauseAt(new Date("2026-10-30T00:00:01Z"));
   await page.goto("/");
   await expect(
     page.getByRole("button", { name: "START!", exact: true }),

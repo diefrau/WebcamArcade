@@ -351,8 +351,10 @@ test("circle webcam connection selects hand input, draws and preserves path on t
     "data-drawing",
     "false",
   );
+  const releasedCount = await page.locator(".circle-score b").textContent();
+  expect(Number(releasedCount)).toBeGreaterThanOrEqual(Number(count));
   await send(0.3, 0.4);
-  await expect(page.locator(".circle-score b")).toHaveText(count!);
+  await expect(page.locator(".circle-score b")).toHaveText(releasedCount!);
   await send(0.3, 0.4, true);
   await expect(page.locator(".circle-canvas")).toHaveAttribute(
     "data-strokes",

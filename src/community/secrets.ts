@@ -21,8 +21,8 @@ export const secretDescriptions: Record<
   mystery: {
     name: ["이게... 뭐죠?", "What… is that?"],
     detail: [
-      "얼굴이 보이는 상태에서 손 인식이 5초 이상 짧게 깜빡였어요.",
-      "Your hand tracking flickered for over five seconds with your face visible.",
+      "얼굴이 보이는 상태에서 손으로 중앙을 가렸다 치우기를 5초 안에 3번 반복했어요.",
+      "Covered and uncovered the center with a close hand three times within five seconds while your face remained visible.",
     ],
   },
   jazz: {

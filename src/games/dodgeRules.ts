@@ -9,6 +9,10 @@ export type DodgeState = {
   spawnIn: number;
   nextId: number;
   obstacles: Obstacle[];
+  safeSeconds: number;
+  maxSafeSeconds: number;
+  avoidStreak: number;
+  maxAvoidStreak: number;
 };
 export const DODGE_DURATION = 30;
 export function newDodge(): DodgeState {
@@ -22,6 +26,10 @@ export function newDodge(): DodgeState {
     spawnIn: 0.7,
     nextId: 0,
     obstacles: [],
+    safeSeconds: 0,
+    maxSafeSeconds: 0,
+    avoidStreak: 0,
+    maxAvoidStreak: 0,
   };
 }
 export const dodgeScore = (s: DodgeState) =>
@@ -41,6 +49,7 @@ export function advanceDodge(
     const dt = Math.min(left, 0.02, DODGE_DURATION - s.elapsed);
     left -= dt;
     s.elapsed = Math.min(DODGE_DURATION, s.elapsed + dt);
+    s.safeSeconds += dt;
     s.x +=
       (Math.max(0.1, Math.min(0.9, target)) - s.x) * (1 - Math.exp(-dt / 0.09));
     s.immune = Math.max(0, s.immune - dt);
@@ -64,14 +73,19 @@ export function advanceDodge(
       ) {
         s.lives--;
         s.hits++;
+        s.safeSeconds = 0;
+        s.avoidStreak = 0;
         s.immune = 1;
         o.y = 2;
       } else if (o.y > 1.08 && o.y < 2) {
         s.dodged++;
+        s.avoidStreak++;
+        s.maxAvoidStreak = Math.max(s.maxAvoidStreak, s.avoidStreak);
         o.y = 2;
       }
     }
     s.obstacles = s.obstacles.filter((o) => o.y < 2);
+    s.maxSafeSeconds = Math.max(s.maxSafeSeconds, s.safeSeconds);
   }
   return s;
 }

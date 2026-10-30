@@ -16,11 +16,14 @@ import {
   type GameId,
   type Progress,
 } from "./store";
-import {
-  announceAchievement,
-  achievementDescriptions,
-} from "./achievementNotices";
+import { announceAchievement } from "./achievementNotices";
 import { secretDescriptions } from "./secrets";
+import {
+  readAchievementState,
+  recordGameResult,
+  syncSecretAchievement,
+} from "../achievements/achievementManager";
+import type { GameResultDetails, GameResultEvent } from "../achievements/types";
 // Vite replaces only these public build variables. Never use server secret keys.
 const env = (import.meta as unknown as { env: Record<string, string> }).env;
 export const communityConfigured = !!(
@@ -153,6 +156,7 @@ export function syncRuns(resumeAfterCurrent = false): Promise<void> {
 }
 export function unlockSecret(id: SecretId) {
   if (!storeSecret(id)) return false;
+  syncSecretAchievement(id, readSecrets().find((r) => r.id === id)!.date);
   announceAchievement({ id, title: secretDescriptions[id].name, secret: true });
   window.dispatchEvent(new Event("arcade:community"));
   if (communityConfigured) void syncRuns().catch(() => {});
@@ -163,6 +167,7 @@ export function recordPlay(
   score: number,
   accuracy = 0,
   seconds = 0,
+  details: GameResultDetails = {},
 ) {
   const run: Run = {
     id: crypto.randomUUID(),
@@ -171,19 +176,25 @@ export function recordPlay(
     accuracy,
     seconds: Math.min(30, Math.max(0, seconds)),
     date: new Date().toISOString(),
+    details,
   };
   if (!validRun(run)) return;
-  const before = readProgress();
+  readAchievementState();
   writeRuns([...readRuns(), run]);
-  const after = readProgress();
-  for (const id of achievementIds)
-    if (!before[id] && after[id]) {
-      announceAchievement({
-        id,
-        title: achievementDescriptions[id],
-        secret: false,
-      });
-    }
+  const event: GameResultEvent = {
+    ...details,
+    id: run.id,
+    gameId: game,
+    completed: true,
+    score,
+    accuracy,
+    duration: details.duration ?? seconds,
+    date: run.date,
+  };
+  recordGameResult(event);
+  window.dispatchEvent(
+    new CustomEvent("arcade:game-result", { detail: event }),
+  );
   window.dispatchEvent(new Event("arcade:community"));
   // The first-visit name choice opts this device into automatic result sync.
   if (communityConfigured) void syncRuns().catch(() => {});
