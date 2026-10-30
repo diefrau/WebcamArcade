@@ -65,4 +65,7 @@ export type AchievementState = {
   progress: Record<string, number>;
   stats: PlayerStats;
   processedIds: string[];
+  lastResults?: Partial<
+    Record<GameId, { runId: string; unlockedIds: string[] }>
+  >;
 };

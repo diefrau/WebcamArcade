@@ -1,3 +1,4 @@
+import { ResultAchievements } from "./achievements/ResultAchievements";
 import { CommunityPage } from "./community/CommunityPage";
 import { recordPlay } from "./community/client";
 import { PlayerSession, PlayerWelcome } from "./community/PlayerWelcome";
@@ -1343,7 +1344,7 @@ function ResultPage() {
         score={r.score}
         onCelebrate={(record) => tone(record ? "newBest" : "result")}
       />
-      <div className="result-layout">
+      <div className="result-layout result-achievement-layout">
         <aside className="result-moment">
           <WebcamFrame compact />
           <p>
@@ -1406,31 +1407,7 @@ function ResultPage() {
             ))}
           </div>
         </section>
-        <aside className="result-side panel">
-          <h3>
-            <Trophy />
-            {t("localTitle")}
-          </h3>
-          {[
-            { key: "missionPlay", done: true },
-            { key: "missionScore", done: r.score > 1000 },
-            { key: "missionAccuracy", done: r.accuracy >= 80 && r.hits > 0 },
-          ].map((m) => (
-            <p key={m.key}>
-              <span className={`mission-check ${m.done ? "done" : ""}`}>
-                {m.done && <Check size={20} />}
-              </span>
-              {t(m.key)}
-            </p>
-          ))}
-          <div className="personal-stat">
-            <span>{t("plays", { count: records.plays })}</span>
-            <Trophy />
-            <b>{records.best.toLocaleString()}</b>
-            <small>{t("best")}</small>
-          </div>
-          <p className="local-note">{t("localNote")}</p>
-        </aside>
+        <ResultAchievements gameId="shoot" />
       </div>
       <div className="result-actions">
         <Button onClick={() => navigate("/play/shoot")}>

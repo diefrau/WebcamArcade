@@ -171,6 +171,26 @@ export function readAchievementState(): AchievementState {
       )
         throw Error("invalid stats");
       const known = new Set(achievements.map((a) => a.id));
+      const lastResults = Object.fromEntries(
+        gameIds.flatMap((game) => {
+          const receipt = stored.lastResults?.[game];
+          return receipt &&
+            typeof receipt.runId === "string" &&
+            Array.isArray(receipt.unlockedIds)
+            ? [
+                [
+                  game,
+                  {
+                    runId: receipt.runId,
+                    unlockedIds: receipt.unlockedIds.filter(
+                      (id: unknown) => typeof id === "string" && known.has(id),
+                    ),
+                  },
+                ],
+              ]
+            : [];
+        }),
+      );
       const unlockedAt = Object.fromEntries(
         Object.entries(stored.unlockedAt).filter(
           ([id, time]) => known.has(id) && finite(time),
@@ -179,6 +199,7 @@ export function readAchievementState(): AchievementState {
       memory = {
         version: 1,
         stats,
+        lastResults,
         unlockedAt,
         unlockedIds: Object.keys(unlockedAt),
         progress: Object.fromEntries(
@@ -452,6 +473,10 @@ export function recordGameResult(event: GameResultEvent): boolean {
       set("dodge.streak", event.metadata.maxAvoidStreak);
   }
   const newlyUnlocked = apply(state, peaks, Date.parse(event.date));
+  state.lastResults = {
+    ...state.lastResults,
+    [g]: { runId: event.id, unlockedIds: newlyUnlocked },
+  };
   save(state);
   for (const id of newlyUnlocked)
     announceAchievement({ id, title: achievementTitle(id), secret: false });

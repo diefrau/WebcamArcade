@@ -1,3 +1,4 @@
+import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type React from "react";
@@ -664,7 +665,6 @@ export function CircleResultPage({
   const navigate = useNavigate();
   const result = read<CircleResult | null>("arcade.circle.last", null);
   const best = read<number>("arcade.circle.best", 0);
-  const plays = read<number>("arcade.circle.plays", 0);
   if (!result)
     return (
       <div className="empty-state panel">
@@ -686,7 +686,7 @@ export function CircleResultPage({
         score={result.score}
         onCelebrate={(record) => tone(record ? "newBest" : "result")}
       />
-      <div className="circle-result-grid">
+      <div className="circle-result-grid result-achievement-layout">
         <section className="circle-result-art panel">
           <Character asset="circle" />
           <span className="circle-art-badge">
@@ -732,25 +732,7 @@ export function CircleResultPage({
             <b>{best.toLocaleString()}</b>
           </div>
         </section>
-        <aside className="result-side panel">
-          <h3>
-            <Trophy />
-            {t("localTitle")}
-          </h3>
-          <p>
-            <span className="mission-check done">
-              <Check />
-            </span>
-            {t("circleMission")}
-          </p>
-          <div className="personal-stat">
-            <span>{t("plays", { count: plays })}</span>
-            <Trophy />
-            <b>{best.toLocaleString()}</b>
-            <small>{t("best")}</small>
-          </div>
-          <p className="local-note">{t("localNote")}</p>
-        </aside>
+        <ResultAchievements gameId="circle" />
       </div>
       <div className="result-actions">
         <ArcadeButton onClick={() => navigate("/play/circle")}>

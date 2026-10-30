@@ -1,3 +1,4 @@
+import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { recordPlay } from "../community/client";
 import { useEffect, useRef, useState } from "react";
@@ -602,44 +603,47 @@ export function ChamResultPage({ tone }: { tone: (kind?: SoundCue) => void }) {
         score={result.score}
         onCelebrate={(record) => tone(record ? "newBest" : "result")}
       />
-      <section className="panel cham-result-panel">
-        <Character asset="cham" />
-        <div>
-          <h2>{t("cham")}</h2>
-          <p>{result.newBest ? t("newBest") : t("nice")}</p>
-          <div className="result-stats">
-            <div>
-              <span className="pink">{t("score")}</span>
-              <b>
-                <CountUp value={result.score} />
-              </b>
+      <div className="result-with-achievements">
+        <section className="panel cham-result-panel">
+          <Character asset="cham" />
+          <div>
+            <h2>{t("cham")}</h2>
+            <p>{result.newBest ? t("newBest") : t("nice")}</p>
+            <div className="result-stats">
+              <div>
+                <span className="pink">{t("score")}</span>
+                <b>
+                  <CountUp value={result.score} />
+                </b>
+              </div>
+              <div>
+                <span className="cyan">{ko ? "피한 횟수" : "DODGED"}</span>
+                <b>
+                  <CountUp value={result.wins} />
+                  <small> / 10</small>
+                </b>
+              </div>
             </div>
-            <div>
-              <span className="cyan">{ko ? "피한 횟수" : "DODGED"}</span>
-              <b>
-                <CountUp value={result.wins} />
-                <small> / 10</small>
-              </b>
+            <p className="best-comparison">
+              <Trophy />
+              {t("best")} <b>{Math.max(stored.best, result.score)}</b>
+            </p>
+            <div className="cham-rounds">
+              {result.rounds.map((r, i) => (
+                <span
+                  key={i}
+                  className={r.win ? "won" : "lost"}
+                  title={`${i + 1}: ${arrows[r.computer]} / ${r.player ? arrows[r.player] : "—"}`}
+                >
+                  {r.win ? "✓" : "✕"}
+                </span>
+              ))}
             </div>
+            {!result.saved && <p role="alert">{t("recordError")}</p>}
           </div>
-          <p className="best-comparison">
-            <Trophy />
-            {t("best")} <b>{Math.max(stored.best, result.score)}</b>
-          </p>
-          <div className="cham-rounds">
-            {result.rounds.map((r, i) => (
-              <span
-                key={i}
-                className={r.win ? "won" : "lost"}
-                title={`${i + 1}: ${arrows[r.computer]} / ${r.player ? arrows[r.player] : "—"}`}
-              >
-                {r.win ? "✓" : "✕"}
-              </span>
-            ))}
-          </div>
-          {!result.saved && <p role="alert">{t("recordError")}</p>}
-        </div>
-      </section>
+        </section>
+        <ResultAchievements gameId="cham" />
+      </div>
       <div className="result-actions">
         <Link className="arcade-button pink" to="/play/cham">
           <RotateCcw />

@@ -1,3 +1,4 @@
+import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { InputCoach } from "../components/InputCoach";
 import { recordPlay } from "../community/client";
@@ -506,41 +507,44 @@ export function DodgeResultPage({ tone }: { tone: (cue?: SoundCue) => void }) {
         score={result.score}
         onCelebrate={(record) => tone(record ? "newBest" : "result")}
       />
-      <section className="panel cham-result-panel">
-        <Character asset="dodge" priority />
-        <div>
-          <h2>{t("dodge")}</h2>
-          <div className="result-stats">
-            {[
-              ["score", result.score],
-              ["dodgeSurvival", result.seconds],
-              ["dodgeAvoided", result.dodged],
-            ].map(([key, value]) => (
-              <div key={key}>
-                <span className="pink">{t(key as string)}</span>
-                <b>
-                  {key === "dodgeSurvival" ? (
-                    (value as number).toFixed(1)
-                  ) : (
-                    <CountUp value={value as number} />
-                  )}
-                  {key === "dodgeSurvival" && (
-                    <small>{t("dodgeSeconds")}</small>
-                  )}
-                </b>
-              </div>
-            ))}
+      <div className="result-with-achievements">
+        <section className="panel cham-result-panel">
+          <Character asset="dodge" priority />
+          <div>
+            <h2>{t("dodge")}</h2>
+            <div className="result-stats">
+              {[
+                ["score", result.score],
+                ["dodgeSurvival", result.seconds],
+                ["dodgeAvoided", result.dodged],
+              ].map(([key, value]) => (
+                <div key={key}>
+                  <span className="pink">{t(key as string)}</span>
+                  <b>
+                    {key === "dodgeSurvival" ? (
+                      (value as number).toFixed(1)
+                    ) : (
+                      <CountUp value={value as number} />
+                    )}
+                    {key === "dodgeSurvival" && (
+                      <small>{t("dodgeSeconds")}</small>
+                    )}
+                  </b>
+                </div>
+              ))}
+            </div>
+            <p className="best-comparison">
+              <Trophy />
+              {t("best")} <b>{Math.max(stored.best, result.score)}</b>
+            </p>
+            <p className="dodge-result-note">
+              {t(result.cleared ? "dodgeClearNote" : "dodgeRetryNote")}
+            </p>
+            {!result.saved && <p role="alert">{t("recordError")}</p>}
           </div>
-          <p className="best-comparison">
-            <Trophy />
-            {t("best")} <b>{Math.max(stored.best, result.score)}</b>
-          </p>
-          <p className="dodge-result-note">
-            {t(result.cleared ? "dodgeClearNote" : "dodgeRetryNote")}
-          </p>
-          {!result.saved && <p role="alert">{t("recordError")}</p>}
-        </div>
-      </section>
+        </section>
+        <ResultAchievements gameId="dodge" />
+      </div>
       <div className="result-actions">
         <Link className="arcade-button pink" to="/play/dodge">
           <RotateCcw />

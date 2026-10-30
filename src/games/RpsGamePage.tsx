@@ -1,3 +1,4 @@
+import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { recordPlay } from "../community/client";
 import { useEffect, useRef, useState } from "react";
@@ -565,43 +566,46 @@ export function RpsResultPage({ tone }: { tone: (kind?: SoundCue) => void }) {
         score={result.score}
         onCelebrate={(record) => tone(record ? "newBest" : "result")}
       />
-      <section className="panel cham-result-panel">
-        <Character asset="rps" priority />
-        <div>
-          <h2>{t("rps")}</h2>
-          <div className="result-stats">
-            {[
-              ["score", result.score],
-              ["rpsWins", result.wins],
-              ["rpsDraws", result.draws],
-            ].map(([key, value]) => (
-              <div key={key}>
-                <span className="pink">{t(key as string)}</span>
-                <b>
-                  <CountUp value={value as number} />
-                </b>
-              </div>
-            ))}
+      <div className="result-with-achievements">
+        <section className="panel cham-result-panel">
+          <Character asset="rps" priority />
+          <div>
+            <h2>{t("rps")}</h2>
+            <div className="result-stats">
+              {[
+                ["score", result.score],
+                ["rpsWins", result.wins],
+                ["rpsDraws", result.draws],
+              ].map(([key, value]) => (
+                <div key={key}>
+                  <span className="pink">{t(key as string)}</span>
+                  <b>
+                    <CountUp value={value as number} />
+                  </b>
+                </div>
+              ))}
+            </div>
+            <p className="best-comparison">
+              <Trophy />
+              {t("best")} <b>{Math.max(stored.best, result.score)}</b>
+            </p>
+            <ol className="rps-round-results">
+              {result.rounds.map((round, i) => (
+                <li key={i}>
+                  <span>{i + 1}</span>
+                  <span>
+                    {t("rpsYou")} {round.player ? symbols[round.player] : "—"} ·{" "}
+                    {t("rpsComputer")} {symbols[round.computer]}
+                  </span>
+                  <strong>{t(`rps_${round.outcome}`)}</strong>
+                </li>
+              ))}
+            </ol>
+            {!result.saved && <p role="alert">{t("recordError")}</p>}
           </div>
-          <p className="best-comparison">
-            <Trophy />
-            {t("best")} <b>{Math.max(stored.best, result.score)}</b>
-          </p>
-          <ol className="rps-round-results">
-            {result.rounds.map((round, i) => (
-              <li key={i}>
-                <span>{i + 1}</span>
-                <span>
-                  {t("rpsYou")} {round.player ? symbols[round.player] : "—"} ·{" "}
-                  {t("rpsComputer")} {symbols[round.computer]}
-                </span>
-                <strong>{t(`rps_${round.outcome}`)}</strong>
-              </li>
-            ))}
-          </ol>
-          {!result.saved && <p role="alert">{t("recordError")}</p>}
-        </div>
-      </section>
+        </section>
+        <ResultAchievements gameId="rps" />
+      </div>
       <div className="result-actions">
         <Link className="arcade-button pink" to="/play/rps">
           <RotateCcw />
