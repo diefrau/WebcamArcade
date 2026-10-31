@@ -1,3 +1,4 @@
+import { classifyRps } from "./rpsRules";
 import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -228,6 +229,7 @@ export function CircleGamePage({
   const [feedback, setFeedback] = useState("");
   const [reference, setReference] = useState(true);
   const drawing = useRef(false);
+  const fistSince = useRef<number | null>(null);
   const waitForRelease = useRef(false);
   const pathRef = useRef<Point[]>([]);
   const elapsed = useRef(0);
@@ -363,10 +365,29 @@ export function CircleGamePage({
       camera.vision !== "ready"
     ) {
       drawing.current = false;
+      fistSince.current = null;
       cursorFilter.current.reset();
       setCursor(null);
       return;
     }
+    const settings = camera.stream?.getVideoTracks()[0]?.getSettings();
+    const aspect =
+      settings?.width && settings.height
+        ? settings.width / settings.height
+        : 4 / 3;
+    if (classifyRps(camera.hand.landmarks, aspect) === "rock") {
+      drawing.current = false;
+      setCursor(null);
+      fistSince.current ??= performance.now();
+      if (
+        pathRef.current.length >= 18 &&
+        performance.now() - fistSince.current >= 450
+      ) {
+        finish(pathRef.current);
+      }
+      return;
+    }
+    fistSince.current = null;
     const tip = camera.hand.landmarks[8];
     if (!tip) return;
     const point = cursorFilter.current.update(
@@ -437,6 +458,7 @@ export function CircleGamePage({
   const start = () => {
     tone("start");
     finished.current = false;
+    fistSince.current = null;
     trackingLosses.current = 0;
     previousTracking.current = true;
     usedMouse.current = mode !== "hand";

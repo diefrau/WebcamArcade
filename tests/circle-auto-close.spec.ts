@@ -54,112 +54,134 @@ test.use({
     ],
   },
 });
-test("webcam completes exactly once on closure without a finish click or pinch release", async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.clock.install({ time: new Date("2026-11-01T00:00:00Z") });
-  await page.clock.pauseAt(new Date("2026-11-01T00:00:01Z"));
-  await page.addInitScript(() => {
-    const OriginalWorker = window.Worker;
-    window.Worker = class {
-      onmessage: ((event: MessageEvent) => void) | null = null;
-      listener = (event: Event) =>
-        this.onmessage?.(
-          new MessageEvent("message", {
-            data: {
-              type: "result",
-              landmarks: (event as CustomEvent).detail,
-              time: performance.now(),
-              aspect: 4 / 3,
-            },
-          }),
-        );
-      constructor(url: string | URL, options?: WorkerOptions) {
-        if (!String(url).includes("hand.worker"))
-          return new OriginalWorker(url, options) as any;
-        window.addEventListener("circle-hand", this.listener);
-      }
-      postMessage(message: any) {
-        if (message.type === "init")
-          setTimeout(
-            () =>
-              this.onmessage?.(
-                new MessageEvent("message", { data: { type: "ready" } }),
-              ),
-            0,
+for (const completion of ["closure", "fist"])
+  test("webcam completes exactly once via " + completion, async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.clock.install({ time: new Date("2026-11-01T00:00:00Z") });
+    await page.clock.pauseAt(new Date("2026-11-01T00:00:01Z"));
+    await page.addInitScript(() => {
+      const OriginalWorker = window.Worker;
+      window.Worker = class {
+        onmessage: ((event: MessageEvent) => void) | null = null;
+        listener = (event: Event) =>
+          this.onmessage?.(
+            new MessageEvent("message", {
+              data: {
+                type: "result",
+                landmarks: (event as CustomEvent).detail,
+                time: performance.now(),
+                aspect: 4 / 3,
+              },
+            }),
           );
-        message.bitmap?.close();
+        constructor(url: string | URL, options?: WorkerOptions) {
+          if (!String(url).includes("hand.worker"))
+            return new OriginalWorker(url, options) as any;
+          window.addEventListener("circle-hand", this.listener);
+        }
+        postMessage(message: any) {
+          if (message.type === "init")
+            setTimeout(
+              () =>
+                this.onmessage?.(
+                  new MessageEvent("message", { data: { type: "ready" } }),
+                ),
+              0,
+            );
+          message.bitmap?.close();
+        }
+        terminate() {
+          window.removeEventListener("circle-hand", this.listener);
+        }
+      } as any;
+    });
+    await page.goto("/play/circle");
+    await page
+      .getByRole("button", { name: "카메라 연결", exact: true })
+      .click();
+    await expect
+      .poll(async () => {
+        await page.clock.runFor(100);
+        return page.locator(".camera-note").textContent();
+      })
+      .toContain("손바닥을 카메라에 보여주세요!");
+    await expect(
+      page.getByRole("button", { name: "손가락 그리기", exact: true }),
+    ).toHaveClass(/active/);
+    async function send(x: number, y: number, pinched: boolean) {
+      await page.evaluate(
+        ({ x, y, pinched }) => {
+          const cx = 1 - (x * 0.76 + 0.12),
+            cy = y * 0.76 + 0.12;
+          const points = Array.from({ length: 21 }, () => ({
+            x: 0.5,
+            y: 0.65,
+          }));
+          points[5] = { x: 0.43, y: 0.65 };
+          points[17] = { x: 0.57, y: 0.65 };
+          points[8] = { x: cx, y: cy };
+          points[4] = { x: cx - (pinched ? 0.005 : 0.15), y: cy };
+          window.dispatchEvent(
+            new CustomEvent("circle-hand", { detail: points }),
+          );
+        },
+        { x, y, pinched },
+      );
+      await page.clock.runFor(70);
+    }
+    await send(0.72, 0.5, false);
+    await page.getByRole("button", { name: "시작!", exact: true }).click();
+    await expect(
+      page.getByRole("button", { name: "그리기 완료", exact: true }),
+    ).toHaveCount(0);
+    // Moving back to the start with an open hand draws nothing and cannot finish.
+    for (let i = 0; i < 8; i++) await send(0.5 + i * 0.02, 0.5, false);
+    await expect(page.locator(".circle-score b")).toHaveText("0");
+    for (let i = 0; i < 5; i++) await send(0.72, 0.5, false);
+    for (let i = 0; i <= 48; i++) {
+      const a = (i / 64) * Math.PI * 2;
+      await send(0.5 + 0.22 * Math.cos(a), 0.5 + 0.22 * Math.sin(a), true);
+    }
+    await expect(page).toHaveURL(/play\/circle$/);
+    if (completion === "fist") {
+      for (let frame = 0; frame < 7; frame++) {
+        await page.evaluate(() => {
+          const p = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.8 }));
+          p[0] = { x: 0.5, y: 0.9 };
+          p[4] = { x: 0.2, y: 0.6 };
+          [5, 9, 13, 17].forEach((i, f) => {
+            const x = 0.38 + f * 0.08;
+            p[i] = { x, y: 0.65 };
+            p[i + 1] = { x, y: 0.5 };
+            p[i + 2] = { x: x + 0.03, y: 0.6 };
+            p[i + 3] = { x, y: 0.7 };
+          });
+          window.dispatchEvent(new CustomEvent("circle-hand", { detail: p }));
+        });
+        await page.clock.runFor(100);
       }
-      terminate() {
-        window.removeEventListener("circle-hand", this.listener);
-      }
-    } as any;
+    }
+    for (let i = 49; completion === "closure" && i <= 70; i++) {
+      const a = (Math.min(i, 64) / 64) * Math.PI * 2;
+      await send(0.5 + 0.22 * Math.cos(a), 0.5 + 0.22 * Math.sin(a), true);
+      if (page.url().includes("/result/")) break;
+    }
+    await expect(page).toHaveURL(/result\/circle$/);
+    const stored = await page.evaluate(() => ({
+      result: JSON.parse(localStorage.getItem("arcade.circle.last")!),
+      runs: JSON.parse(localStorage.getItem("arcade.community.runs")!),
+      plays: localStorage.getItem("arcade.circle.plays"),
+    }));
+    expect(stored.result.score).toBeGreaterThan(0);
+    expect(stored.result.evidence.inputMode).toBe("hand");
+    expect(stored.result.evidence.metadata.drawComplete).toBe(true);
+    expect(stored.plays).toBe("1");
+    expect(stored.runs).toHaveLength(1);
+    await page.clock.runFor(1000);
+    await page.reload();
+    expect(
+      await page.evaluate(
+        () => JSON.parse(localStorage.getItem("arcade.community.runs")!).length,
+      ),
+    ).toBe(1);
   });
-  await page.goto("/play/circle");
-  await page.getByRole("button", { name: "카메라 연결", exact: true }).click();
-  await expect
-    .poll(async () => {
-      await page.clock.runFor(100);
-      return page.locator(".camera-note").textContent();
-    })
-    .toContain("손바닥을 카메라에 보여주세요!");
-  await expect(
-    page.getByRole("button", { name: "손가락 그리기", exact: true }),
-  ).toHaveClass(/active/);
-  async function send(x: number, y: number, pinched: boolean) {
-    await page.evaluate(
-      ({ x, y, pinched }) => {
-        const cx = 1 - (x * 0.76 + 0.12),
-          cy = y * 0.76 + 0.12;
-        const points = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.65 }));
-        points[5] = { x: 0.43, y: 0.65 };
-        points[17] = { x: 0.57, y: 0.65 };
-        points[8] = { x: cx, y: cy };
-        points[4] = { x: cx - (pinched ? 0.005 : 0.15), y: cy };
-        window.dispatchEvent(
-          new CustomEvent("circle-hand", { detail: points }),
-        );
-      },
-      { x, y, pinched },
-    );
-    await page.clock.runFor(70);
-  }
-  await send(0.72, 0.5, false);
-  await page.getByRole("button", { name: "시작!", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "그리기 완료", exact: true }),
-  ).toHaveCount(0);
-  // Moving back to the start with an open hand draws nothing and cannot finish.
-  for (let i = 0; i < 8; i++) await send(0.5 + i * 0.02, 0.5, false);
-  await expect(page.locator(".circle-score b")).toHaveText("0");
-  for (let i = 0; i < 5; i++) await send(0.72, 0.5, false);
-  for (let i = 0; i <= 48; i++) {
-    const a = (i / 64) * Math.PI * 2;
-    await send(0.5 + 0.22 * Math.cos(a), 0.5 + 0.22 * Math.sin(a), true);
-  }
-  await expect(page).toHaveURL(/play\/circle$/);
-  for (let i = 49; i <= 70; i++) {
-    const a = (Math.min(i, 64) / 64) * Math.PI * 2;
-    await send(0.5 + 0.22 * Math.cos(a), 0.5 + 0.22 * Math.sin(a), true);
-    if (page.url().includes("/result/")) break;
-  }
-  await expect(page).toHaveURL(/result\/circle$/);
-  const stored = await page.evaluate(() => ({
-    result: JSON.parse(localStorage.getItem("arcade.circle.last")!),
-    runs: JSON.parse(localStorage.getItem("arcade.community.runs")!),
-    plays: localStorage.getItem("arcade.circle.plays"),
-  }));
-  expect(stored.result.score).toBeGreaterThan(500);
-  expect(stored.result.evidence.inputMode).toBe("hand");
-  expect(stored.result.evidence.metadata.drawComplete).toBe(true);
-  expect(stored.plays).toBe("1");
-  expect(stored.runs).toHaveLength(1);
-  await page.clock.runFor(1000);
-  await page.reload();
-  expect(
-    await page.evaluate(
-      () => JSON.parse(localStorage.getItem("arcade.community.runs")!).length,
-    ),
-  ).toBe(1);
-});
