@@ -67,8 +67,11 @@
   color: #5b5953;
 }
 .achievement-filters button {
-  display: grid;
-  gap: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
   text-align: center;
 }
 .achievement-filters small {
@@ -149,7 +152,7 @@
     gap: 9px;
   }
   .achievement-filters button {
-    min-width: 85px;
+    min-width: max-content;
     flex: 1;
     padding: 10px;
   }

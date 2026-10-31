@@ -81,39 +81,26 @@ export function AchievementsPanel({
         role="group"
         aria-label={ko ? "도전과제 게임" : "Achievement game"}
       >
-        {games.map((id) => {
-          const items =
-            id === "all"
-              ? all
-              : all.filter((a) => a.category === "game" && a.gameId === id);
-          const active = items.filter((a) => !a.pending),
-            count = active.filter((a) => a.unlocked).length;
-          return (
-            <button
-              key={id}
-              aria-pressed={filter === id}
-              onClick={() => setFilter(id)}
-            >
-              <span>
-                {id === "all"
-                  ? ko
-                    ? "전체"
-                    : "All"
-                  : t(id === "pose" ? "futurePose" : id)}
-              </span>
+        {games.map((id) => (
+          <button
+            key={id}
+            aria-pressed={filter === id}
+            onClick={() => setFilter(id)}
+          >
+            <span>
+              {id === "all"
+                ? ko
+                  ? "전체"
+                  : "All"
+                : t(id === "pose" ? "futurePose" : id)}
+            </span>
+            {id === "all" && (
               <small>
-                {active.length
-                  ? count + " / " + active.length
-                  : ko
-                    ? "준비 중"
-                    : "Coming soon"}
-                {items.some((a) => a.pending) && id !== "all"
-                  ? " +" + items.filter((a) => a.pending).length
-                  : ""}
+                {unlocked} / {available.length}
               </small>
-            </button>
-          );
-        })}
+            )}
+          </button>
+        ))}
       </div>
       {filter !== "all" && filter !== "pose" && (
         <Link
