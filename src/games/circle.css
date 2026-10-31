@@ -510,18 +510,6 @@
     height: 175px;
   }
 }
-.circle-finish {
-  background: var(--pink);
-  border: 3px solid #111;
-  border-radius: 16px;
-  padding: 8px 14px;
-  font-weight: 900;
-  cursor: pointer;
-}
-.circle-finish:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
 .circle-stage-footer {
   align-items: center;
   flex-wrap: wrap;

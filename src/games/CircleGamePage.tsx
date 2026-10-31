@@ -29,6 +29,7 @@ import { CountUp, ResultCelebration } from "../components/ResultCelebration";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { DrawingCursor } from "../vision/DrawingCursor";
 import { InputCoach } from "../components/InputCoach";
+import { isCircleClosed } from "./circleClosure";
 
 type Point = { x: number; y: number; move?: boolean };
 export type CircleResult = {
@@ -389,9 +390,24 @@ export function CircleGamePage({
       newStroke ||
       !pathRef.current.length ||
       distance(pathRef.current[pathRef.current.length - 1], point) > 0.003
-    )
-      updatePath([...pathRef.current, { ...point, move: newStroke }]);
-  }, [camera.hand, camera.state, camera.vision, mode, phase, updatePath]);
+    ) {
+      const next = [...pathRef.current, { ...point, move: newStroke }];
+      updatePath(next);
+      if (isCircleClosed(next)) {
+        drawing.current = false;
+        finish(next);
+      }
+    }
+  }, [
+    camera.hand,
+    camera.state,
+    camera.vision,
+    mode,
+    phase,
+    updatePath,
+    finish,
+    tone,
+  ]);
   useEffect(() => {
     if (mode !== "hand" || phase !== "playing") return;
     if (
@@ -559,18 +575,9 @@ export function CircleGamePage({
           <div className="circle-stage-footer">
             <span>
               <CircleHelp />
-              {t("circleFooterHint")}
+              {t(mode === "hand" ? "circleAutoFinish" : "circleFooterHint")}
             </span>
             <span>{path.length} pts</span>
-            {mode === "hand" && phase === "playing" && (
-              <button
-                className="circle-finish"
-                onClick={() => finish()}
-                disabled={path.length < 18}
-              >
-                {t("circleFinish")}
-              </button>
-            )}
           </div>
           {phase !== "playing" && (
             <div className="circle-overlay">

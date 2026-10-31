@@ -339,7 +339,7 @@ test("circle webcam connection selects hand input, draws and preserves path on t
   await page.getByRole("button", { name: "시작!", exact: true }).click();
   await send(0.6, 0.6);
   await expect(page.locator(".circle-score b")).toHaveText("0");
-  for (let i = 0; i <= 32; i++) {
+  for (let i = 0; i <= 24; i++) {
     const a = (i * Math.PI * 2) / 32;
     await send(0.5 + Math.cos(a) * 0.18, 0.65 + Math.sin(a) * 0.18, true);
     await page.waitForTimeout(40);
@@ -373,6 +373,8 @@ test("circle webcam connection selects hand input, draws and preserves path on t
   await expect(page.locator(".circle-score b")).toHaveText(pausedCount!);
   await send(0.68, 0.65);
   await page.getByRole("button", { name: "계속하기", exact: true }).click();
-  await page.getByRole("button", { name: "그리기 완료", exact: true }).click();
-  await expect(page).toHaveURL(/result\/circle$/);
+  await expect(page.locator(".circle-canvas")).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "그리기 완료", exact: true }),
+  ).toHaveCount(0);
 });
