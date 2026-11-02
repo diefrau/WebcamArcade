@@ -3,6 +3,8 @@ import ko from "../locales/ko.json";
 import en from "../locales/en.json";
 import {
   gameIds,
+  isEndless,
+  gameModes,
   readRuns,
   readProgress,
   type Progress,
@@ -271,18 +273,20 @@ export function validResult(event: GameResultEvent) {
     circle: 1000,
     cham: 1000,
     rps: 500,
-    dodge: 3000,
+    dodge: 10000,
   };
   if (
     !event ||
     !event.completed ||
     !gameIds.includes(event.gameId) ||
+    !gameModes[event.gameId].includes(event.gameMode ?? "standard") ||
     !/^[0-9a-f-]{36}$/i.test(event.id) ||
     !Number.isInteger(event.score) ||
     event.score < 0 ||
-    event.score > caps[event.gameId] ||
+    event.score >
+      (isEndless(event.gameMode) ? 2147483647 : caps[event.gameId]) ||
     !finite(event.duration) ||
-    event.duration > 3600 ||
+    event.duration > (isEndless(event.gameMode) ? 31536000 : 3600) ||
     !finite(event.accuracy) ||
     event.accuracy > 100 ||
     !Number.isFinite(Date.parse(event.date))
@@ -372,6 +376,7 @@ export function recordGameResult(event: GameResultEvent): boolean {
     if (condition) set(key, 1);
   };
   if (g === "shoot") {
+    flag("shoot.wavePerfect", event.metadata?.shootWaveCleared === true);
     const hits = event.hits ?? 0,
       shots = event.shots ?? 0;
     s.totalShootHits += hits;
@@ -413,7 +418,7 @@ export function recordGameResult(event: GameResultEvent): boolean {
     s.circleHighStreak = event.score >= 800 ? s.circleHighStreak + 1 : 0;
     s.facts["circle.streak"] = s.circleHighStreak;
   } else if (g === "cham" || g === "rps") {
-    const rounds = event.rounds ?? [];
+    const rounds = event.gameMode === "seeker" ? [] : (event.rounds ?? []);
     for (const round of rounds) {
       const key = g === "cham" ? "chamWinStreak" : "rpsWinStreak";
       s[key] = round.win ? s[key] + 1 : 0;
@@ -421,6 +426,10 @@ export function recordGameResult(event: GameResultEvent): boolean {
     }
     s.facts[g + ".streak"] = s[g === "cham" ? "chamWinStreak" : "rpsWinStreak"];
     if (g === "cham") {
+      flag(
+        "cham.hard",
+        event.metadata?.chamHard === true && rounds.length === 10,
+      );
       flag("cham.perfect", rounds.length === 10 && rounds.every((r) => r.win));
       flag(
         "cham.fast",
@@ -466,6 +475,7 @@ export function recordGameResult(event: GameResultEvent): boolean {
     }
   } else if (g === "dodge") {
     set("duration.dodge", event.duration);
+    flag("dodge.vertical", event.metadata?.dodgeVertical === true);
     set("dodge.avoids", event.metadata?.dodged ?? 0);
     if (finite(event.metadata?.maxSafeSeconds))
       set("dodge.safe", event.metadata.maxSafeSeconds);

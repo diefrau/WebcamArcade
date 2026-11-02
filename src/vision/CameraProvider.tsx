@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { visionProfile } from "./visionProfiles";
 import { emptyHand, GestureInterpreter, type HandSample } from "./gestures";
 import { useLocation } from "react-router-dom";
 import { emptyFace, faceSample, type FaceSample } from "./face";
@@ -47,12 +48,14 @@ export function useCamera() {
 }
 
 export function CameraProvider({ children }: { children: ReactNode }) {
-  const path = useLocation().pathname;
+  const routeLocation = useLocation();
+  const path = routeLocation.pathname;
   const { compactTouch } = useInputEnvironment();
   const homeTracking = path === "/" && !compactTouch;
   const [homeMotion, setHomeMotion] = useState<HomeMotionFrame | null>(null);
-  const tracking =
-    path === "/play/dodge" ? "body" : path === "/play/cham" ? "face" : "hand";
+  const profile = visionProfile(path, routeLocation.search);
+  const pipelineEnabled = profile.detector !== null;
+  const tracking = profile.detector ?? "hand";
   const [body, setBody] = useState<BodySample>(emptyBody);
   const [face, setFace] = useState<FaceSample>(emptyFace);
   const [state, setState] = useState<CameraState>("idle");
@@ -137,7 +140,14 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
-    if (!stream) return;
+    if (!stream || !pipelineEnabled) {
+      setHand({ ...emptyHand });
+      setFace({ ...emptyFace });
+      setBody({ ...emptyBody });
+      setHomeMotion(null);
+      setVision("idle");
+      return;
+    }
     let disposed = false,
       worker: Worker | undefined,
       raf = 0,
@@ -274,7 +284,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
             }
             if (fresh) staleTimer = setTimeout(invalidateTracking, 900 - age);
             if (tracking === "body") {
-              setBody(bodySample(landmarks));
+              setBody(
+                bodySample(landmarks, event.data.time, event.data.aspect),
+              );
               return;
             }
             if (tracking === "face") {
@@ -317,7 +329,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       video.srcObject = null;
       video.remove();
     };
-  }, [stream, attempt, disconnect, tracking, homeTracking]);
+  }, [stream, attempt, disconnect, tracking, homeTracking, pipelineEnabled]);
   return (
     <CameraContext.Provider
       value={{

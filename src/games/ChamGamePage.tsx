@@ -1,8 +1,14 @@
 import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { recordPlay } from "../community/client";
+import { localBest } from "../community/store";
 import { useEffect, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Camera, Keyboard, Pause, Play, RotateCcw, Trophy } from "lucide-react";
 import { useCamera } from "../vision/CameraProvider";
@@ -27,6 +33,7 @@ type Round = {
   responseMs?: number;
 };
 export type ChamResult = {
+  gameMode?: "standard" | "hard" | "seeker";
   score: number;
   wins: number;
   rounds: Round[];
@@ -49,6 +56,8 @@ export function readCham(): {
 }
 type Phase = "ready" | "countdown" | "respond" | "feedback" | "paused";
 
+import { pointingDirection } from "../vision/pointingDirection";
+import { HandMenuCursor } from "../components/HandMenuCursor";
 import { InputCoach } from "../components/InputCoach";
 export function ChamGamePage({
   onFinish,
@@ -63,11 +72,19 @@ export function ChamGamePage({
   const camera = useCamera();
   const { compactTouch } = useInputEnvironment();
   const navigate = useNavigate();
-  const [choice, setChoice] = useState<"face" | "buttons" | null>(null);
-  const mode = choice ?? (camera.stream ? "face" : "buttons");
+  const [params, setParams] = useSearchParams();
+  const seeker = params.get("role") === "seeker";
+  const [choice, setChoice] = useState<"face" | "hand" | "buttons" | null>(
+    null,
+  );
+  const mode =
+    choice ?? (camera.stream ? (seeker ? "hand" : "face") : "buttons");
   useEffect(() => {
-    if (camera.stream) setChoice((v) => v ?? "face");
-  }, [camera.stream]);
+    if (camera.stream) setChoice((v) => v ?? (seeker ? "hand" : "face"));
+  }, [camera.stream, seeker]);
+  const [hard, setHard] = useState(false);
+  const responseMs = seeker ? 1500 : hard ? 540 : RESPONSE_MS;
+  const resultMode = seeker ? "seeker" : hard ? "hard" : "standard";
   const [phase, setPhase] = useState<Phase>("ready");
   const [rounds, setRounds] = useState<Round[]>([]);
   const [computer, setComputer] = useState<Direction>("left");
@@ -95,8 +112,9 @@ export function ChamGamePage({
     mode === "buttons" ||
     (camera.state === "ready" &&
       camera.vision === "ready" &&
-      camera.face.detected &&
-      neutral !== null);
+      (mode === "hand"
+        ? camera.hand.detected
+        : camera.face.detected && neutral !== null));
   const direction = neutral ? faceDirection(camera.face, neutral) : "center";
   function beginCalibration() {
     calibration.current = [];
@@ -142,17 +160,21 @@ export function ChamGamePage({
     const wins = played.filter((r) => r.win).length,
       score = wins * 100;
     const result: ChamResult = {
+      gameMode: resultMode,
       wins,
       score,
       rounds: played,
-      newBest: score > previous.best,
+      newBest: score > localBest("cham", resultMode),
       saved: true,
     };
     try {
       localStorage.setItem(
         "arcade.cham",
         JSON.stringify({
-          best: Math.max(previous.best, score),
+          best:
+            resultMode !== "standard"
+              ? previous.best
+              : Math.max(previous.best, score),
           plays: previous.plays + 1,
           last: result,
         }),
@@ -162,9 +184,13 @@ export function ChamGamePage({
     }
     recordPlay("cham", score, 0, 0, {
       inputMode: mode,
+      gameMode: resultMode,
       newBest: result.newBest,
       rounds: played.map((r) => ({ win: r.win, responseMs: r.responseMs })),
-      metadata: { passed: played.length === 10 && played.every((r) => r.win) },
+      metadata: {
+        passed: played.length === 10 && played.every((r) => r.win),
+        chamHard: hard,
+      },
     });
     onFinish();
     navigate("/result/cham", { replace: true, state: result });
@@ -172,7 +198,9 @@ export function ChamGamePage({
   function answer(player: Direction | null) {
     if (phaseRef.current !== "respond") return;
     if (player) tone("cham.move");
-    const win = winsRound(computer, player);
+    const win = seeker
+      ? player !== null && player === computer
+      : winsRound(computer, player);
     const next = [
       ...roundsRef.current,
       {
@@ -180,7 +208,7 @@ export function ChamGamePage({
         player,
         win,
         responseMs: player
-          ? Math.max(0, RESPONSE_MS - remainingRef.current)
+          ? Math.max(0, responseMs - remainingRef.current)
           : undefined,
       },
     ];
@@ -214,6 +242,10 @@ export function ChamGamePage({
       complete.current
     )
       return;
+    if (mode === "hand" && !canPlay) {
+      pause();
+      return;
+    }
     if (mode === "face") {
       const lost = !canPlay || performance.now() - camera.face.time > 900;
       if (lost) {
@@ -236,7 +268,7 @@ export function ChamGamePage({
     if (phaseRef.current === "countdown") {
       setComputer(directions[Math.floor(Math.random() * directions.length)]);
       candidate.current = { direction: "center", since: 0 };
-      transition("respond", RESPONSE_MS);
+      transition("respond", responseMs);
     } else if (phaseRef.current === "respond") answer(null);
     else if (phaseRef.current === "feedback")
       roundsRef.current.length >= 10 ? finish() : nextRound();
@@ -319,12 +351,24 @@ export function ChamGamePage({
       answer(d);
   }, [camera.face, mode, calibrating]);
 
-  function selectMode(next: "face" | "buttons") {
+  useEffect(() => {
+    if (mode !== "hand" || phaseRef.current !== "respond" || !canPlay) {
+      candidate.current = { direction: "center", since: 0 };
+      return;
+    }
+    const d = pointingDirection(camera.hand.landmarks);
+    const now = performance.now();
+    if (d === "center" || candidate.current.direction !== d)
+      candidate.current = { direction: d, since: now };
+    else if (now - candidate.current.since >= 120) answer(d);
+  }, [camera.hand, mode, canPlay]);
+
+  function selectMode(next: "face" | "hand" | "buttons") {
     pause();
     setChoice(next);
     if (next === "buttons") setCalibrating(false);
     candidate.current = { direction: "center", since: 0 };
-    if (next === "face" && !camera.stream) void camera.connect();
+    if (next !== "buttons" && !camera.stream) void camera.connect();
   }
   const active =
     phase === "countdown" || phase === "respond" || phase === "feedback";
@@ -341,14 +385,53 @@ export function ChamGamePage({
           <Pause />
         </button>
       </div>
+      <div className="game-mode-choice" role="group" aria-label={t("gameMode")}>
+        <button
+          disabled={phase !== "ready"}
+          aria-pressed={!hard && !seeker}
+          className={!hard && !seeker ? "active" : ""}
+          onClick={() => {
+            setHard(false);
+            setChoice(null);
+            setParams({});
+          }}
+        >
+          {t("standardMode")}
+        </button>
+        <button
+          disabled={phase !== "ready"}
+          aria-pressed={hard}
+          className={hard ? "active" : ""}
+          onClick={() => {
+            setHard(true);
+            setChoice(null);
+            setParams({});
+          }}
+        >
+          {t("hardMode")}
+        </button>
+        <button
+          disabled={phase !== "ready"}
+          aria-pressed={seeker}
+          className={seeker ? "active" : ""}
+          onClick={() => {
+            setHard(false);
+            setChoice(null);
+            setCalibrating(false);
+            setParams({ role: "seeker" });
+          }}
+        >
+          {t("seekerMode")}
+        </button>
+      </div>
       <div className="cham-mode">
         <button
-          className={mode === "face" ? "active" : ""}
+          className={mode !== "buttons" ? "active" : ""}
           data-sound={!camera.stream ? "none" : undefined}
-          onClick={() => selectMode("face")}
+          onClick={() => selectMode(seeker ? "hand" : "face")}
         >
           <Camera />
-          {text("얼굴로 플레이", "Face control")}
+          {seeker ? t("handMode") : text("얼굴로 플레이", "Face control")}
         </button>
         <button
           className={mode === "buttons" ? "active" : ""}
@@ -384,7 +467,8 @@ export function ChamGamePage({
         <aside className="cham-info panel">
           <span className="cham-sticker">LOOK OUT!</span>
           <h1>{t("cham")}</h1>
-          <p>
+          {seeker && <p>{t("seekerHint")}</p>}
+          <p hidden={seeker}>
             {text(
               "컴퓨터가 가리키는 방향을 피해 고개를 돌려요. 같은 방향이나 시간 초과는 실패!",
               "Turn away from the computer's arrow. Matching it or running out of time loses the round!",
@@ -427,7 +511,9 @@ export function ChamGamePage({
         <section className="cham-stage panel">
           <div className="cham-stage-top">
             <span className="cham-sticker">
-              {text("다른 방향으로!", "LOOK AWAY!")}
+              {seeker
+                ? text("내가 술래!", "YOUR TURN!")
+                : text("다른 방향으로!", "LOOK AWAY!")}
             </span>
             <strong>
               {t("score")} {rounds.filter((r) => r.win).length * 100}
@@ -449,9 +535,13 @@ export function ChamGamePage({
                   className="bounce-feedback"
                   data-testid="cham-arrow"
                 >
-                  {arrows[computer]}
+                  {seeker ? "?" : arrows[computer]}
                 </b>
-                <span>{text("피해!", "LOOK AWAY!")}</span>
+                <span>
+                  {seeker
+                    ? text("가리켜!", "POINT!")
+                    : text("피해!", "LOOK AWAY!")}
+                </span>
               </>
             ) : phase === "feedback" && last ? (
               <>
@@ -460,9 +550,13 @@ export function ChamGamePage({
                 </b>
                 <span>
                   {last.win
-                    ? text("피했다! +100", "DODGED! +100")
+                    ? seeker
+                      ? text("잡았다! +100", "CAUGHT! +100")
+                      : text("피했다! +100", "DODGED! +100")
                     : last.player
-                      ? text("같은 방향!", "SAME DIRECTION!")
+                      ? seeker
+                        ? text("놓쳤다!", "MISSED!")
+                        : text("같은 방향!", "SAME DIRECTION!")
                       : text("시간 초과!", "TIME UP!")}
                 </span>
                 <small>
@@ -480,7 +574,7 @@ export function ChamGamePage({
               phase === "feedback"
                 ? FEEDBACK_MS
                 : phase === "respond"
-                  ? RESPONSE_MS
+                  ? responseMs
                   : COUNTDOWN_MS
             }
             value={remaining}
@@ -510,9 +604,11 @@ export function ChamGamePage({
           </div>
           {(phase === "ready" || phase === "paused") && (
             <div className="cham-overlay">
+              {mode === "hand" && <HandMenuCursor active />}
               <section className="panel cham-dialog">
                 <h2>{phase === "ready" ? t("readyGame") : t("paused")}</h2>
-                <p>
+                {seeker && <p>{t("seekerHint")}</p>}
+                <p hidden={seeker}>
                   {text(
                     "10라운드 · 화살표가 나타나면 0.9초 안에 다른 방향을 선택하세요.",
                     "10 rounds. Choose a different direction within 0.9 seconds of the arrow appearing.",
@@ -530,7 +626,7 @@ export function ChamGamePage({
                         )}
                   </p>
                 )}
-                {phase === "ready" && (
+                {phase === "ready" && !seeker && (
                   <InputCoach
                     game="cham"
                     cameraMode={mode === "face"}
@@ -544,6 +640,7 @@ export function ChamGamePage({
                 )}
                 <button
                   className="arcade-button pink"
+                  data-hand-click
                   disabled={!canPlay || calibrating}
                   onClick={() => {
                     tone(phase === "ready" ? "game.ready" : "resume");
@@ -557,7 +654,7 @@ export function ChamGamePage({
                   <Play />
                   {t(phase === "ready" ? "go" : "resume")}
                 </button>
-                {mode === "face" && (
+                {mode !== "buttons" && (
                   <button
                     className="cham-fallback"
                     onClick={() => selectMode("buttons")}
@@ -570,7 +667,7 @@ export function ChamGamePage({
           )}
         </section>
       </div>
-      <p className="cham-note panel">
+      <p className="cham-note panel" hidden={seeker}>
         {text(
           "화면에 보이는 방향을 기준으로 플레이해요. 목을 무리하게 돌리지 말고 편안하게 움직여주세요.",
           "Directions follow the mirrored preview. Move comfortably without straining your neck.",
@@ -626,7 +723,8 @@ export function ChamResultPage({ tone }: { tone: (kind?: SoundCue) => void }) {
             </div>
             <p className="best-comparison">
               <Trophy />
-              {t("best")} <b>{Math.max(stored.best, result.score)}</b>
+              {t("best")}{" "}
+              <b>{localBest("cham", result.gameMode ?? "standard")}</b>
             </p>
             <div className="cham-rounds">
               {result.rounds.map((r, i) => (
@@ -645,7 +743,14 @@ export function ChamResultPage({ tone }: { tone: (kind?: SoundCue) => void }) {
         <ResultAchievements gameId="cham" />
       </div>
       <div className="result-actions">
-        <Link className="arcade-button pink" to="/play/cham">
+        <Link
+          className="arcade-button pink"
+          to={
+            result.gameMode === "seeker"
+              ? "/play/cham?role=seeker"
+              : "/play/cham"
+          }
+        >
           <RotateCcw />
           {t("replay")}
         </Link>

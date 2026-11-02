@@ -130,6 +130,9 @@ test("anonymous opt-in syncs pending records once, shows rankings, and recovers 
   await page.getByRole("button", { name: "다시 시도" }).click();
   await expect(page.locator(".community-board li")).toHaveCount(1);
   await page.getByRole("link", { name: "도전과제", exact: true }).click();
+  await expect(
+    page.getByRole("heading", { name: "도전과제", exact: true }),
+  ).toBeVisible();
   await page.getByRole("button", { name: "온라인", exact: true }).click();
   await expect(page.locator(".achievement.unlocked")).toHaveCount(2);
   expect(submits).toBe(1);

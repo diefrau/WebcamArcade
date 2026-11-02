@@ -24,7 +24,7 @@ export function musicForPath(path: string): MusicTrack {
     ? "leisure"
     : game === "cham" || game === "dodge"
       ? "quick"
-      : game === "shoot" || game === "rps"
+      : game === "shoot" || game === "rps" || game === "gate"
         ? "bounce"
         : "title";
 }

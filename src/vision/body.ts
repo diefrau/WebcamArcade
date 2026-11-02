@@ -1,6 +1,8 @@
 import type { Landmark } from "./gestures";
 export type BodyPoint = Landmark & { visibility?: number };
 export type BodySample = {
+  time?: number;
+  aspect?: number;
   detected: boolean;
   x: number;
   width: number;
@@ -12,7 +14,11 @@ export const emptyBody: BodySample = {
   width: 0,
   landmarks: [],
 };
-export function bodySample(points?: BodyPoint[]): BodySample {
+export function bodySample(
+  points?: BodyPoint[],
+  time = 0,
+  aspect = 4 / 3,
+): BodySample {
   if (!points || points.length !== 33) return { ...emptyBody };
   const shoulders = [points[11], points[12]];
   if (
@@ -33,6 +39,8 @@ export function bodySample(points?: BodyPoint[]): BodySample {
   const width = Math.abs(shoulders[0].x - shoulders[1].x);
   if (width < 0.04) return { ...emptyBody };
   return {
+    time,
+    aspect,
     detected: true,
     x: 1 - (shoulders[0].x + shoulders[1].x) / 2,
     width,

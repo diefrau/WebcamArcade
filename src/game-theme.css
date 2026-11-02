@@ -92,7 +92,9 @@
   gap: 10px;
   flex-wrap: wrap;
 }
-.screen-play :is(.input-mode-switch, .circle-mode, .cham-mode) button {
+.screen-play
+  :is(.input-mode-switch, .circle-mode, .cham-mode, .game-mode-choice)
+  button {
   border: 3px solid #111;
   border-radius: 24px;
   background: #fffbed;
@@ -100,7 +102,9 @@
   font-size: 13px;
   font-weight: 900;
 }
-.screen-play :is(.input-mode-switch, .circle-mode, .cham-mode) button.active {
+.screen-play
+  :is(.input-mode-switch, .circle-mode, .cham-mode, .game-mode-choice)
+  button.active {
   background: var(--lime);
 }
 .screen-play :is(.play-layout, .circle-layout, .cham-layout) {
@@ -390,4 +394,16 @@
   .screen-play .circle-canvas {
     height: auto;
   }
+}
+
+.screen-play .game-mode-choice {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 20px;
+  align-items: center;
+}
+.screen-play .game-mode-choice button:disabled {
+  opacity: 0.6;
+  cursor: default;
 }

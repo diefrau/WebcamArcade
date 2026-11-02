@@ -45,3 +45,26 @@ npm run test:pages
 `test:db`는 PGlite의 실제 PostgreSQL 엔진에서 같은 마이그레이션을 실행하고 RLS·권한·중복·입력 제한·순위·도전과제·연쇄 삭제를 검사합니다. 테스트의 Auth 스키마는 최소한의 대체 구현입니다. `test:community`는 별도 Vite 서버와 모의 Supabase 응답으로 익명 참가·동기화·공개 닉네임·통신 오류 복구를 검사합니다. 실제 Supabase Auth 배포 검증은 프로젝트 연결 후 필요합니다.
 
 공식 참고: [익명 로그인](https://supabase.com/docs/guides/auth/auth-anonymous), [RLS](https://supabase.com/docs/guides/database/postgres/row-level-security), [DB 함수 권한](https://supabase.com/docs/guides/database/functions).
+
+## 게임 모드별 랭킹 (2026-11-02)
+
+`migrations/202611010001_game_modes.sql`은 기존 기록을 `standard`로 유지하고 모드별 저장/조회 함수를 추가한다. 이 프로젝트의 Supabase에는 SQL Editor에서 적용 후 공개 조회 RPC를 확인했다. 기존 데이터가 삭제되지 않으며 모드별 인덱스와 유효한 게임·모드 조합, 점수·시간 제한을 유지한다.
+
+- 쏴!: 기본 / 타깃 웨이브 (30초 안에 12개 명중)
+- 참!참!참!: 기본 / 최고 난이도 (응답 시간 540ms)
+- 빨리 피해!: 기본 / 60초 생존 / 상하 이동 / 상하 이동 60초
+- 원 그리기·가위바위보: 기본
+
+클라이언트는 `arcade_board_mode`로 조회한다. 기존 서버 호환을 위해 기본 모드만 이전 조회 함수로 대체할 수 있다. 새 모드는 기존 저장 함수로 보내지 않아 랭킹 혼합을 방지하며, 서버 연결 실패 시 기록을 기기에 보존한다. 기본 모드의 기존 최고 기록은 유지하고 모드별 최고 기록은 최근 100개 게임과 별도로 보존한다.
+
+검증: `npm run test:db`, `npm run test:community`, `npx playwright test tests/game-modes.spec.ts tests/community.spec.ts --workers=1`, `npm run build`. 실서버 공개 조회는 기본/웨이브/최고난이도/생존/상하 모드에서 성공했다. 실제 사용자 점수를 만드는 제출 실험은 수행하지 않았다.
+
+Near Miss 및 포즈 게임 관련 준비 중 도전과제는 유지한다.
+
+## 무한·술래 모드 확장
+
+`migrations/202611020001_endless_seeker.sql`은 쏴!와 빨리 피해!의 무한 모드, 상하 이동 무한, 참참참 술래 모드의 저장 제한과 게임·모드 조합을 추가한다. 이전 모드의 기록과 랭킹은 그대로 분리한다. 시간 제한 없이 진행하며 라이프 소진 또는 기록 저장 버튼으로 끝난다. 점수는 PostgreSQL integer 상한, 저장 시간은 1년 상한으로 제한하고 게임의 종료 시각으로 쓰지 않는다.
+
+술래는 검지의 화면상 방향을 120ms 유지해 확정한다. 컴퓨터의 미리 정한 방향은 응답 중 숨기고 판정 후 공개한다. 술래에서는 얼굴 모델 대신 손 모델을 실행하며, 버튼·키보드 대체 입력도 지원한다. 기존 피하기 전용 연승/퍼펙트 도전과제는 술래 결과로 달성되지 않는다.
+
+검증: `tests/endless-seeker.spec.ts`는 무한 진행·저장, 술래 판정·별도 기록 및 Worker 모의 입력의 손 인식 전환을 확인한다. 실제 손 영상의 정확도 측정은 별도 필요하다. SQL은 로컬 PostgreSQL 테스트를 통과했다. 2026-11-02 사용자가 SQL Editor에서 002 확장을 실행했다고 확인했다. 이후 공개 키로 shoot/standard, shoot/endless, cham/seeker, dodge/endless, dodge/vertical-endless 랭킹 조회가 모두 정상 응답함을 확인했다. 실제 서버의 제약 메타데이터 조회와 점수 제출 시험은 수행하지 않았으므로 조회 성공 자체를 저장 제약 검증으로 해석하지 않는다.

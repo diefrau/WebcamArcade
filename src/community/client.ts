@@ -11,9 +11,12 @@ import {
   readProgress,
   achievementIds,
   writeRuns,
+  saveModeBest,
+  isEndless,
   validRun,
   type Run,
   type GameId,
+  type GameMode,
   type Progress,
 } from "./store";
 import { announceAchievement } from "./achievementNotices";
@@ -108,10 +111,14 @@ export function syncRuns(resumeAfterCurrent = false): Promise<void> {
     setSyncState("syncing");
     // Drain again after every upload: a second completed game can arrive mid-sync.
     while (true) {
-      const run = readRuns().find((r) => !r.synced);
+      const pending = readRuns().filter((r) => !r.synced);
+      const run =
+        pending.find(
+          (r) => !r.details?.gameMode || r.details.gameMode === "standard",
+        ) ?? pending[0];
       const secret = readSecrets().find((r) => !r.synced);
       if (!run && !secret) break;
-      if (!run && secret) {
+      if (secret) {
         const { error } = await (
           await api()
         ).rpc("arcade_unlock_secret", { p_secret: secret.id });
@@ -123,15 +130,26 @@ export function syncRuns(resumeAfterCurrent = false): Promise<void> {
         );
         continue;
       }
-      const { error } = await (
-        await api()
-      ).rpc("arcade_submit", {
+      const mode = run!.details?.gameMode ?? "standard";
+      const args = {
         p_id: run!.id,
         p_game: run!.game,
         p_score: run!.score,
         p_accuracy: run!.accuracy,
-        p_seconds: run!.seconds,
-      });
+        p_seconds:
+          mode === "standard"
+            ? run!.seconds
+            : Math.min(
+                isEndless(mode) ? 31536000 : 60,
+                run!.details?.duration ?? run!.seconds,
+              ),
+      };
+      const { error } =
+        mode === "standard"
+          ? await (await api()).rpc("arcade_submit", args)
+          : await (
+              await api()
+            ).rpc("arcade_submit_mode", { ...args, p_mode: mode });
       if (error) throw error;
       // Re-read so a game completed during upload cannot be overwritten.
       writeRuns(
@@ -174,12 +192,21 @@ export function recordPlay(
     game,
     score,
     accuracy,
-    seconds: Math.min(30, Math.max(0, seconds)),
+    seconds: Math.min(
+      isEndless(details.gameMode)
+        ? 31536000
+        : game === "dodge" &&
+            ["survival", "vertical-survival"].includes(details.gameMode ?? "")
+          ? 60
+          : 30,
+      Math.max(0, seconds),
+    ),
     date: new Date().toISOString(),
     details,
   };
   if (!validRun(run)) return;
   readAchievementState();
+  saveModeBest(game, details.gameMode ?? "standard", score);
   writeRuns([...readRuns(), run]);
   const event: GameResultEvent = {
     ...details,
@@ -200,12 +227,21 @@ export function recordPlay(
   if (communityConfigured) void syncRuns().catch(() => {});
 }
 export type BoardRow = { place: number; nickname: string; score: number };
-export async function loadBoard(game: GameId): Promise<BoardRow[]> {
-  const { data, error } = await (
-    await api()
-  ).rpc("arcade_board", { p_game: game });
-  if (error) throw error;
-  return data ?? [];
+export async function loadBoard(
+  game: GameId,
+  mode: GameMode = "standard",
+): Promise<BoardRow[]> {
+  const c = await api();
+  const result = await c.rpc("arcade_board_mode", {
+    p_game: game,
+    p_mode: mode,
+  });
+  if (!result.error) return result.data ?? [];
+  if (mode !== "standard" || result.error.code !== "PGRST202")
+    throw result.error;
+  const fallback = await c.rpc("arcade_board", { p_game: game });
+  if (fallback.error) throw fallback.error;
+  return fallback.data ?? [];
 }
 export async function loadProgress(): Promise<Progress> {
   const { data, error } = await (await api()).rpc("arcade_progress");

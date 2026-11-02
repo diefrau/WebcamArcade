@@ -1,6 +1,8 @@
+import { GateGamePage, GateResultPage } from "./games/GateGamePage";
 import { ResultAchievements } from "./achievements/ResultAchievements";
 import { CommunityPage } from "./community/CommunityPage";
 import { recordPlay } from "./community/client";
+import { localBest } from "./community/store";
 import { PlayerSession, PlayerWelcome } from "./community/PlayerWelcome";
 import { HomeEasterEggs } from "./community/HomeEasterEggs";
 import { AchievementToasts } from "./community/AchievementToasts";
@@ -672,19 +674,20 @@ function GamesPage() {
               ]
                 .filter((game) => filter !== "hand" || game.input === "hand")
                 .map((game) => (
-                  <article
+                  <Link
+                    to="/play/gate"
                     className={`future-card ${game.color}`}
                     key={game.key}
-                    aria-label={`${t(game.key)} ${t("soon")}`}
+                    aria-label={`${t("gate.title")} ${t("playNow")}`}
                   >
                     <Sticker
                       color={game.color === "orange" ? "pink" : "yellow"}
                     >
-                      {t("soon")}
+                      {t("gate.prototype")}
                     </Sticker>
                     <div className="card-copy">
-                      <h3>{t(game.key)}</h3>
-                      <p>{t(`${game.key}Desc`)}</p>
+                      <h3>{t("gate.title")}</h3>
+                      <p>{t("gate.instruction")}</p>
                     </div>
                     <Character
                       asset={
@@ -700,9 +703,9 @@ function GamesPage() {
                         {t("onePlayer")}
                       </span>
                       <span>◷ {t("seconds", { count: 30 })}</span>
-                      <small>{t("soon")}</small>
+                      <small>{t("playNow")} →</small>
                     </div>
-                  </article>
+                  </Link>
                 ))}
           </div>
         </div>
@@ -848,7 +851,11 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       tone("resume");
     previousPhase.current = phase;
   }, [phase, tone]);
-  const [time, setTime] = useState(30);
+  const requestedMode = new URLSearchParams(useLocation().search).get("mode");
+  const [wave, setWave] = useState(requestedMode === "wave");
+  const [endless, setEndless] = useState(requestedMode === "endless");
+  const shootMode = endless ? "endless" : wave ? "wave" : "standard";
+  const [time, setTime] = useState(endless ? 0 : 30);
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [lives, setLives] = useState(5);
@@ -925,9 +932,10 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       hits: s.hits,
       shots: s.shots,
       accuracy: s.shots ? Math.round((s.hits / s.shots) * 100) : 0,
-      newBest: s.score > records.best,
+      newBest: s.score > localBest("shoot", shootMode),
       evidence: {
         inputMode,
+        gameMode: shootMode,
         shots: s.shots,
         hits: s.hits,
         misses: s.shots - s.hits,
@@ -936,20 +944,22 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
           ? fastestHit.current
           : undefined,
         duration: Math.min(
-          30,
+          endless ? 31536000 : 30,
           (elapsed.current +
-            (lastTime.current
+            (lastTime.current && phase === "playing"
               ? Math.max(0, performance.now() - lastTime.current)
               : 0)) /
             1000,
         ),
-        newBest: s.score > records.best,
+        newBest: s.score > localBest("shoot", shootMode),
         metadata: {
-          passed:
-            s.hits > 0 &&
-            s.shots === s.hits &&
-            s.lives > 0 &&
-            elapsed.current >= 30000,
+          shootWaveCleared: wave && s.hits === 12 && s.shots === 12,
+          passed: wave
+            ? s.hits === 12
+            : s.hits > 0 &&
+              s.shots === s.hits &&
+              s.lives > 0 &&
+              elapsed.current >= 30000,
         },
       },
     });
@@ -962,11 +972,15 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       const now = performance.now();
       elapsed.current += now - lastTime.current;
       lastTime.current = now;
-      setTime(Math.max(0, Math.ceil(30 - elapsed.current / 1000)));
-      if (elapsed.current >= 30000) finishRef.current();
+      setTime(
+        endless
+          ? Math.floor(elapsed.current / 1000)
+          : Math.max(0, Math.ceil(30 - elapsed.current / 1000)),
+      );
+      if (!endless && elapsed.current >= 30000) finishRef.current();
     }, 50);
     return () => clearInterval(timer);
-  }, [phase]);
+  }, [phase, endless]);
   useEffect(() => {
     if (!feedback) return;
     const timer = setTimeout(() => setFeedback(""), 550);
@@ -1015,11 +1029,18 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       s.hits++;
       s.combo++;
       s.maxCombo = Math.max(s.maxCombo, s.combo);
-      s.score += 100 + Math.min(s.combo - 1, 10) * 20;
+      s.score = Math.min(
+        2147483647,
+        s.score + 100 + Math.min(s.combo - 1, 10) * 20,
+      );
       setScore(s.score);
       setCombo(s.combo);
       setFeedback("hit");
       tone("shoot.hit");
+      if (wave && s.hits >= 12) {
+        finishRef.current();
+        return;
+      }
       if (s.combo > 1) tone("game.combo", { step: Math.min(4, s.combo - 2) });
       setTargets((prev) =>
         prev.map((target) =>
@@ -1050,8 +1071,8 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
           ← {t("back")}
         </Link>
         <div className="timer-bar">
-          <span>◷ {t("time")}</span>
-          <progress max="30" value={time} />
+          <span>◷ {t(endless ? "elapsedTime" : "time")}</span>
+          {!endless && <progress max="30" value={time} />}
           <b>
             {time}
             <small>s</small>
@@ -1069,6 +1090,60 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
         >
           <Pause />
         </Button>
+      </div>
+      <div className="game-mode-choice" role="group" aria-label={t("gameMode")}>
+        <button
+          data-hand-click
+          disabled={phase !== "ready"}
+          aria-pressed={!wave && !endless}
+          className={!wave && !endless ? "active" : ""}
+          onClick={() => {
+            setWave(false);
+            setEndless(false);
+            setTime(30);
+          }}
+        >
+          {t("standardMode")}
+        </button>
+        <button
+          data-hand-click
+          disabled={phase !== "ready"}
+          aria-pressed={wave}
+          className={wave ? "active" : ""}
+          onClick={() => {
+            setWave(true);
+            setEndless(false);
+            setTime(30);
+          }}
+        >
+          {t("waveMode")}
+        </button>
+        <button
+          data-hand-click
+          disabled={phase !== "ready"}
+          aria-pressed={endless}
+          className={endless ? "active" : ""}
+          onClick={() => {
+            setWave(false);
+            setEndless(true);
+            setTime(0);
+          }}
+        >
+          {t("endlessMode")}
+        </button>
+        {endless && (
+          <>
+            <span>{t("endlessHint")}</span>
+            <button
+              data-hand-click
+              disabled={phase === "ready"}
+              onClick={() => finishRef.current()}
+            >
+              {t("finishRun")}
+            </button>
+          </>
+        )}
+        {wave && <span>{stats.current.hits} / 12</span>}
       </div>
       <div
         className="input-mode-switch"
@@ -1214,11 +1289,13 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                 <h2>{t(phase === "ready" ? "readyGame" : "paused")}</h2>
                 <p>
                   {t(
-                    handPaused
-                      ? "handPaused"
-                      : inputMode === "hand"
-                        ? "handHelp"
-                        : "readyDesc",
+                    phase === "ready" && wave
+                      ? "waveDesc"
+                      : handPaused
+                        ? "handPaused"
+                        : inputMode === "hand"
+                          ? "handHelp"
+                          : "readyDesc",
                   )}
                 </p>
                 <small>{t("readyDetail")}</small>
@@ -1387,7 +1464,12 @@ function ResultPage() {
           <div className="best-comparison">
             <Crown fill="var(--yellow)" />
             <strong>{t("best")}</strong>
-            <b>{records.best.toLocaleString()}</b>
+            <b>
+              {localBest(
+                "shoot",
+                r.evidence?.gameMode ?? "standard",
+              ).toLocaleString()}
+            </b>
           </div>
           <div className="result-badges">
             {[
@@ -1410,7 +1492,11 @@ function ResultPage() {
         <ResultAchievements gameId="shoot" />
       </div>
       <div className="result-actions">
-        <Button onClick={() => navigate("/play/shoot")}>
+        <Button
+          onClick={() =>
+            navigate(`/play/shoot?mode=${r.evidence?.gameMode ?? "standard"}`)
+          }
+        >
           <RotateCcw />
           {t("replay")}
         </Button>
@@ -1722,7 +1808,10 @@ function App() {
       result.evidence,
     );
     const next = {
-      best: Math.max(records.best, result.score),
+      best:
+        result.evidence?.gameMode && result.evidence.gameMode !== "standard"
+          ? records.best
+          : Math.max(records.best, result.score),
       plays: records.plays + 1,
       day: today(),
       daily: (records.day === today() ? records.daily : 0) + 1,
@@ -1803,6 +1892,14 @@ function App() {
                     element={<HomePage introDone={!introActive} />}
                   />
                   <Route path="/games" element={<GamesPage />} />
+                  <Route
+                    path="/play/gate"
+                    element={<GateGamePage tone={tone} />}
+                  />
+                  <Route
+                    path="/result/gate"
+                    element={<GateResultPage tone={tone} />}
+                  />
                   <Route
                     path="/play/shoot"
                     element={<PlayPage onFinish={finish} />}

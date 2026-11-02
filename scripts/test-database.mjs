@@ -39,6 +39,24 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    new URL(
+      "../supabase/migrations/202611010001_game_modes.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    new URL(
+      "../supabase/migrations/202611020001_endless_seeker.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
 const a = "11111111-1111-4111-8111-111111111111",
   b = "22222222-2222-4222-8222-222222222222";
 await db.query("insert into auth.users values($1),($2)", [a, b]);
@@ -186,6 +204,44 @@ assert.equal(
   (await db.query("select count(*)::int as n from public.arcade_runs")).rows[0]
     .n,
   20,
+);
+await db.exec("reset role");
+const c = "99999999-9999-4999-8999-999999999999";
+await db.query("insert into auth.users values($1)", [c]);
+await identity(c);
+await db.query("select public.arcade_join($1)", ["모드테스트"]);
+await db.query(
+  "select public.arcade_submit_mode($1,'shoot',1000,100,5,'wave')",
+  [crypto.randomUUID()],
+);
+await db.query(
+  "select public.arcade_submit_mode($1,'dodge',700,0,60,'survival')",
+  [crypto.randomUUID()],
+);
+assert.equal(
+  (await db.query("select * from public.arcade_board_mode('shoot','wave')"))
+    .rows[0].score,
+  1000,
+);
+assert.equal(
+  (await db.query("select * from public.arcade_board('shoot')")).rows.some(
+    (r) => r.score === 1000,
+  ),
+  false,
+);
+await assert.rejects(
+  db.query("select public.arcade_submit_mode($1,'circle',100,0,1,'wave')", [
+    crypto.randomUUID(),
+  ]),
+);
+await db.query(
+  "select public.arcade_submit_mode($1,'dodge',20000,0,1200,'endless')",
+  [crypto.randomUUID()],
+);
+assert.equal(
+  (await db.query("select * from public.arcade_board_mode('dodge','endless')"))
+    .rows[0].score,
+  20000,
 );
 await db.close();
 console.log(

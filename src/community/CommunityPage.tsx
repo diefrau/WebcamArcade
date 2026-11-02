@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 import { Crown, Star, Trophy } from "lucide-react";
 import {
   gameIds,
+  gameModes,
   localBest,
+  type GameMode,
   readProgress,
   type GameId,
   type Progress,
@@ -30,6 +32,7 @@ export function CommunityPage({
   const text = (ko: string, en: string) =>
     i18n.language.startsWith("ko") ? ko : en;
   const [game, setGame] = useState<GameId>("shoot");
+  const [gameMode, setGameMode] = useState<GameMode>("standard");
   const [online, setOnline] = useState(false);
   const [rows, setRows] = useState<BoardRow[]>([]);
   const [progress, setProgress] = useState<Progress>(readProgress);
@@ -71,9 +74,9 @@ export function CommunityPage({
     }
     setLoading(true);
     void (async () => {
-      if (participating) await syncRuns();
+      if (participating) await syncRuns().catch(() => {});
       const [board, unlocks] = await Promise.all([
-        loadBoard(game),
+        achievements ? Promise.resolve([]) : loadBoard(game, gameMode),
         participating ? loadProgress() : Promise.resolve(null),
       ]);
       if (id !== request.current) return;
@@ -89,7 +92,7 @@ export function CommunityPage({
     return () => {
       request.current++;
     };
-  }, [online, game, refresh, participating]);
+  }, [online, game, gameMode, refresh, participating, achievements]);
   return (
     <div className="community-page">
       <h1>
@@ -211,9 +214,41 @@ export function CommunityPage({
               <button
                 key={id}
                 aria-pressed={game === id}
-                onClick={() => setGame(id)}
+                onClick={() => {
+                  setGame(id);
+                  setGameMode("standard");
+                }}
               >
                 {t(id)}
+              </button>
+            ))}
+          </div>
+          <div
+            className="community-games"
+            role="group"
+            aria-label={t("gameMode")}
+          >
+            {gameModes[game].map((mode) => (
+              <button
+                key={mode}
+                aria-pressed={gameMode === mode}
+                onClick={() => setGameMode(mode)}
+              >
+                {t(
+                  (
+                    {
+                      endless: "endlessMode",
+                      "vertical-endless": "verticalEndlessMode",
+                      seeker: "seekerMode",
+                      standard: "standardMode",
+                      hard: "hardMode",
+                      wave: "waveMode",
+                      survival: "survivalMode",
+                      vertical: "verticalMode",
+                      "vertical-survival": "verticalSurvivalMode",
+                    } as const
+                  )[mode],
+                )}
               </button>
             ))}
           </div>
@@ -228,7 +263,7 @@ export function CommunityPage({
             {!online ? (
               <div className="local-score">
                 <Trophy />
-                <b>{localBest(game).toLocaleString()}</b>
+                <b>{localBest(game, gameMode).toLocaleString()}</b>
                 <span>{t("points")}</span>
               </div>
             ) : !loading && !error && rows.length === 0 ? (

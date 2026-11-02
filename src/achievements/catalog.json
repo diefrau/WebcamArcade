@@ -136,9 +136,9 @@
     "id": "chamMaster",
     "category": "game",
     "gameId": "cham",
-    "metric": "pending",
+    "metric": "cham.hard",
     "target": 1,
-    "pending": true
+    "pending": false
   },
   {
     "id": "circleFirst",
@@ -280,9 +280,9 @@
     "id": "shootAll",
     "category": "game",
     "gameId": "shoot",
-    "metric": "pending",
+    "metric": "shoot.wavePerfect",
     "target": 1,
-    "pending": true
+    "pending": false
   },
   {
     "id": "shootHigh",
@@ -416,9 +416,9 @@
     "id": "dodgeMinute",
     "category": "game",
     "gameId": "dodge",
-    "metric": "pending",
+    "metric": "duration.dodge",
     "target": 60,
-    "pending": true
+    "pending": false
   },
   {
     "id": "dodgeClean",
@@ -448,9 +448,9 @@
     "id": "dodgeDance",
     "category": "game",
     "gameId": "dodge",
-    "metric": "pending",
+    "metric": "dodge.vertical",
     "target": 1,
-    "pending": true
+    "pending": false
   },
   {
     "id": "dodgePeak",

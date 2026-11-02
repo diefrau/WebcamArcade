@@ -1,0 +1,250 @@
+.gate-layout {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) minmax(0, 4fr) minmax(230px, 1.5fr);
+  gap: 20px;
+  align-items: start;
+}
+.gate-hud {
+  display: grid;
+  gap: 16px;
+}
+.gate-stage {
+  position: relative;
+  overflow: hidden;
+  padding: 16px;
+  background: #fffbed;
+  min-width: 0;
+}
+.gate-caption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.gate-caption h1 {
+  font: clamp(30px, 4vw, 65px) "Bagel Fat One";
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: var(--yellow);
+  -webkit-text-stroke: 4px #111;
+  paint-order: stroke fill;
+}
+.gate-caption strong {
+  background: var(--lime);
+  border: 3px solid #111;
+  padding: 8px 16px;
+  border-radius: 15px;
+  font-weight: 900;
+}
+.gate-world {
+  display: block;
+  width: 100%;
+  background:
+    radial-gradient(circle, #ffffff66 2px, transparent 3px) 0 0/18px 18px,
+    linear-gradient(#b8eaff, #fdf3a2);
+  border: 3px solid #111;
+  border-radius: 20px;
+  aspect-ratio: 5/3;
+}
+.gate-wall {
+  transform-origin: 500px 300px;
+}
+.gate-input {
+  padding: 20px;
+}
+.gate-input label {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  margin: 20px 0;
+  font-weight: 900;
+}
+.gate-input input {
+  grid-column: 1/-1;
+  width: 100%;
+  accent-color: var(--pink);
+}
+.gate-input p,
+.gate-demo p {
+  font-size: 13px;
+  line-height: 1.6;
+}
+.gate-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gate-presets button {
+  border: 3px solid #111;
+  border-radius: 14px;
+  background: var(--cyan);
+  padding: 8px;
+  font-weight: 900;
+}
+.gate-demo {
+  text-align: center;
+  padding: 14px;
+}
+.gate-demo .character {
+  height: 130px;
+  width: 100%;
+  object-fit: contain;
+}
+.gate-rounds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+.gate-rounds span {
+  border: 2px solid #111;
+  border-radius: 12px;
+  padding: 6px 12px;
+  background: #fff;
+}
+.gate-rounds .settled {
+  background: var(--lime);
+}
+.gate-result-card {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 24px;
+  text-align: center;
+}
+.gate-result-card > .character {
+  height: 160px;
+  width: auto;
+}
+.gate-result-card ol {
+  padding: 0;
+  list-style: none;
+}
+.gate-result-card li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 2px dashed #aaa;
+}
+.gate-result-card h2 {
+  font-size: 48px;
+  margin: 10px;
+}
+.gate-stage .game-dialog .character {
+  max-height: 140px;
+  width: 100%;
+  object-fit: contain;
+}
+.gate-stage .game-dialog {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  max-height: 100%;
+  overflow: auto;
+  padding: 20px;
+}
+.gate-stage .game-dialog h2,
+.gate-stage .game-dialog p {
+  margin: 0;
+}
+.gate-stage .game-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  background: #fff7;
+  padding: 12px;
+}
+.gate-result-card p {
+  font-weight: 900;
+}
+@media (max-width: 1100px) {
+  .gate-layout {
+    grid-template-columns: 170px minmax(0, 1fr);
+  }
+  .gate-input {
+    grid-column: 1/-1;
+  }
+  .gate-input label {
+    display: inline-grid;
+    width: calc(50% - 20px);
+    margin: 14px 10px;
+  }
+}
+@media (max-width: 650px) {
+  .gate-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .gate-hud {
+    grid-template-columns: 1fr 1fr;
+  }
+  .gate-demo {
+    display: none;
+  }
+  .gate-input {
+    grid-column: auto;
+  }
+  .gate-stage {
+    min-height: 420px;
+  }
+  .gate-input label {
+    width: 100%;
+    margin-inline: 0;
+  }
+  .gate-result-card li {
+    font-size: 13px;
+  }
+  .gate-result-card h2 {
+    font-size: 38px;
+  }
+  .gate-caption strong {
+    font-size: 14px;
+    padding: 6px;
+  }
+  .gate-world {
+    min-height: 280px;
+  }
+  .gate-result .result-actions {
+    flex-wrap: wrap;
+  }
+}
+.gate-stage .game-dialog .character {
+  height: 100px;
+  max-height: 100px;
+  width: auto;
+}
+.gate-stage .game-dialog button {
+  margin: 0;
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 20px;
+}
+@media (max-width: 650px) {
+  .gate-stage .game-dialog {
+    gap: 8px;
+    padding: 14px;
+  }
+  .gate-stage .game-dialog .character {
+    height: 70px;
+    max-height: 70px;
+  }
+  .gate-stage .game-dialog p {
+    font-size: 13px;
+  }
+  .gate-stage .game-dialog small {
+    font-size: 11px;
+  }
+  .gate-stage .game-dialog h2 {
+    font-size: 28px;
+  }
+  .gate-stage .game-dialog .cham-sticker {
+    font-size: 16px;
+    padding: 7px;
+  }
+}
+@media (max-width: 650px) {
+  .gate-vision .gate-stage {
+    min-height: 500px;
+  }
+}

@@ -34,7 +34,9 @@ async function state(page: Page) {
 }
 test("catalog has translated stable unique entries and excludes unavailable conditions from completion", () => {
   expect(new Set(catalog.map((a) => a.id)).size).toBe(74);
-  expect(catalog.filter((a) => !a.pending)).toHaveLength(60);
+  expect(catalog.filter((a) => !a.pending)).toHaveLength(64);
+  for (const id of ["chamMaster", "shootAll", "dodgeMinute", "dodgeDance"])
+    expect(catalog.find((a) => a.id === id)?.pending).toBe(false);
   for (const a of catalog) {
     expect((ko.achievements.items as any)[a.id]?.title).toBeTruthy();
     expect((en.achievements.items as any)[a.id]?.description).toBeTruthy();

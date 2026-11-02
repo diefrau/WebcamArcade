@@ -46,23 +46,40 @@ const caps: Record<GameId, number> = {
   circle: 1000,
   cham: 1000,
   rps: 500,
-  dodge: 3000,
+  dodge: 10000,
 };
+export const isEndless = (mode?: string) =>
+  mode === "endless" || mode === "vertical-endless";
 export function validRun(r: Run) {
   return (
     r &&
     gameIds.includes(r.game) &&
+    gameModes[r.game].includes(r.details?.gameMode ?? "standard") &&
     typeof r.id === "string" &&
     /^[0-9a-f-]{36}$/i.test(r.id) &&
     Number.isInteger(r.score) &&
     r.score >= 0 &&
-    r.score <= caps[r.game] &&
+    r.score <= (isEndless(r.details?.gameMode) ? 2147483647 : caps[r.game]) &&
+    (isEndless(r.details?.gameMode) ||
+      r.game !== "dodge" ||
+      ["survival", "vertical-survival"].includes(
+        r.details?.gameMode ?? "standard",
+      ) ||
+      r.score <= 3000) &&
     Number.isInteger(r.accuracy) &&
     r.accuracy >= 0 &&
     r.accuracy <= 100 &&
     Number.isFinite(r.seconds) &&
     r.seconds >= 0 &&
-    r.seconds <= 30
+    r.seconds <=
+      (isEndless(r.details?.gameMode)
+        ? 31536000
+        : r.game === "dodge" &&
+            ["survival", "vertical-survival"].includes(
+              r.details?.gameMode ?? "",
+            )
+          ? 60
+          : 30)
   );
 }
 export function readRuns(): Run[] {
@@ -150,7 +167,51 @@ export function progressFor(runs: Run[]): Progress {
     playedGames: [...new Set(runs.map((r) => r.game))],
   };
 }
-export function localBest(game: GameId) {
+export type GameMode = NonNullable<GameResultDetails["gameMode"]>;
+export const gameModes: Record<GameId, GameMode[]> = {
+  shoot: ["standard", "wave", "endless"],
+  cham: ["standard", "hard", "seeker"],
+  dodge: [
+    "standard",
+    "survival",
+    "vertical",
+    "vertical-survival",
+    "endless",
+    "vertical-endless",
+  ],
+  circle: ["standard"],
+  rps: ["standard"],
+};
+const modeBestKey = "arcade.mode-bests.v1";
+export function saveModeBest(game: GameId, mode: GameMode, score: number) {
+  try {
+    const values = JSON.parse(localStorage.getItem(modeBestKey) || "{}");
+    const key = `${game}:${mode}`;
+    const old = Number.isFinite(values[key]) ? values[key] : 0;
+    values[key] = Math.max(old, score);
+    localStorage.setItem(modeBestKey, JSON.stringify(values));
+  } catch {
+    // Recent runs still provide a best when storage is unavailable.
+  }
+}
+export function localBest(game: GameId, mode: GameMode = "standard") {
+  const fromRuns = Math.max(
+    0,
+    ...readRuns()
+      .filter(
+        (r) => r.game === game && (r.details?.gameMode ?? "standard") === mode,
+      )
+      .map((r) => r.score),
+  );
+  let saved = 0;
+  try {
+    const values = JSON.parse(localStorage.getItem(modeBestKey) || "{}");
+    const best = values[`${game}:${mode}`];
+    if (Number.isFinite(best) && best >= 0) saved = best;
+  } catch {
+    // Fall back to recent runs.
+  }
+  if (mode !== "standard") return Math.max(fromRuns, saved);
   // Existing records remain visible after the community feature is installed.
   try {
     const value = JSON.parse(
@@ -163,8 +224,12 @@ export function localBest(game: GameId) {
       ) || "null",
     );
     const best = game === "circle" ? value : value?.best;
-    return Number.isFinite(best) && best >= 0 ? (best as number) : 0;
+    return Math.max(
+      fromRuns,
+      saved,
+      Number.isFinite(best) && best >= 0 ? (best as number) : 0,
+    );
   } catch {
-    return 0;
+    return Math.max(fromRuns, saved);
   }
 }

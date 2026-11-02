@@ -305,7 +305,7 @@
       },
       "chamMaster": {
         "title": "Cham master",
-        "description": "Reach the hardest difficulty when that mode is available"
+        "description": "Complete 10 rounds on hardest difficulty"
       },
       "circleFirst": {
         "title": "Circle beginner",
@@ -377,7 +377,7 @@
       },
       "shootAll": {
         "title": "Nothing gets away",
-        "description": "Hit every target when finite waves are available"
+        "description": "Hit every target in a wave without missing"
       },
       "shootHigh": {
         "title": "High-scoring shooter",
@@ -445,7 +445,7 @@
       },
       "dodgeMinute": {
         "title": "Survival expert",
-        "description": "Survive 60 seconds when a longer mode is available"
+        "description": "Survive 60 seconds"
       },
       "dodgeClean": {
         "title": "Not a scratch",
@@ -461,7 +461,7 @@
       },
       "dodgeDance": {
         "title": "Is this a dance?",
-        "description": "Available when vertical movement is added"
+        "description": "Move up and down and finish vertical mode"
       },
       "dodgePeak": {
         "title": "Phoenix",
@@ -529,5 +529,58 @@
       }
     }
   },
-  "circleAutoFinish": "Hold a fist to finish · Closing the loop also finishes automatically"
+  "circleAutoFinish": "Hold a fist to finish · Closing the loop also finishes automatically",
+  "gameMode": "Game mode",
+  "standardMode": "Standard",
+  "survivalMode": "60-second survival",
+  "hardMode": "Hardest",
+  "waveMode": "Target wave",
+  "verticalMode": "Vertical movement",
+  "moveUp": "Up",
+  "moveDown": "Down",
+  "verticalBodyHint": "Move your body up and down",
+  "verticalKeyHint": "Use up and down controls to change height",
+  "verticalSurvivalMode": "Vertical · 60 seconds",
+  "waveDesc": "Hit 12 targets in 30 seconds! Hit every shot to unlock the achievement.",
+  "endlessMode": "Endless",
+  "verticalEndlessMode": "Vertical · endless",
+  "seekerMode": "Seeker",
+  "finishRun": "Finish and save",
+  "endlessHint": "No timer! Play until lives run out, or finish and save your score.",
+  "seekerHint": "Point your index finger up, down, left or right. Match the computer’s hidden head direction to win.",
+  "elapsedTime": "Elapsed",
+  "gate": {
+    "title": "FIT THROUGH!",
+    "command": "Match the pose!",
+    "prototype": "Prototype",
+    "instruction": "Match your arms to the opening before the wall arrives!",
+    "mockNotice": "This prototype uses no webcam. Prototype scores stay on this device.",
+    "similarity": "Pose match",
+    "adjust": "Adjust arms",
+    "mockHelp": "Use the sliders or pose buttons before the wall reaches you.",
+    "left": "Left arm",
+    "right": "Right arm",
+    "keyboard": "Keys: A/Z left · K/M right · 1–5 poses",
+    "pose0": "Arms up",
+    "pose1": "Arms out",
+    "pose2": "Left up",
+    "pose3": "Right up",
+    "pose4": "Diagonal",
+    "perfect": "PERFECT!",
+    "pass": "PASS!",
+    "close": "CLOSE!",
+    "fail": "TRY AGAIN!",
+    "field": "Approaching pose wall",
+    "mockMode": "Mock controls",
+    "visionNotice": "Play with your upper body. Webcam and mock records are saved separately.",
+    "poseReady": "Upper body ready!",
+    "showUpperBody": "Keep your head and both arms in view. Ready {{progress}}%",
+    "connectHint": "Connect your camera and show your head and both arms.",
+    "poseHelp": "Match your arms to the opening. Tracking loss pauses the game; show your arms again to resume.",
+    "preparation": "Upper body readiness",
+    "recalibrate": "Check readiness again",
+    "autoStart": "Get in position — the countdown starts automatically!",
+    "autoResume": "Show your upper body again to resume after a countdown.",
+    "poseResume": "Lower both arms, then raise and hold them to resume."
+  }
 }

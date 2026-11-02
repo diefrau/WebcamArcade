@@ -15,6 +15,16 @@ export type RoundEvidence = {
   webcam?: boolean;
 };
 export type GameResultDetails = {
+  gameMode?:
+    | "endless"
+    | "vertical-endless"
+    | "seeker"
+    | "standard"
+    | "hard"
+    | "wave"
+    | "survival"
+    | "vertical"
+    | "vertical-survival";
   inputMode?: "mouse" | "hand" | "face" | "body" | "buttons" | "unknown";
   duration?: number;
   hits?: number;
@@ -28,6 +38,9 @@ export type GameResultDetails = {
   newBest?: boolean;
   metadata?: {
     passed?: boolean;
+    chamHard?: boolean;
+    dodgeVertical?: boolean;
+    shootWaveCleared?: boolean;
     drawComplete?: boolean;
     maxSafeSeconds?: number;
     maxAvoidStreak?: number;
