@@ -54,6 +54,7 @@ import {
   Pause,
   Play,
   RotateCcw,
+  Save,
   Settings,
   Smile,
   Sparkles,
@@ -1131,18 +1132,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
         >
           {t("endlessMode")}
         </button>
-        {endless && (
-          <>
-            <span>{t("endlessHint")}</span>
-            <button
-              data-hand-click
-              disabled={phase === "ready"}
-              onClick={() => finishRef.current()}
-            >
-              {t("finishRun")}
-            </button>
-          </>
-        )}
+        {endless && <span>{t("endlessHint")}</span>}
         {wave && <span>{stats.current.hits} / 12</span>}
       </div>
       <div
@@ -1275,6 +1265,21 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
             </button>
           ))}
           <div className="range-counter" />
+          {endless && (
+            <Button
+              color="white"
+              className="shoot-finish-run"
+              data-hand-click
+              disabled={phase === "ready"}
+              onClick={(e) => {
+                e.stopPropagation();
+                finishRef.current();
+              }}
+            >
+              <Save aria-hidden="true" size={20} />
+              {t("finishRun")}
+            </Button>
+          )}
           <div
             className={`crosshair ${inputMode === "hand" && camera.hand.detected ? "hand-active" : ""} ${camera.hand.pinched ? "pinched" : ""}`}
             style={{ left: `${cursor.x}%`, top: `${cursor.y}%` }}
@@ -1286,16 +1291,30 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
               <HandMenuCursor active />
               <div className="game-dialog panel">
                 <Sticker>{phase === "ready" ? "READY?" : "PAUSE"}</Sticker>
-                <h2>{t(phase === "ready" ? "readyGame" : "paused")}</h2>
+                <h2>
+                  {t(phase === "ready" ? "readyGame" : "paused")}
+                  <small className="selected-game-mode">
+                    {t("gameMode")} ·{" "}
+                    {t(
+                      endless
+                        ? "endlessMode"
+                        : wave
+                          ? "waveMode"
+                          : "standardMode",
+                    )}
+                  </small>
+                </h2>
                 <p>
                   {t(
-                    phase === "ready" && wave
-                      ? "waveDesc"
-                      : handPaused
-                        ? "handPaused"
-                        : inputMode === "hand"
-                          ? "handHelp"
-                          : "readyDesc",
+                    phase === "ready" && endless
+                      ? "endlessHint"
+                      : phase === "ready" && wave
+                        ? "waveDesc"
+                        : handPaused
+                          ? "handPaused"
+                          : inputMode === "hand"
+                            ? "handHelp"
+                            : "readyDesc",
                   )}
                 </p>
                 <small>{t("readyDetail")}</small>

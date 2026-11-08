@@ -547,7 +547,7 @@
   "seekerMode": "Seeker",
   "finishRun": "Finish and save",
   "endlessHint": "No timer! Play until lives run out, or finish and save your score.",
-  "seekerHint": "Point your index finger up, down, left or right. Match the computer’s hidden head direction to win.",
+  "seekerHint": "Watch which way the character is about to move. Point your index finger the same way to catch it!",
   "elapsedTime": "Elapsed",
   "gate": {
     "title": "FIT THROUGH!",
@@ -582,5 +582,9 @@
     "autoStart": "Get in position — the countdown starts automatically!",
     "autoResume": "Show your upper body again to resume after a countdown.",
     "poseResume": "Lower both arms, then raise and hold them to resume."
-  }
+  },
+  "perfectCount": "Perfect score achieved {{count}} times",
+  "dodgeModeInstruction": "Dodge obstacles for {{seconds}} seconds. You have 3 lives!",
+  "seekerWatch": "Watch the character!",
+  "seekerDirectionHint": "The character is about to move {{direction}}."
 }

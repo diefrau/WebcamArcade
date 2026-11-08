@@ -1,3 +1,4 @@
+import { recordPerfectRun } from "./perfectScores";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { readPlayer, savePlayer } from "./player";
 import {
@@ -206,6 +207,7 @@ export function recordPlay(
   };
   if (!validRun(run)) return;
   readAchievementState();
+  recordPerfectRun(run, readRuns());
   saveModeBest(game, details.gameMode ?? "standard", score);
   writeRuns([...readRuns(), run]);
   const event: GameResultEvent = {
@@ -226,12 +228,23 @@ export function recordPlay(
   // The first-visit name choice opts this device into automatic result sync.
   if (communityConfigured) void syncRuns().catch(() => {});
 }
-export type BoardRow = { place: number; nickname: string; score: number };
+export type BoardRow = {
+  place: number;
+  nickname: string;
+  score: number;
+  max_count?: number;
+};
 export async function loadBoard(
   game: GameId,
   mode: GameMode = "standard",
 ): Promise<BoardRow[]> {
   const c = await api();
+  const ranked = await c.rpc("arcade_board_mode_v2", {
+    p_game: game,
+    p_mode: mode,
+  });
+  if (!ranked.error) return ranked.data ?? [];
+  if (ranked.error.code !== "PGRST202") throw ranked.error;
   const result = await c.rpc("arcade_board_mode", {
     p_game: game,
     p_mode: mode,

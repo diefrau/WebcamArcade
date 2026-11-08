@@ -59,7 +59,7 @@ for (const game of ["shoot", "dodge"])
     expect(run.details.gameMode).toBe("endless");
     expect(run.seconds).toBeGreaterThan(60);
   });
-test("seeker hides the computer direction, scores matching input, and records separately", async ({
+test("seeker hints the computer direction, scores matching input, and records separately", async ({
   page,
 }) => {
   await page.clock.install();
@@ -72,6 +72,10 @@ test("seeker hides the computer direction, scores matching input, and records se
   for (let i = 0; i < 10; i++) {
     await page.clock.runFor(1520);
     await expect(page.getByTestId("cham-arrow")).toHaveText("?");
+    await expect(page.getByTestId("seeker-tell")).toHaveAttribute(
+      "data-direction",
+      "left",
+    );
     await page.getByRole("button", { name: "왼쪽", exact: true }).click();
     await page.clock.runFor(1040);
   }

@@ -345,3 +345,89 @@
     font-size: 12px;
   }
 }
+.cham-rival-cue {
+  position: relative;
+  width: fit-content;
+  margin: 18px auto 0;
+  --tell-x: 0px;
+  --tell-y: 0px;
+  --tell-rotate: 0deg;
+  transform: translate(var(--tell-x), var(--tell-y)) rotate(var(--tell-rotate));
+  transition: transform 180ms cubic-bezier(0.22, 1.55, 0.5, 1);
+  transform-origin: center 65%;
+}
+.cham-stage .cham-rival-cue .cham-rival {
+  margin: 0;
+}
+.cham-rival-cue[data-direction="left"] {
+  --tell-x: -24px;
+  --tell-rotate: -8deg;
+}
+.cham-rival-cue[data-direction="right"] {
+  --tell-x: 24px;
+  --tell-rotate: 8deg;
+}
+.cham-rival-cue[data-direction="up"] {
+  --tell-y: -22px;
+}
+.cham-rival-cue[data-direction="down"] {
+  --tell-y: 22px;
+}
+.cham-rival-cue[data-tell-phase="peek"][data-direction]:not(
+    [data-direction="center"]
+  ) {
+  animation: cham-seeker-peek 300ms cubic-bezier(0.22, 1.55, 0.5, 1) both;
+}
+.cham-tell-lines {
+  position: absolute;
+  right: -12px;
+  top: 18%;
+  font-size: 42px;
+  font-weight: 900;
+  color: var(--pink);
+  -webkit-text-stroke: 2px #111;
+  paint-order: stroke fill;
+}
+.cham-rival-cue[data-direction="left"] .cham-tell-lines {
+  right: auto;
+  left: -12px;
+}
+.cham-rival-cue[data-direction="up"] .cham-tell-lines {
+  top: -10px;
+  right: 35%;
+}
+.cham-rival-cue[data-direction="down"] .cham-tell-lines {
+  top: auto;
+  bottom: 0;
+  right: 10%;
+}
+.cham-tell-accessible {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+@keyframes cham-seeker-peek {
+  from {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  to {
+    transform: translate(var(--tell-x), var(--tell-y))
+      rotate(var(--tell-rotate));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cham-rival-cue,
+  .cham-rival-cue[data-tell-phase="peek"][data-direction]:not(
+      [data-direction="center"]
+    ) {
+    animation: none;
+    transition: none;
+  }
+}
+html[data-motion="reduced"] .cham-rival-cue {
+  animation: none !important;
+  transition: none;
+}

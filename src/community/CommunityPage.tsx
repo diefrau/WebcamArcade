@@ -1,3 +1,4 @@
+import { perfectScore, perfectCount } from "./perfectScores";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -6,6 +7,7 @@ import {
   gameIds,
   gameModes,
   localBest,
+  readRuns,
   type GameMode,
   readProgress,
   type GameId,
@@ -49,6 +51,8 @@ export function CommunityPage({
   const [error, setError] = useState(false);
   const [refresh, setRefresh] = useState(0);
   const request = useRef(0);
+  const deviceScore = localBest(game, gameMode);
+  const devicePerfects = perfectCount(game, gameMode, readRuns());
   useEffect(() => {
     let active = true;
     if (communityConfigured)
@@ -263,8 +267,20 @@ export function CommunityPage({
             {!online ? (
               <div className="local-score">
                 <Trophy />
-                <b>{localBest(game, gameMode).toLocaleString()}</b>
+                <b>{deviceScore.toLocaleString()}</b>
                 <span>{t("points")}</span>
+                {deviceScore === perfectScore(game, gameMode) &&
+                  devicePerfects > 0 && (
+                    <small
+                      className="perfect-count"
+                      aria-label={t("perfectCount", {
+                        count: devicePerfects,
+                      })}
+                    >
+                      ×{" "}
+                      {devicePerfects.toLocaleString()}
+                    </small>
+                  )}
               </div>
             ) : !loading && !error && rows.length === 0 ? (
               <p>
@@ -283,7 +299,21 @@ export function CommunityPage({
                         ? text("익명", "Anonymous")
                         : row.nickname}
                     </span>
-                    <b>{row.score.toLocaleString()}</b>
+                    <b>
+                      {row.score.toLocaleString()}
+                      {row.score === perfectScore(game, gameMode) &&
+                        (row.max_count ?? 0) > 0 && (
+                          <small
+                            className="perfect-count"
+                            aria-label={t("perfectCount", {
+                              count: row.max_count,
+                            })}
+                          >
+                            {" "}
+                            × {row.max_count!.toLocaleString()}
+                          </small>
+                        )}
+                    </b>
                   </li>
                 ))}
               </ol>

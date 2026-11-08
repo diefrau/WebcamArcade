@@ -57,6 +57,15 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    new URL(
+      "../supabase/migrations/202611030001_perfect_score_rankings.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
 const a = "11111111-1111-4111-8111-111111111111",
   b = "22222222-2222-4222-8222-222222222222";
 await db.query("insert into auth.users values($1),($2)", [a, b]);
@@ -242,6 +251,75 @@ assert.equal(
   (await db.query("select * from public.arcade_board_mode('dodge','endless')"))
     .rows[0].score,
   20000,
+);
+// Later repeat perfect scores outrank an earlier single perfect result.
+await db.exec("reset role");
+const d = "88888888-8888-4888-8888-888888888888";
+await db.query("insert into auth.users values($1)", [d]);
+await identity(c);
+await submit(crypto.randomUUID(), "circle", 1000);
+await submit(crypto.randomUUID(), "circle", 999);
+await identity(d);
+await db.query("select public.arcade_join($1)", ["반복만점"]);
+const perfectId = crypto.randomUUID();
+await submit(perfectId, "circle", 1000);
+await submit(perfectId, "circle", 1000);
+await submit(crypto.randomUUID(), "circle", 1000);
+let perfectBoard = (
+  await db.query(
+    "select * from public.arcade_board_mode_v2('circle','standard')",
+  )
+).rows;
+assert.equal(perfectBoard[0].nickname, "반복만점");
+assert.equal(perfectBoard[0].max_count, 2);
+assert.equal(perfectBoard[1].max_count, 1);
+assert.deepEqual(
+  Object.keys(
+    (await db.query("select * from public.arcade_board('circle')")).rows[0],
+  ),
+  ["place", "nickname", "score"],
+);
+await db.query("select public.arcade_submit_mode($1,'cham',1000,0,0,'hard')", [
+  crypto.randomUUID(),
+]);
+assert.equal(
+  (
+    await db.query(
+      "select * from public.arcade_board_mode_v2('cham','standard')",
+    )
+  ).rows[0].max_count,
+  0,
+);
+assert.equal(
+  (await db.query("select * from public.arcade_board_mode_v2('cham','hard')"))
+    .rows[0].max_count,
+  1,
+);
+await db.query(
+  "select public.arcade_submit_mode($1,'shoot',2500,100,20,'wave')",
+  [crypto.randomUUID()],
+);
+assert.equal(
+  (await db.query("select * from public.arcade_board_mode_v2('shoot','wave')"))
+    .rows[0].max_count,
+  1,
+);
+assert.equal(
+  (
+    await db.query(
+      "select * from public.arcade_board_mode_v2('dodge','endless')",
+    )
+  ).rows[0].max_count,
+  0,
+);
+await db.exec("reset role;set role anon");
+assert.equal(
+  (
+    await db.query(
+      "select * from public.arcade_board_mode_v2('circle','standard')",
+    )
+  ).rows[0].max_count,
+  2,
 );
 await db.close();
 console.log(

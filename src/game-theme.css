@@ -402,8 +402,33 @@
   gap: 10px;
   margin: 0 0 20px;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.screen-play .selected-game-mode {
+  display: block;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  margin-top: 8px;
+  color: #28530b;
 }
 .screen-play .game-mode-choice button:disabled {
   opacity: 0.6;
   cursor: default;
+}
+.screen-play .shoot-finish-run {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  z-index: 6;
+  max-width: calc(100% - 36px);
+  min-height: 44px;
+  padding: 10px 14px;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.screen-play .shoot-finish-run svg {
+  flex-shrink: 0;
 }

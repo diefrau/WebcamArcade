@@ -560,8 +560,25 @@ export function DodgeGamePage({
             <div className="game-overlay">
               <div className="game-overlay-card game-dialog panel">
                 <MoveHorizontal size={48} />
-                <h2>{t(phase === "paused" ? "paused" : "dodgeReady")}</h2>
-                <p>{t("dodgeInstructions")}</p>
+                <h2>
+                  {t(phase === "paused" ? "paused" : "dodgeReady")}
+                  <small className="selected-game-mode">
+                    {t("gameMode")} ·{" "}
+                    {t(
+                      endless
+                        ? "endlessMode"
+                        : duration === 60
+                          ? "survivalMode"
+                          : "standardMode",
+                    )}
+                    {vertical ? ` · ${t("verticalMode")}` : ""}
+                  </small>
+                </h2>
+                <p>
+                  {endless
+                    ? t("endlessHint")
+                    : t("dodgeModeInstruction", { seconds: duration })}
+                </p>
                 {mode === "body" && (
                   <p>{t(bodyReady ? "dodgeCenter" : "showBody")}</p>
                 )}

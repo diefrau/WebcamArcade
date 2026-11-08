@@ -148,6 +148,9 @@ export function ChamGamePage({
     transition("paused");
   }
   function nextRound() {
+    // Commit the seeker target before its visual tell; never reroll at GO.
+    if (seeker)
+      setComputer(directions[Math.floor(Math.random() * directions.length)]);
     centered.current = mode === "buttons";
     candidate.current = { direction: "center", since: 0 };
     transition("countdown", COUNTDOWN_MS);
@@ -266,7 +269,8 @@ export function ChamGamePage({
     setRemaining(remainingRef.current);
     if (remainingRef.current > 0) return;
     if (phaseRef.current === "countdown") {
-      setComputer(directions[Math.floor(Math.random() * directions.length)]);
+      if (!seeker)
+        setComputer(directions[Math.floor(Math.random() * directions.length)]);
       candidate.current = { direction: "center", since: 0 };
       transition("respond", responseMs);
     } else if (phaseRef.current === "respond") answer(null);
@@ -373,6 +377,11 @@ export function ChamGamePage({
   const active =
     phase === "countdown" || phase === "respond" || phase === "feedback";
   const last = rounds[rounds.length - 1];
+  const seekerTell =
+    seeker &&
+    ((phase === "countdown" && remaining <= 600) ||
+      phase === "respond" ||
+      phase === "feedback");
   return (
     <div className="cham-page">
       <div className="cham-toolbar">
@@ -519,14 +528,39 @@ export function ChamGamePage({
               {t("score")} {rounds.filter((r) => r.win).length * 100}
             </strong>
           </div>
-          <Character asset="cham" className="cham-rival" />
+          {seeker ? (
+            <div
+              className="cham-rival-cue"
+              data-testid="seeker-tell"
+              data-direction={seekerTell ? computer : "center"}
+              data-tell-phase={phase === "countdown" ? "peek" : "turn"}
+            >
+              <Character asset="cham" className="cham-rival" />
+              {seekerTell && (
+                <>
+                  <span className="cham-tell-lines" aria-hidden="true">
+                    〃
+                  </span>
+                  <span className="cham-tell-accessible" role="status">
+                    {t("seekerDirectionHint", { direction: label(computer) })}
+                  </span>
+                </>
+              )}
+            </div>
+          ) : (
+            <Character asset="cham" className="cham-rival" />
+          )}
           <div className="cham-cue" data-phase={phase} aria-live="polite">
             {phase === "countdown" ? (
               <>
                 <b key={Math.ceil(remaining / 500)} className="bounce-feedback">
                   {Math.ceil(remaining / 500)}
                 </b>
-                <span>{text("정면 보고 준비!", "Face forward. Ready!")}</span>
+                <span>
+                  {seeker
+                    ? t("seekerWatch")
+                    : text("정면 보고 준비!", "Face forward. Ready!")}
+                </span>
               </>
             ) : phase === "respond" ? (
               <>
@@ -606,12 +640,24 @@ export function ChamGamePage({
             <div className="cham-overlay">
               {mode === "hand" && <HandMenuCursor active />}
               <section className="panel cham-dialog">
-                <h2>{phase === "ready" ? t("readyGame") : t("paused")}</h2>
+                <h2>
+                  {phase === "ready" ? t("readyGame") : t("paused")}
+                  <small className="selected-game-mode">
+                    {t("gameMode")} ·{" "}
+                    {t(
+                      seeker
+                        ? "seekerMode"
+                        : hard
+                          ? "hardMode"
+                          : "standardMode",
+                    )}
+                  </small>
+                </h2>
                 {seeker && <p>{t("seekerHint")}</p>}
                 <p hidden={seeker}>
                   {text(
-                    "10라운드 · 화살표가 나타나면 0.9초 안에 다른 방향을 선택하세요.",
-                    "10 rounds. Choose a different direction within 0.9 seconds of the arrow appearing.",
+                    `10라운드 · 화살표가 나타나면 ${responseMs / 1000}초 안에 다른 방향을 선택하세요.`,
+                    `10 rounds. Choose a different direction within ${responseMs / 1000} seconds of the arrow appearing.`,
                   )}
                 </p>
                 {mode === "face" && (

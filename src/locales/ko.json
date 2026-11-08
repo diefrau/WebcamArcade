@@ -547,7 +547,7 @@
   "seekerMode": "내가 술래",
   "finishRun": "그만하고 기록 저장",
   "endlessHint": "시간 제한 없이 라이프가 다할 때까지! 중간에 기록을 저장하고 마칠 수도 있어요.",
-  "seekerHint": "참참참! 검지로 위·아래·왼쪽·오른쪽을 가리켜요. 컴퓨터가 고개를 돌린 방향과 같으면 성공!",
+  "seekerHint": "캐릭터가 움직이려는 방향을 잘 봐요. 참참참! 검지로 같은 방향을 가리키면 성공!",
   "elapsedTime": "경과 시간",
   "gate": {
     "title": "뚫어!",
@@ -582,5 +582,9 @@
     "autoStart": "상체가 준비되면 자동으로 시작해요!",
     "autoResume": "상체가 다시 보이면 카운트다운 후 이어서 시작해요.",
     "poseResume": "양팔을 내렸다가 다시 올려 잠시 유지하면 이어서 시작해요."
-  }
+  },
+  "perfectCount": "만점 {{count}}회 달성",
+  "dodgeModeInstruction": "{{seconds}}초 동안 장애물을 피하세요. 라이프는 3개!",
+  "seekerWatch": "어디로 움직일까?",
+  "seekerDirectionHint": "캐릭터의 다음 방향: {{direction}}"
 }

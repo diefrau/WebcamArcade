@@ -377,3 +377,17 @@
     transform: translateY(-2px);
   }
 }
+.community-board .perfect-count {
+  display: inline-block;
+  font-family: inherit;
+  font-size: 0.72em;
+  white-space: nowrap;
+  color: #28530b;
+}
+.community-board li > b {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+.local-score .perfect-count {
+  font-size: 24px;
+}
