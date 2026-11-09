@@ -42,7 +42,12 @@ for (const game of ["shoot", "dodge"])
       Math.random = () => 1;
     });
     await page.goto(`/play/${game}`);
-    await page.getByRole("button", { name: "무한 모드", exact: true }).click();
+    const endless = page.getByRole("button", {
+      name: game === "dodge" ? "생존!" : "무한 모드",
+      exact: true,
+    });
+    if (game === "shoot") await endless.click();
+    await expect(endless).toHaveAttribute("aria-pressed", "true");
     await page
       .getByRole("button", {
         name: game === "shoot" ? "시작!" : "게임 시작!",

@@ -17,7 +17,7 @@ test("home, filters, language and settings work", async ({ page }) => {
   await page.getByRole("button", { name: "얼굴 인식", exact: true }).click();
   await expect(page.locator(".selection-games .game-card")).toHaveCount(1);
   await page.getByRole("button", { name: "전체", exact: true }).click();
-  await expect(page.locator(".selection-games .game-card")).toHaveCount(5);
+  await expect(page.locator(".selection-games .game-card")).toHaveCount(6);
   await page.screenshot({ path: "artifacts/games-ko.png", fullPage: true });
   await page.getByRole("button", { name: "설정", exact: true }).click();
   await page.getByRole("combobox").selectOption("en");
@@ -87,7 +87,7 @@ test("shooting, pause, timer, results, replay and storage", async ({
   expect(evidence.state.stats.totalGamesCompleted).toBe(1);
   expect(evidence.state.unlockedIds).toContain("shootFive");
   expect(evidence.state.unlockedIds).not.toContain("shootPerfect");
-  await page.getByRole("button", { name: "다시 하기" }).click();
+  await page.getByRole("link", { name: "다시 하기" }).click();
   await page.getByRole("button", { name: "시작!", exact: true }).click();
   for (let i = 0; i < 5; i++)
     await page.locator(".playfield").click({ position: { x: 10, y: 10 } });

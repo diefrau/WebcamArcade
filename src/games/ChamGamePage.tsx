@@ -1,4 +1,3 @@
-import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { recordPlay } from "../community/client";
 import { localBest } from "../community/store";
@@ -10,14 +9,15 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Camera, Keyboard, Pause, Play, RotateCcw, Trophy } from "lucide-react";
+import { Camera, Keyboard, Pause, Play, Trophy } from "lucide-react";
 import { useCamera } from "../vision/CameraProvider";
 import { faceDirection, type Direction } from "../vision/face";
 import { Character } from "../components/Character";
+import { chamPoses, characterAssets } from "../assets/characters";
 import { WebcamFrame } from "../components/WebcamFrame";
 import "./cham.css";
 import { winsRound } from "./chamRules";
-import { CountUp, ResultCelebration } from "../components/ResultCelebration";
+import { GameResult } from "../components/GameResult";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { useGameSound } from "../audio/useGameSound";
 
@@ -25,6 +25,7 @@ export const directions: Direction[] = ["left", "up", "down", "right"];
 const arrows = { left: "←", right: "→", up: "↑", down: "↓", center: "•" };
 const COUNTDOWN_MS = 1500;
 const RESPONSE_MS = 900;
+const SEEKER_RESPONSE_MS = 1000;
 const FEEDBACK_MS = 1000;
 type Round = {
   computer: Direction;
@@ -83,7 +84,7 @@ export function ChamGamePage({
     if (camera.stream) setChoice((v) => v ?? (seeker ? "hand" : "face"));
   }, [camera.stream, seeker]);
   const [hard, setHard] = useState(false);
-  const responseMs = seeker ? 1500 : hard ? 540 : RESPONSE_MS;
+  const responseMs = seeker ? SEEKER_RESPONSE_MS : hard ? 540 : RESPONSE_MS;
   const resultMode = seeker ? "seeker" : hard ? "hard" : "standard";
   const [phase, setPhase] = useState<Phase>("ready");
   const [rounds, setRounds] = useState<Round[]>([]);
@@ -382,6 +383,16 @@ export function ChamGamePage({
     ((phase === "countdown" && remaining <= 600) ||
       phase === "respond" ||
       phase === "feedback");
+  const rivalDirection =
+    seekerTell || (!seeker && (phase === "respond" || phase === "feedback"))
+      ? computer
+      : "center";
+  useEffect(() => {
+    for (const pose of Object.values(chamPoses)) {
+      const image = new Image();
+      image.src = characterAssets[pose].src;
+    }
+  }, []);
   return (
     <div className="cham-page">
       <div className="cham-toolbar">
@@ -392,45 +403,6 @@ export function ChamGamePage({
         </strong>
         <button onClick={pause} disabled={!active} aria-label={t("pause")}>
           <Pause />
-        </button>
-      </div>
-      <div className="game-mode-choice" role="group" aria-label={t("gameMode")}>
-        <button
-          disabled={phase !== "ready"}
-          aria-pressed={!hard && !seeker}
-          className={!hard && !seeker ? "active" : ""}
-          onClick={() => {
-            setHard(false);
-            setChoice(null);
-            setParams({});
-          }}
-        >
-          {t("standardMode")}
-        </button>
-        <button
-          disabled={phase !== "ready"}
-          aria-pressed={hard}
-          className={hard ? "active" : ""}
-          onClick={() => {
-            setHard(true);
-            setChoice(null);
-            setParams({});
-          }}
-        >
-          {t("hardMode")}
-        </button>
-        <button
-          disabled={phase !== "ready"}
-          aria-pressed={seeker}
-          className={seeker ? "active" : ""}
-          onClick={() => {
-            setHard(false);
-            setChoice(null);
-            setCalibrating(false);
-            setParams({ role: "seeker" });
-          }}
-        >
-          {t("seekerMode")}
         </button>
       </div>
       <div className="cham-mode">
@@ -476,7 +448,7 @@ export function ChamGamePage({
         <aside className="cham-info panel">
           <span className="cham-sticker">LOOK OUT!</span>
           <h1>{t("cham")}</h1>
-          {seeker && <p>{t("seekerHint")}</p>}
+          {seeker && <p>{t("seekerHint", { seconds: responseMs / 1000 })}</p>}
           <p hidden={seeker}>
             {text(
               "컴퓨터가 가리키는 방향을 피해 고개를 돌려요. 같은 방향이나 시간 초과는 실패!",
@@ -535,7 +507,11 @@ export function ChamGamePage({
               data-direction={seekerTell ? computer : "center"}
               data-tell-phase={phase === "countdown" ? "peek" : "turn"}
             >
-              <Character asset="cham" className="cham-rival" />
+              <Character
+                asset={chamPoses[rivalDirection]}
+                className="cham-rival"
+                priority
+              />
               {seekerTell && (
                 <>
                   <span className="cham-tell-lines" aria-hidden="true">
@@ -548,7 +524,11 @@ export function ChamGamePage({
               )}
             </div>
           ) : (
-            <Character asset="cham" className="cham-rival" />
+            <Character
+              asset={chamPoses[rivalDirection]}
+              className="cham-rival"
+              priority
+            />
           )}
           <div className="cham-cue" data-phase={phase} aria-live="polite">
             {phase === "countdown" ? (
@@ -653,7 +633,54 @@ export function ChamGamePage({
                     )}
                   </small>
                 </h2>
-                {seeker && <p>{t("seekerHint")}</p>}
+                {phase === "ready" && (
+                  <div
+                    className="game-mode-choice"
+                    role="group"
+                    aria-label={t("gameMode")}
+                  >
+                    <button
+                      data-hand-click
+                      aria-pressed={!hard && !seeker}
+                      className={!hard && !seeker ? "active" : ""}
+                      onClick={() => {
+                        setHard(false);
+                        setChoice(null);
+                        setParams({});
+                      }}
+                    >
+                      {t("standardMode")}
+                    </button>
+                    <button
+                      data-hand-click
+                      aria-pressed={hard}
+                      className={hard ? "active" : ""}
+                      onClick={() => {
+                        setHard(true);
+                        setChoice(null);
+                        setParams({});
+                      }}
+                    >
+                      {t("hardMode")}
+                    </button>
+                    <button
+                      data-hand-click
+                      aria-pressed={seeker}
+                      className={seeker ? "active" : ""}
+                      onClick={() => {
+                        setHard(false);
+                        setChoice(null);
+                        setCalibrating(false);
+                        setParams({ role: "seeker" });
+                      }}
+                    >
+                      {t("seekerMode")}
+                    </button>
+                  </div>
+                )}
+                {seeker && (
+                  <p>{t("seekerHint", { seconds: responseMs / 1000 })}</p>
+                )}
                 <p hidden={seeker}>
                   {text(
                     `10라운드 · 화살표가 나타나면 ${responseMs / 1000}초 안에 다른 방향을 선택하세요.`,
@@ -739,74 +766,42 @@ export function ChamResultPage({ tone }: { tone: (kind?: SoundCue) => void }) {
       </section>
     );
   return (
-    <div className="cham-result">
-      <h1 className="result-heading yellow-text">{t("clear")}</h1>
-      <ResultCelebration
-        newBest={result.newBest}
-        score={result.score}
-        onCelebrate={(record) => tone(record ? "newBest" : "result")}
-      />
-      <div className="result-with-achievements">
-        <section className="panel cham-result-panel">
-          <Character asset="cham" />
-          <div>
-            <h2>{t("cham")}</h2>
-            <p>{result.newBest ? t("newBest") : t("nice")}</p>
-            <div className="result-stats">
-              <div>
-                <span className="pink">{t("score")}</span>
-                <b>
-                  <CountUp value={result.score} />
-                </b>
-              </div>
-              <div>
-                <span className="cyan">{ko ? "피한 횟수" : "DODGED"}</span>
-                <b>
-                  <CountUp value={result.wins} />
-                  <small> / 10</small>
-                </b>
-              </div>
-            </div>
-            <p className="best-comparison">
-              <Trophy />
-              {t("best")}{" "}
-              <b>{localBest("cham", result.gameMode ?? "standard")}</b>
-            </p>
-            <div className="cham-rounds">
-              {result.rounds.map((r, i) => (
-                <span
-                  key={i}
-                  className={r.win ? "won" : "lost"}
-                  title={`${i + 1}: ${arrows[r.computer]} / ${r.player ? arrows[r.player] : "—"}`}
-                >
-                  {r.win ? "✓" : "✕"}
-                </span>
-              ))}
-            </div>
-            {!result.saved && <p role="alert">{t("recordError")}</p>}
-          </div>
-        </section>
-        <ResultAchievements gameId="cham" />
-      </div>
-      <div className="result-actions">
-        <Link
-          className="arcade-button pink"
-          to={
+    <GameResult
+      game="cham"
+      score={result.score}
+      best={localBest("cham", result.gameMode ?? "standard")}
+      stats={[
+        {
+          label:
             result.gameMode === "seeker"
-              ? "/play/cham?role=seeker"
-              : "/play/cham"
-          }
-        >
-          <RotateCcw />
-          {t("replay")}
-        </Link>
-        <Link className="arcade-button cyan" to="/games">
-          {t("next")}
-        </Link>
-        <Link className="arcade-button white" to="/">
-          {t("toHome")}
-        </Link>
+              ? ko
+                ? "잡은 횟수"
+                : "CAUGHT"
+              : ko
+                ? "피한 횟수"
+                : "DODGED",
+          value: result.wins,
+          unit: " / 10",
+        },
+      ]}
+      newBest={result.newBest}
+      saved={result.saved}
+      tone={tone}
+      replay={
+        result.gameMode === "seeker" ? "/play/cham?role=seeker" : "/play/cham"
+      }
+    >
+      <div className="cham-rounds">
+        {result.rounds.map((r, i) => (
+          <span
+            key={i}
+            className={r.win ? "won" : "lost"}
+            title={`${i + 1}: ${arrows[r.computer]} / ${r.player ? arrows[r.player] : "—"}`}
+          >
+            {r.win ? "✓" : "✕"}
+          </span>
+        ))}
       </div>
-    </div>
+    </GameResult>
   );
 }

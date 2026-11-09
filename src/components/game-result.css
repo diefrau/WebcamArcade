@@ -1,0 +1,133 @@
+.game-result {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+}
+.game-result .result-heading {
+  font-size: clamp(43px, 7vw, 100px);
+  margin: 8px 0 14px;
+  text-align: center;
+}
+.game-result .result-heading > span:last-child {
+  display: inline-block;
+  margin-left: 0.15em;
+}
+.game-result-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 330px);
+  align-items: start;
+  gap: 24px;
+}
+.game-result-layout[data-solo="true"] {
+  grid-template-columns: minmax(0, 820px);
+  justify-content: center;
+}
+.game-result .result-panel,
+.game-result .result-achievements {
+  min-width: 0;
+  padding: clamp(14px, 2vw, 24px);
+  border: 4px solid var(--ink);
+  border-radius: 24px;
+  background: #fffbed;
+  box-shadow:
+    5px 6px var(--ink),
+    0 0 0 4px #fffbed;
+}
+.game-result .result-panel::before {
+  content: none;
+}
+.game-result .result-game {
+  gap: clamp(12px, 2vw, 24px);
+}
+.game-result .result-thumbnail {
+  display: grid;
+  place-items: center;
+  flex: 0 0 clamp(94px, 16vw, 205px);
+  width: auto;
+  height: clamp(90px, 13vw, 155px);
+  padding: 6px;
+}
+.game-result .result-thumbnail .character {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  filter: drop-shadow(2px 3px #0003);
+}
+.game-result .result-game h2 {
+  font-size: clamp(23px, 4vw, 52px);
+  margin: 0 0 5px;
+  -webkit-text-stroke-width: clamp(3px, 0.5vw, 7px);
+}
+.game-result .result-stats {
+  padding: 10px 3px;
+}
+.game-result .result-stats > div {
+  flex: 1 1 0;
+  min-width: 0;
+  padding-inline: 2px;
+}
+.game-result .result-stats > div > span {
+  font-size: clamp(11px, 1.6vw, 16px);
+  padding-inline: 7px;
+}
+.game-result .result-stats b {
+  font-size: clamp(19px, 3.3vw, 48px);
+  overflow-wrap: anywhere;
+}
+.game-result .result-stats b span {
+  font: inherit;
+  padding: 0;
+  transform: none;
+}
+.game-result .result-stats small {
+  font-size: 0.5em;
+}
+.game-result-side {
+  display: grid;
+  min-width: 0;
+  gap: 16px;
+}
+.game-result-camera {
+  padding: 12px;
+}
+.game-result-camera summary {
+  font-weight: 900;
+  cursor: pointer;
+}
+.game-result-camera .webcam-frame {
+  min-height: 170px;
+  margin-top: 10px;
+}
+.game-result .result-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+.game-result .result-actions .arcade-button {
+  flex: 0 1 auto;
+  min-width: 0;
+  min-height: 48px;
+  padding: 10px 18px;
+  font-size: clamp(14px, 2vw, 23px);
+  white-space: normal;
+  text-align: center;
+}
+.game-result .result-actions svg {
+  width: 1em;
+  height: 1em;
+  flex-shrink: 0;
+}
+@media (max-width: 800px) {
+  .game-result-layout {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .game-result .result-achievements ol {
+    max-height: 260px;
+  }
+  .game-result .result-actions .arcade-button {
+    flex: 1 1 40%;
+  }
+}

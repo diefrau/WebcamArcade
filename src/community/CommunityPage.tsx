@@ -220,7 +220,7 @@ export function CommunityPage({
                 aria-pressed={game === id}
                 onClick={() => {
                   setGame(id);
-                  setGameMode("standard");
+                  setGameMode(gameModes[id][0]);
                 }}
               >
                 {t(id)}
@@ -241,14 +241,16 @@ export function CommunityPage({
                 {t(
                   (
                     {
-                      endless: "endlessMode",
-                      "vertical-endless": "verticalEndlessMode",
+                      endless:
+                        game === "dodge" ? "dodgeSurvivalMode" : "endlessMode",
+                      "vertical-endless": "dodgeVerticalSurvivalMode",
                       seeker: "seekerMode",
-                      standard: "standardMode",
+                      standard:
+                        game === "dodge" ? "dodgeHardMode" : "standardMode",
                       hard: "hardMode",
                       wave: "waveMode",
                       survival: "survivalMode",
-                      vertical: "verticalMode",
+                      vertical: "dodgeVerticalHardMode",
                       "vertical-survival": "verticalSurvivalMode",
                     } as const
                   )[mode],
@@ -277,8 +279,7 @@ export function CommunityPage({
                         count: devicePerfects,
                       })}
                     >
-                      ×{" "}
-                      {devicePerfects.toLocaleString()}
+                      × {devicePerfects.toLocaleString()}
                     </small>
                   )}
               </div>

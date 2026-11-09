@@ -367,9 +367,9 @@ test("circle webcam connection selects hand input, draws and preserves path on t
     page.getByRole("heading", { name: "잠깐 쉬어갈까?" }),
   ).toBeVisible();
   const pausedCount = await page.locator(".circle-score b").textContent();
-  const remaining = await page.locator(".circle-timer b").textContent();
+  const remaining = await page.locator(".timer-bar b").textContent();
   await page.waitForTimeout(1100);
-  await expect(page.locator(".circle-timer b")).toHaveText(remaining!);
+  await expect(page.locator(".timer-bar b")).toHaveText(remaining!);
   await expect(page.locator(".circle-score b")).toHaveText(pausedCount!);
   await send(0.68, 0.65);
   await page.getByRole("button", { name: "계속하기", exact: true }).click();

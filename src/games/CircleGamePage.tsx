@@ -1,5 +1,4 @@
 import { classifyRps } from "./rpsRules";
-import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type React from "react";
@@ -10,11 +9,9 @@ import {
   Check,
   CircleHelp,
   Hand,
-  Home,
   MousePointer2,
   Pause,
   Play,
-  RotateCcw,
   Target,
   Trophy,
   X,
@@ -26,7 +23,8 @@ import { HandMenuCursor } from "../components/HandMenuCursor";
 import { Character } from "../components/Character";
 import "./circle.css";
 import { useGameInput } from "../vision/useGameInput";
-import { CountUp, ResultCelebration } from "../components/ResultCelebration";
+import { GameResult } from "../components/GameResult";
+import { GameTimer } from "../components/GameTimer";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { DrawingCursor } from "../vision/DrawingCursor";
 import { InputCoach } from "../components/InputCoach";
@@ -506,14 +504,7 @@ export function CircleGamePage({
         <button className="circle-back" onClick={() => navigate("/games")}>
           <ArrowLeft /> {t("back")}
         </button>
-        <div className="circle-timer">
-          <span>◷ {t("time")}</span>
-          <progress max="20" value={time} />
-          <b>
-            {time}
-            <small>s</small>
-          </b>
-        </div>
+        <GameTimer seconds={time} duration={20} />
         <ArcadeButton
           color="white"
           onClick={() =>
@@ -705,78 +696,19 @@ export function CircleResultPage({
       </div>
     );
   return (
-    <div className="circle-result">
-      <h1 className="result-heading">
-        <span className="yellow-text">{t("circleClear")}</span>
-        <span>✦</span>
-      </h1>
-      <ResultCelebration
-        newBest={result.newBest}
-        score={result.score}
-        onCelebrate={(record) => tone(record ? "newBest" : "result")}
-      />
-      <div className="circle-result-grid result-achievement-layout">
-        <section className="circle-result-art panel">
-          <Character asset="circle" />
-          <span className="circle-art-badge">
-            {result.newBest ? t("newBest") : t("keepGoing")}
-          </span>
-          <p>{t("circleResultSub")}</p>
-        </section>
-        <section className="result-panel panel">
-          <div className="result-game">
-            <div className="result-thumbnail cyan">
-              <Character asset="circle" />
-            </div>
-            <div>
-              <span className="circle-sticker">{t("circle")}</span>
-              <h2>{t("circle")}</h2>
-              <p>{t("circleDesc")}</p>
-            </div>
-          </div>
-          <div className="result-stats">
-            <div>
-              <span className="pink">{t("circleScore")}</span>
-              <b>
-                <CountUp value={result.score} />
-              </b>
-            </div>
-            <div>
-              <span className="cyan">{t("accuracy")}</span>
-              <b>
-                <CountUp value={result.accuracy} />
-                <small>%</small>
-              </b>
-            </div>
-            <div>
-              <span className="lime">{t("points")}</span>
-              <b>
-                <CountUp value={result.points} />
-              </b>
-            </div>
-          </div>
-          <div className="best-comparison">
-            <Trophy fill="var(--yellow)" />
-            <strong>{t("best")}</strong>
-            <b>{best.toLocaleString()}</b>
-          </div>
-        </section>
-        <ResultAchievements gameId="circle" />
-      </div>
-      <div className="result-actions">
-        <ArcadeButton onClick={() => navigate("/play/circle")}>
-          <RotateCcw />
-          {t("replay")}
-        </ArcadeButton>
-        <ArcadeButton color="cyan" onClick={() => navigate("/games")}>
-          <Play />
-          {t("next")}
-        </ArcadeButton>
-        <ArcadeButton color="white" onClick={() => navigate("/")}>
-          <Home />
-          {t("toHome")}
-        </ArcadeButton>
-      </div>
-    </div>
+    <GameResult
+      game="circle"
+      heading={t("circleClear")}
+      score={result.score}
+      scoreLabel={t("circleScore")}
+      best={best}
+      stats={[
+        { label: t("accuracy"), value: result.accuracy, unit: "%" },
+        { label: t("points"), value: result.points },
+      ]}
+      newBest={result.newBest}
+      tone={tone}
+      replay="/play/circle"
+    />
   );
 }

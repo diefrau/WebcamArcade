@@ -1,13 +1,3 @@
-.gate-layout {
-  display: grid;
-  grid-template-columns: minmax(140px, 1fr) minmax(0, 4fr) minmax(230px, 1.5fr);
-  gap: 20px;
-  align-items: start;
-}
-.gate-hud {
-  display: grid;
-  gap: 16px;
-}
 .gate-stage {
   position: relative;
   overflow: hidden;
@@ -105,30 +95,17 @@
 .gate-rounds .settled {
   background: var(--lime);
 }
-.gate-result-card {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 24px;
-  text-align: center;
-}
-.gate-result-card > .character {
-  height: 160px;
-  width: auto;
-}
-.gate-result-card ol {
+.gate-round-results {
   padding: 0;
   list-style: none;
 }
-.gate-result-card li {
+.gate-round-results li {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px;
   border-bottom: 2px dashed #aaa;
-}
-.gate-result-card h2 {
-  font-size: 48px;
-  margin: 10px;
 }
 .gate-stage .game-dialog .character {
   max-height: 140px;
@@ -156,34 +133,9 @@
   background: #fff7;
   padding: 12px;
 }
-.gate-result-card p {
-  font-weight: 900;
-}
-@media (max-width: 1100px) {
-  .gate-layout {
-    grid-template-columns: 170px minmax(0, 1fr);
-  }
-  .gate-input {
-    grid-column: 1/-1;
-  }
-  .gate-input label {
-    display: inline-grid;
-    width: calc(50% - 20px);
-    margin: 14px 10px;
-  }
-}
 @media (max-width: 650px) {
-  .gate-layout {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .gate-hud {
-    grid-template-columns: 1fr 1fr;
-  }
   .gate-demo {
     display: none;
-  }
-  .gate-input {
-    grid-column: auto;
   }
   .gate-stage {
     min-height: 420px;
@@ -192,21 +144,12 @@
     width: 100%;
     margin-inline: 0;
   }
-  .gate-result-card li {
-    font-size: 13px;
-  }
-  .gate-result-card h2 {
-    font-size: 38px;
-  }
   .gate-caption strong {
     font-size: 14px;
     padding: 6px;
   }
   .gate-world {
     min-height: 280px;
-  }
-  .gate-result .result-actions {
-    flex-wrap: wrap;
   }
 }
 .gate-stage .game-dialog .character {

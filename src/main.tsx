@@ -1,5 +1,4 @@
 import { GateGamePage, GateResultPage } from "./games/GateGamePage";
-import { ResultAchievements } from "./achievements/ResultAchievements";
 import { CommunityPage } from "./community/CommunityPage";
 import { recordPlay } from "./community/client";
 import { localBest } from "./community/store";
@@ -53,7 +52,6 @@ import {
   MousePointer2,
   Pause,
   Play,
-  RotateCcw,
   Save,
   Settings,
   Smile,
@@ -75,6 +73,7 @@ import "./comic.css";
 import { ComicDecor, RangeScenery } from "./components/ComicArt";
 import { Character } from "./components/Character";
 import { gameCharacterMap } from "./assets/characters";
+import { shootTargets } from "./assets/characters/shootTargets";
 import { CameraProvider, useCamera } from "./vision/CameraProvider";
 import { WebcamFrame } from "./components/WebcamFrame";
 import { HandMenuCursor } from "./components/HandMenuCursor";
@@ -89,12 +88,9 @@ import { RouteContent } from "./components/RouteContent";
 import "./motion.css";
 import "./responsive.css";
 import { RpsGamePage, RpsResultPage, readRps } from "./games/RpsGamePage";
-import {
-  DodgeGamePage,
-  DodgeResultPage,
-  readDodge,
-} from "./games/DodgeGamePage";
-import { CountUp, ResultCelebration } from "./components/ResultCelebration";
+import { DodgeGamePage, DodgeResultPage, readDodge } from "./games/DodgeGamePage";
+import { GameResult } from "./components/GameResult";
+import { GameTimer } from "./components/GameTimer";
 import {
   SoundManager,
   type SoundCue,
@@ -172,143 +168,6 @@ const games: { id: GameId; color: string; duration: number; badge: string }[] =
     { id: "dodge", color: "orange", duration: 30, badge: "new" },
   ];
 
-function Mascot({ mini = false }: { mini?: boolean }) {
-  return (
-    <svg
-      className={mini ? "mascot mini" : "mascot"}
-      viewBox="0 0 300 330"
-      aria-hidden="true"
-    >
-      <g stroke="var(--ink)" strokeWidth="8" strokeLinejoin="round">
-        <path
-          fill="var(--cyan)"
-          d="M81 145C32 56 57 16 82 31c22 12 34 66 37 100M168 126c8-81 32-112 52-95 22 22-3 76-13 111"
-        />
-        <path fill="var(--pink)" d="M55 230C-2 216 5 176 32 178l52 32" />
-        <path
-          fill="var(--paper)"
-          d="M63 282C13 305 5 271 35 248l26-19c-15-77 28-115 89-117 77-4 117 50 101 111 67-39 65 18 17 48-17 38-66 57-123 54-42-1-66-15-82-43Z"
-        />
-        <path fill="var(--lime)" d="M242 298 291 134l36 42-36 155" />
-      </g>
-      <ellipse cx="122" cy="186" rx="10" ry="18" />
-      <path
-        d="m183 174-14 13 17 7"
-        fill="none"
-        stroke="var(--ink)"
-        strokeWidth="9"
-        strokeLinecap="round"
-      />
-      <path
-        d="M133 213q17 12 34-3c-2 54-30 52-34 3"
-        fill="var(--pink)"
-        stroke="var(--ink)"
-        strokeWidth="6"
-      />
-      <ellipse
-        cx="92"
-        cy="217"
-        rx="16"
-        ry="9"
-        fill="var(--pink)"
-        opacity=".5"
-      />
-      <ellipse
-        cx="199"
-        cy="210"
-        rx="16"
-        ry="9"
-        fill="var(--pink)"
-        opacity=".5"
-      />
-    </svg>
-  );
-}
-function GameArt({ id }: { id: GameId }) {
-  return (
-    <svg className="game-art" viewBox="0 0 260 200" aria-hidden="true">
-      {id === "shoot" ? (
-        <>
-          <g transform="translate(177 89) rotate(12)">
-            <ellipse
-              rx="62"
-              ry="76"
-              fill="#ff6258"
-              stroke="#111"
-              strokeWidth="5"
-            />
-            <ellipse rx="46" ry="60" fill="#fff7e7" />
-            <ellipse rx="31" ry="43" fill="#ff6258" />
-            <ellipse rx="17" ry="26" fill="#fff7e7" />
-            <ellipse rx="8" ry="13" fill="#34c8ff" />
-          </g>
-          <path
-            d="m178 86-62-10m9-3-17 1 10 12"
-            stroke="#111"
-            strokeWidth="6"
-            strokeLinecap="round"
-          />
-          <g fill="#fff7e7" stroke="#111" strokeWidth="6">
-            <circle cx="76" cy="107" r="25" />
-            <path d="M31 199q0-52 41-65l49-24q12-2 10 9l-24 24-12 56" />
-          </g>
-        </>
-      ) : id === "circle" ? (
-        <>
-          <ellipse
-            cx="137"
-            cy="99"
-            rx="80"
-            ry="68"
-            fill="none"
-            stroke="#ffd927"
-            strokeWidth="16"
-            transform="rotate(-30 137 99)"
-          />
-          <path
-            d="M88 48c76-63 156 16 115 84"
-            fill="none"
-            stroke="#ff4fa3"
-            strokeWidth="15"
-            strokeLinecap="round"
-          />
-          <g
-            fill="#fff7e7"
-            stroke="#111"
-            strokeWidth="6"
-            strokeLinejoin="round"
-          >
-            <circle cx="131" cy="70" r="23" />
-            <path d="m116 98-33-15q-18-5-13 10l35 31-20 36q-8 16 8 17l37-31 21 34q12 10 18-3l-15-55 38-26q12-15-4-19l-43 22Z" />
-          </g>
-        </>
-      ) : (
-        <>
-          <path
-            d="m137 18 12 34 39-20-5 38 48 8-35 30 37 31-47 6 4 39-39-19-19 33-16-36-36 13 5-38-35-14 35-20-14-38 39 9Z"
-            fill="#ffd927"
-          />
-          <g
-            fill="#fff7e7"
-            stroke="#111"
-            strokeWidth="6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="m119 112-29-12q-16-10-7-18 5-4 24 4L96 48q-3-14 9-14l22 44 10-49q5-12 15-3l-6 54 30-25q14-8 16 5l-35 46-11 37-42 46-39-18Z" />
-            <path d="M34 189 53 143q-6-28 10-30 17-18 25-4 23-3 25 14 15 6 9 23l-18 14-14 39" />
-          </g>
-        </>
-      )}
-      <path
-        d="m35 23 5 12 14 1-10 9 2 14-12-7-12 7 3-14-10-10 14-1Z"
-        fill="#fff7e7"
-        stroke="#111"
-        strokeWidth="3"
-      />
-    </svg>
-  );
-}
 function Button({
   children,
   color = "pink",
@@ -419,23 +278,34 @@ function Header({
     </header>
   );
 }
-function GameCard({ id, color, duration, badge }: (typeof games)[number]) {
+function GameCard({
+  id,
+  color,
+  duration,
+  badge,
+}: Omit<(typeof games)[number], "id"> & { id: GameId | "gate" }) {
   const { t } = useTranslation();
-  const available = true;
+  const title = t(id === "gate" ? "gate.title" : id);
   return (
     <Link
-      to={available ? `/play/${id}` : "/games"}
-      className={`game-card ${color} ${available ? "available" : ""}`}
-      aria-label={`${t(id)} ${available ? t("playNow") : t("soon")}`}
+      to={`/play/${id}`}
+      className={`game-card ${color} available`}
+      aria-label={`${title} ${t("playNow")}`}
     >
       <Sticker
-        color={id === "cham" ? "orange" : id === "circle" ? "yellow" : "cyan"}
+        color={
+          id === "cham"
+            ? "orange"
+            : id === "circle" || id === "gate"
+              ? "yellow"
+              : "cyan"
+        }
       >
         {id === "cham" && <Crown size={19} />} {t(badge)}
       </Sticker>
       <div className="card-copy">
-        <h3>{t(id)}</h3>
-        <p>{t(`${id}Desc`)}</p>
+        <h3>{title}</h3>
+        <p>{t(id === "gate" ? "gate.instruction" : `${id}Desc`)}</p>
       </div>
       <Character asset={gameCharacterMap[id]} className="card-character" />
       <div className="card-bottom">
@@ -443,15 +313,16 @@ function GameCard({ id, color, duration, badge }: (typeof games)[number]) {
           <UserRound size={17} />
           {t("onePlayer")}
         </span>
-        <span>◷ {t("seconds", { count: duration })}</span>
-        <InputBadge game={id} />
-        {available ? (
-          <span className="card-arrow">
-            <ArrowRight />
-          </span>
-        ) : (
-          <small>{t("soon")}</small>
-        )}
+        <span>
+          ◷{" "}
+          {id === "dodge"
+            ? t("dodgeSurvivalMode")
+            : t("seconds", { count: duration })}
+        </span>
+        {id === "gate" ? <InputBadge kind="body" /> : <InputBadge game={id} />}
+        <span className="card-arrow" aria-hidden="true">
+          <ArrowRight />
+        </span>
       </div>
     </Link>
   );
@@ -464,6 +335,7 @@ function RecordsBar() {
   const cham = readCham();
   const rps = readRps();
   const dodge = readDodge();
+  const dodgeBest = localBest("dodge", "endless");
   return (
     <section className="records-bar">
       <div className="records-title">
@@ -529,8 +401,8 @@ function RecordsBar() {
         <div>
           <span>{t("dodge")}</span>
           <b>
-            {dodge.plays ? dodge.best.toLocaleString() : "—"}
-            <small>{dodge.plays ? t("points") : ""}</small>
+            {dodgeBest > 0 ? dodgeBest.toLocaleString() : "—"}
+            <small>{dodgeBest > 0 ? t("points") : ""}</small>
           </b>
         </div>
       </div>
@@ -664,50 +536,14 @@ function GamesPage() {
               .map((g) => (
                 <GameCard key={g.id} {...g} />
               ))}
-            {filter !== "face" &&
-              [
-                {
-                  key: "futurePose",
-                  color: "purple",
-                  art: "circle",
-                  input: "body",
-                },
-              ]
-                .filter((game) => filter !== "hand" || game.input === "hand")
-                .map((game) => (
-                  <Link
-                    to="/play/gate"
-                    className={`future-card ${game.color}`}
-                    key={game.key}
-                    aria-label={`${t("gate.title")} ${t("playNow")}`}
-                  >
-                    <Sticker
-                      color={game.color === "orange" ? "pink" : "yellow"}
-                    >
-                      {t("gate.prototype")}
-                    </Sticker>
-                    <div className="card-copy">
-                      <h3>{t("gate.title")}</h3>
-                      <p>{t("gate.instruction")}</p>
-                    </div>
-                    <Character
-                      asset={
-                        gameCharacterMap[
-                          game.key as "futureRps" | "futureDodge" | "futurePose"
-                        ]
-                      }
-                      className="card-character"
-                    />
-                    <div className="card-bottom">
-                      <span>
-                        <UserRound size={17} />
-                        {t("onePlayer")}
-                      </span>
-                      <span>◷ {t("seconds", { count: 30 })}</span>
-                      <small>{t("playNow")} →</small>
-                    </div>
-                  </Link>
-                ))}
+            {filter !== "face" && filter !== "hand" && (
+              <GameCard
+                id="gate"
+                color="purple"
+                duration={30}
+                badge="gate.prototype"
+              />
+            )}
           </div>
         </div>
         <aside className="selection-side">
@@ -779,53 +615,26 @@ function GamesPage() {
   );
 }
 
-type TargetData = { x: number; y: number; kind: number; id: number };
+type TargetData = { x: number; y: number; kind: 0 | 1 | 2; id: number };
+type ShotFeedback = { kind: "hit"; targetId: number } | { kind: "miss" };
 const initialTargets: TargetData[] = [
   { x: 23, y: 57, kind: 0, id: 1 },
   { x: 50, y: 40, kind: 1, id: 2 },
   { x: 77, y: 58, kind: 2, id: 3 },
 ];
-function TargetCharacter({ kind }: { kind: number }) {
+function TargetCharacter({
+  kind,
+  hit,
+}: {
+  kind: TargetData["kind"];
+  hit: boolean;
+}) {
+  const sprite = shootTargets[kind];
   return (
-    <svg viewBox="0 0 140 180" aria-hidden="true">
-      <g stroke="#111" strokeWidth="5" strokeLinejoin="round">
-        {kind === 0 ? (
-          <path
-            fill="#ffd927"
-            d="M31 77C12 22 115 17 108 78c48 14 19 65-34 68C17 146-4 98 31 77Z"
-          />
-        ) : kind === 1 ? (
-          <path
-            fill="#fff7e7"
-            d="M38 77C0 8 43-7 58 61l17-1c12-65 58-64 39 6-3 8-6 13-9 18 44 81-96 80-67-7Z"
-          />
-        ) : (
-          <path
-            fill="#34c8ff"
-            d="m68 21 25 44 44 5-32 36 8 47-42-19-46 20 8-47L2 72l46-9Z"
-          />
-        )}
-      </g>
-      <ellipse cx="54" cy="86" rx="5" ry="8" />
-      <ellipse cx="85" cy="86" rx="5" ry="8" />
-      <path d="M62 98q9 13 16-1" fill="#ff4fa3" stroke="#111" strokeWidth="3" />
-      <circle
-        cx="71"
-        cy="128"
-        r="30"
-        fill="#ff6258"
-        stroke="#111"
-        strokeWidth="3"
-      />
-      <circle cx="71" cy="128" r="20" fill="#fff7e7" />
-      <circle cx="71" cy="128" r="10" fill="#ff6258" />
-      <path
-        d="M15 168h112v12H15Z"
-        fill="#b8793c"
-        stroke="#111"
-        strokeWidth="4"
-      />
-    </svg>
+    <>
+      <img src={sprite.idle} alt="" draggable={false} hidden={hit} />
+      <img src={sprite.hit} alt="" draggable={false} hidden={!hit} />
+    </>
   );
 }
 function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
@@ -861,7 +670,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
   const [combo, setCombo] = useState(0);
   const [lives, setLives] = useState(5);
   const [targets, setTargets] = useState(initialTargets);
-  const [feedback, setFeedback] = useState("");
+  const [feedback, setFeedback] = useState<ShotFeedback | null>(null);
   const [cursor, setCursor] = useState({ x: 50, y: 50 });
   const stats = useRef({
     score: 0,
@@ -984,9 +793,9 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
   }, [phase, endless]);
   useEffect(() => {
     if (!feedback) return;
-    const timer = setTimeout(() => setFeedback(""), 550);
+    const timer = setTimeout(() => setFeedback(null), 550);
     return () => clearTimeout(timer);
-  }, [feedback, score, lives]);
+  }, [feedback]);
   useEffect(() => {
     const handle = () => {
       if (document.hidden) setPhase((p) => (p === "playing" ? "paused" : p));
@@ -1036,7 +845,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       );
       setScore(s.score);
       setCombo(s.combo);
-      setFeedback("hit");
+      setFeedback({ kind: "hit", targetId: id });
       tone("shoot.hit");
       if (wave && s.hits >= 12) {
         finishRef.current();
@@ -1059,7 +868,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
       s.lives--;
       setCombo(0);
       setLives(s.lives);
-      setFeedback("miss");
+      setFeedback({ kind: "miss" });
       tone("shoot.miss");
       if (s.lives <= 0) finishRef.current();
     }
@@ -1071,14 +880,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
         <Link to="/games" className="back-link">
           ← {t("back")}
         </Link>
-        <div className="timer-bar">
-          <span>◷ {t(endless ? "elapsedTime" : "time")}</span>
-          {!endless && <progress max="30" value={time} />}
-          <b>
-            {time}
-            <small>s</small>
-          </b>
-        </div>
+        <GameTimer seconds={time} duration={endless ? undefined : 30} />
         <Button
           color="white"
           onClick={() =>
@@ -1091,49 +893,6 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
         >
           <Pause />
         </Button>
-      </div>
-      <div className="game-mode-choice" role="group" aria-label={t("gameMode")}>
-        <button
-          data-hand-click
-          disabled={phase !== "ready"}
-          aria-pressed={!wave && !endless}
-          className={!wave && !endless ? "active" : ""}
-          onClick={() => {
-            setWave(false);
-            setEndless(false);
-            setTime(30);
-          }}
-        >
-          {t("standardMode")}
-        </button>
-        <button
-          data-hand-click
-          disabled={phase !== "ready"}
-          aria-pressed={wave}
-          className={wave ? "active" : ""}
-          onClick={() => {
-            setWave(true);
-            setEndless(false);
-            setTime(30);
-          }}
-        >
-          {t("waveMode")}
-        </button>
-        <button
-          data-hand-click
-          disabled={phase !== "ready"}
-          aria-pressed={endless}
-          className={endless ? "active" : ""}
-          onClick={() => {
-            setWave(false);
-            setEndless(true);
-            setTime(0);
-          }}
-        >
-          {t("endlessMode")}
-        </button>
-        {endless && <span>{t("endlessHint")}</span>}
-        {wave && <span>{stats.current.hits} / 12</span>}
       </div>
       <div
         className="input-mode-switch"
@@ -1197,7 +956,12 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
               color: "lime",
               icon: null,
             },
-            { key: "round", value: "1 / 1", color: "purple", icon: null },
+            {
+              key: wave ? "waveMode" : "round",
+              value: wave ? `${stats.current.hits} / 12` : "1 / 1",
+              color: "purple",
+              icon: null,
+            },
           ].map((s) => (
             <section className={`hud-panel ${s.color}`} key={s.key}>
               <h3>{t(s.key)}</h3>
@@ -1236,10 +1000,10 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
             )}
           </div>
           <h1
-            key={`${feedback}-${score}-${lives}`}
-            className={`game-command ${feedback ? "bounce-feedback" : ""} ${feedback === "miss" ? "pink-text" : "yellow-text"}`}
+            key={`${feedback?.kind}-${score}-${lives}`}
+            className={`game-command ${feedback ? "bounce-feedback" : ""} ${feedback?.kind === "miss" ? "pink-text" : "yellow-text"}`}
           >
-            {t(feedback || "shootCommand")}
+            {t(feedback?.kind ?? "shootCommand")}
           </h1>
           <span className="wood-sign">
             HIT THE
@@ -1261,7 +1025,12 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                 if (inputMode === "mouse") shot(target.id);
               }}
             >
-              <TargetCharacter kind={target.kind} />
+              <TargetCharacter
+                kind={target.kind}
+                hit={
+                  feedback?.kind === "hit" && feedback.targetId === target.id
+                }
+              />
             </button>
           ))}
           <div className="range-counter" />
@@ -1304,6 +1073,50 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                     )}
                   </small>
                 </h2>
+                {phase === "ready" && (
+                  <div
+                    className="game-mode-choice"
+                    role="group"
+                    aria-label={t("gameMode")}
+                  >
+                    <button
+                      data-hand-click
+                      aria-pressed={!wave && !endless}
+                      className={!wave && !endless ? "active" : ""}
+                      onClick={() => {
+                        setWave(false);
+                        setEndless(false);
+                        setTime(30);
+                      }}
+                    >
+                      {t("standardMode")}
+                    </button>
+                    <button
+                      data-hand-click
+                      aria-pressed={wave}
+                      className={wave ? "active" : ""}
+                      onClick={() => {
+                        setWave(true);
+                        setEndless(false);
+                        setTime(30);
+                      }}
+                    >
+                      {t("waveMode")}
+                    </button>
+                    <button
+                      data-hand-click
+                      aria-pressed={endless}
+                      className={endless ? "active" : ""}
+                      onClick={() => {
+                        setWave(false);
+                        setEndless(true);
+                        setTime(0);
+                      }}
+                    >
+                      {t("endlessMode")}
+                    </button>
+                  </div>
+                )}
                 <p>
                   {t(
                     phase === "ready" && endless
@@ -1366,6 +1179,7 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
         </div>
         <aside className="play-side">
           <WebcamFrame compact />
+          <h1>{t("shoot")}</h1>
           <section className="panel instructions">
             <h2>{t("controls")}</h2>
             <div>
@@ -1398,7 +1212,6 @@ function PlayPage({ onFinish }: { onFinish: (r: Result) => void }) {
                   : "CLICK & POP!"}
             </span>
           </section>
-          <Mascot mini />
         </aside>
       </div>
       <div className="play-hint panel">
@@ -1424,109 +1237,19 @@ function ResultPage() {
       </div>
     );
   return (
-    <>
-      <h1 className="result-heading">
-        <span className="yellow-text">
-          {Array.from(t("clear")).map((letter, index) => (
-            <span className="clear-letter" key={index}>
-              {letter}
-            </span>
-          ))}
-        </span>
-        <span>✦</span>
-      </h1>
-      <ResultCelebration
-        newBest={r.newBest}
-        score={r.score}
-        onCelebrate={(record) => tone(record ? "newBest" : "result")}
-      />
-      <div className="result-layout result-achievement-layout">
-        <aside className="result-moment">
-          <WebcamFrame compact />
-          <p>
-            {t("nice")} <Smile />
-          </p>
-          <Mascot />
-        </aside>
-        <section className="result-panel panel">
-          <div className="result-game">
-            <div className="result-thumbnail lime">
-              <GameArt id="shoot" />
-            </div>
-            <div>
-              <Sticker>{t(r.newBest ? "newBest" : "keepGoing")}</Sticker>
-              <h2>{t("shoot")}</h2>
-              <p>{t("shootDesc")}</p>
-            </div>
-          </div>
-          <div className="result-stats">
-            <div>
-              <span className="pink">SCORE</span>
-              <b>
-                <CountUp value={r.score} />
-              </b>
-            </div>
-            <div>
-              <span className="cyan">COMBO</span>
-              <b>
-                <CountUp value={r.combo} />
-              </b>
-            </div>
-            <div>
-              <span className="lime">{t("accuracy")}</span>
-              <b>
-                <CountUp value={r.accuracy} />
-                <small>%</small>
-              </b>
-            </div>
-          </div>
-          <div className="best-comparison">
-            <Crown fill="var(--yellow)" />
-            <strong>{t("best")}</strong>
-            <b>
-              {localBest(
-                "shoot",
-                r.evidence?.gameMode ?? "standard",
-              ).toLocaleString()}
-            </b>
-          </div>
-          <div className="result-badges">
-            {[
-              ...(r.accuracy >= 80 && r.hits > 0
-                ? [{ key: "badgeAim", icon: Target, color: "cyan" }]
-                : []),
-              ...(r.combo >= 5
-                ? [{ key: "badgeCombo", icon: Zap, color: "pink" }]
-                : []),
-              { key: "badgeTry", icon: Crown, color: "orange" },
-            ].map(({ key, icon: Icon, color }) => (
-              <div className={color} key={key}>
-                <Icon />
-                <strong>{t(key)}</strong>
-                <small>{t(`${key}Desc`)}</small>
-              </div>
-            ))}
-          </div>
-        </section>
-        <ResultAchievements gameId="shoot" />
-      </div>
-      <div className="result-actions">
-        <Button
-          onClick={() =>
-            navigate(`/play/shoot?mode=${r.evidence?.gameMode ?? "standard"}`)
-          }
-        >
-          <RotateCcw />
-          {t("replay")}
-        </Button>
-        <Button color="cyan" onClick={() => navigate("/games")}>
-          <Play />
-          {t("next")}
-        </Button>
-        <Button color="white" onClick={() => navigate("/")}>
-          <Home />
-          {t("toHome")}
-        </Button>
+    <GameResult
+      game="shoot"
+      score={r.score}
+      best={localBest("shoot", r.evidence?.gameMode ?? "standard")}
+      stats={[
+        { label: t("combo"), value: r.combo },
+        { label: t("accuracy"), value: r.accuracy, unit: "%" },
+      ]}
+      newBest={r.newBest}
+      tone={tone}
+      replay={`/play/shoot?mode=${r.evidence?.gameMode ?? "standard"}`}
+      camera={<WebcamFrame compact />}
+      extraAction={
         <Button
           color="purple"
           onClick={() =>
@@ -1538,8 +1261,26 @@ function ResultPage() {
           <Dice5 />
           {t("random")}
         </Button>
+      }
+    >
+      <div className="result-badges">
+        {[
+          ...(r.accuracy >= 80 && r.hits > 0
+            ? [{ key: "badgeAim", icon: Target, color: "cyan" }]
+            : []),
+          ...(r.combo >= 5
+            ? [{ key: "badgeCombo", icon: Zap, color: "pink" }]
+            : []),
+          { key: "badgeTry", icon: Crown, color: "orange" },
+        ].map(({ key, icon: Icon, color }) => (
+          <div className={color} key={key}>
+            <Icon />
+            <strong>{t(key)}</strong>
+            <small>{t(`${key}Desc`)}</small>
+          </div>
+        ))}
       </div>
-    </>
+    </GameResult>
   );
 }
 function SettingsDialog({

@@ -17,47 +17,6 @@
 .circle-back svg {
   width: 21px;
 }
-.circle-timer {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-  border: 3px solid #111;
-  border-radius: 18px;
-  background: #fffbed;
-  padding: 8px 14px;
-  box-shadow: 3px 3px #111;
-}
-.circle-timer span {
-  font-size: 12px;
-  font-weight: 900;
-  white-space: nowrap;
-}
-.circle-timer progress {
-  flex: 1;
-  height: 17px;
-  overflow: hidden;
-  border: 2px solid #111;
-  border-radius: 10px;
-  accent-color: var(--lime);
-}
-.circle-timer progress::-webkit-progress-bar {
-  background: #202020;
-}
-.circle-timer progress::-webkit-progress-value {
-  background: var(--lime);
-}
-.circle-timer b {
-  font-family: "Black Han Sans";
-  font-size: 24px;
-  font-weight: 400;
-  white-space: nowrap;
-}
-.circle-timer small {
-  font-family: inherit;
-  font-size: 11px;
-  margin-left: 2px;
-}
 .circle-top > .circle-button {
   min-width: 49px;
   width: 49px;
@@ -430,16 +389,6 @@
   }
   .circle-back svg {
     width: 25px;
-  }
-  .circle-timer {
-    gap: 6px;
-    padding: 6px 8px;
-  }
-  .circle-timer span {
-    font-size: 10px;
-  }
-  .circle-timer b {
-    font-size: 20px;
   }
   .circle-mode {
     flex-wrap: wrap;

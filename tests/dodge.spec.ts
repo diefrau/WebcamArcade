@@ -83,6 +83,7 @@ test("keys and held buttons move; pause preserves time; 30 seconds saves, reload
   await page.addInitScript(() => (Math.random = () => 1));
   await page.goto("/games");
   await page.getByRole("link", { name: "빨리 피해! 지금 플레이!" }).click();
+  await page.getByRole("button", { name: "30초 하드 모드" }).click();
   await page.getByRole("button", { name: "게임 시작!", exact: true }).click();
   await page.clock.runFor(3200);
   await page.keyboard.down("ArrowLeft");
@@ -102,9 +103,9 @@ test("keys and held buttons move; pause preserves time; 30 seconds saves, reload
     .evaluate((el) => parseFloat((el as HTMLElement).style.left));
   expect(after).toBeGreaterThan(x);
   await page.keyboard.press("Escape");
-  const timer = await page.locator(".cham-toolbar strong").textContent();
+  const timer = await page.locator(".timer-bar b").textContent();
   await page.clock.runFor(5000);
-  expect(await page.locator(".cham-toolbar strong").textContent()).toBe(timer);
+  expect(await page.locator(".timer-bar b").textContent()).toBe(timer);
   await page
     .locator(".game-overlay")
     .getByRole("button", { name: "계속하기", exact: true })
@@ -150,7 +151,9 @@ test("three collisions end early, blocked storage keeps result and both language
   await page.clock.runFor(30000);
   await expect(page).toHaveURL(/result\/dodge$/);
   await expect(page.getByRole("alert")).toBeVisible();
-  await expect(page.locator(".result-heading")).toHaveText("잘 피했어요!");
+  await expect(
+    page.getByRole("heading", { name: "잘 피했어요!" }),
+  ).toBeVisible();
   for (const lang of ["ko", "en"]) {
     await page.evaluate(
       (lang) => localStorage.setItem("arcade.language", JSON.stringify(lang)),
@@ -258,9 +261,9 @@ test("webcam calibrates off-center, moves smoothly, pauses on body loss and supp
   await expect(
     page.locator(".game-overlay .arcade-button:visible"),
   ).toBeDisabled();
-  const timer = await page.locator(".cham-toolbar strong").textContent();
+  const timer = await page.locator(".timer-bar b").textContent();
   await page.waitForTimeout(1200);
-  expect(await page.locator(".cham-toolbar strong").textContent()).toBe(timer);
+  expect(await page.locator(".timer-bar b").textContent()).toBe(timer);
   await send(page, shoulders(0.7));
   await expect(
     page.locator(".game-overlay .arcade-button:visible"),

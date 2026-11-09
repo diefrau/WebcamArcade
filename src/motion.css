@@ -77,7 +77,7 @@
 .cham-rounds :is(.won, .lost) {
   animation: arcade-pop 0.45s var(--arcade-spring);
 }
-.route-content[data-ready="true"] .target-character svg {
+.route-content[data-ready="true"] .target-character img {
   animation: arcade-target 0.4s var(--arcade-spring);
   transform-origin: 50% 100%;
 }

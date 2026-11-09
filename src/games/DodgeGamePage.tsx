@@ -1,4 +1,3 @@
-import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { InputCoach } from "../components/InputCoach";
 import { recordPlay } from "../community/client";
@@ -17,26 +16,31 @@ import {
   MoveHorizontal,
   Pause,
   Play,
-  RotateCcw,
   Trophy,
 } from "lucide-react";
 import { useCamera } from "../vision/CameraProvider";
 import { bodyTarget } from "../vision/body";
 import { WebcamFrame } from "../components/WebcamFrame";
 import { Character } from "../components/Character";
-import { CountUp, ResultCelebration } from "../components/ResultCelebration";
+import { GameResult } from "../components/GameResult";
+import { GameTimer } from "../components/GameTimer";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { useGameSound } from "../audio/useGameSound";
 import {
   advanceDodge,
   dodgeFinished,
   dodgeScore,
+  DODGE_DURATION,
   newDodge,
   type DodgeState,
 } from "./dodgeRules";
 import "./dodge.css";
 
 type Phase = "ready" | "countdown" | "playing" | "paused";
+const dodgeModes = [
+  { seconds: Infinity, label: "dodgeSurvivalMode" },
+  { seconds: DODGE_DURATION, label: "dodgeHardMode" },
+];
 export type DodgeResult = {
   gameMode?: GameMode;
   score: number;
@@ -103,11 +107,9 @@ export function DodgeGamePage({
   const [params] = useSearchParams();
   const initialMode = params.get("mode");
   const [duration, setDuration] = useState<number>(
-    initialMode?.includes("endless")
-      ? Infinity
-      : initialMode?.includes("survival")
-        ? 60
-        : 30,
+    initialMode === "standard" || initialMode === "vertical"
+      ? DODGE_DURATION
+      : Infinity,
   );
   const endless = duration === Infinity;
   const [vertical, setVertical] = useState(
@@ -185,12 +187,8 @@ export function DodgeGamePage({
         ? "vertical-endless"
         : "endless"
       : vertical
-        ? duration === 60
-          ? "vertical-survival"
-          : "vertical"
-        : duration === 60
-          ? "survival"
-          : "standard";
+        ? "vertical"
+        : "standard";
     const result: DodgeResult = {
       gameMode: resultMode,
       score: dodgeScore(s),
@@ -390,13 +388,14 @@ export function DodgeGamePage({
     <div className="dodge-game">
       <div className="cham-toolbar">
         <Link to="/games">← {t("back")}</Link>
-        <strong>
-          {t(endless ? "elapsedTime" : "time")}{" "}
-          {endless
-            ? Math.floor(state.elapsed)
-            : Math.ceil(duration - state.elapsed)}
-          {t("dodgeSeconds")}
-        </strong>
+        <GameTimer
+          seconds={
+            endless
+              ? Math.floor(state.elapsed)
+              : Math.ceil(duration - state.elapsed)
+          }
+          duration={endless ? undefined : duration}
+        />
         <button
           disabled={phase === "ready" || (phase === "paused" && !canPlay)}
           aria-label={t(phase === "paused" ? "resume" : "pause")}
@@ -408,33 +407,6 @@ export function DodgeGamePage({
         >
           {phase === "paused" ? <Play /> : <Pause />}
         </button>
-      </div>
-      <div className="game-mode-choice" role="group" aria-label={t("gameMode")}>
-        <button
-          disabled={phase !== "ready"}
-          aria-pressed={vertical}
-          className={vertical ? "active" : ""}
-          onClick={() => setVertical(!vertical)}
-        >
-          {t("verticalMode")}
-        </button>
-        {[30, 60, Infinity].map((seconds) => (
-          <button
-            key={seconds}
-            disabled={phase !== "ready"}
-            aria-pressed={duration === seconds}
-            className={duration === seconds ? "active" : ""}
-            onClick={() => setDuration(seconds)}
-          >
-            {t(
-              seconds === Infinity
-                ? "endlessMode"
-                : seconds === 30
-                  ? "standardMode"
-                  : "survivalMode",
-            )}
-          </button>
-        ))}
       </div>
       <div className="cham-mode">
         <button
@@ -452,11 +424,11 @@ export function DodgeGamePage({
           {t("bodyMode")}
         </button>
       </div>
-      {endless && (
-        <div className="game-mode-choice">
+      {endless && phase !== "ready" && (
+        <div className="dodge-endless-actions">
           <span>{t("endlessHint")}</span>
           <button
-            disabled={phase === "ready" || phase === "countdown"}
+            disabled={phase === "countdown"}
             onClick={() => finish(game.current)}
           >
             {t("finishRun")}
@@ -492,14 +464,14 @@ export function DodgeGamePage({
                 style={{ left: `${o.x * 100}%`, top: `${o.y * 100}%` }}
                 aria-hidden="true"
               >
-                ★
+                <Character asset="dodgeObstacle" priority />
               </div>
             ))}
             <div
               className={`dodge-player ${state.immune > 0 ? "is-hit" : ""}`}
               style={{ left: `${state.x * 100}%`, top: `${state.y * 100}%` }}
             >
-              <Character asset="dodge" priority />
+              <Character asset="dodgePlayer" priority />
               <span className="dodge-hitbox" />
             </div>
             {phase === "countdown" && (
@@ -564,20 +536,38 @@ export function DodgeGamePage({
                   {t(phase === "paused" ? "paused" : "dodgeReady")}
                   <small className="selected-game-mode">
                     {t("gameMode")} ·{" "}
-                    {t(
-                      endless
-                        ? "endlessMode"
-                        : duration === 60
-                          ? "survivalMode"
-                          : "standardMode",
-                    )}
+                    {t(endless ? "dodgeSurvivalMode" : "dodgeHardMode")}
                     {vertical ? ` · ${t("verticalMode")}` : ""}
                   </small>
                 </h2>
+                {phase === "ready" && (
+                  <div
+                    className="game-mode-choice"
+                    role="group"
+                    aria-label={t("gameMode")}
+                  >
+                    <button
+                      aria-pressed={vertical}
+                      className={vertical ? "active" : ""}
+                      onClick={() => setVertical(!vertical)}
+                    >
+                      {t("verticalMode")}
+                    </button>
+                    {dodgeModes.map(({ seconds, label }) => (
+                      <button
+                        key={seconds}
+                        aria-pressed={duration === seconds}
+                        className={duration === seconds ? "active" : ""}
+                        onClick={() => setDuration(seconds)}
+                      >
+                        {t(label)}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <p>
-                  {endless
-                    ? t("endlessHint")
-                    : t("dodgeModeInstruction", { seconds: duration })}
+                  {t(endless ? "dodgeEndlessHint" : "dodgeHardHint")}
+                  {vertical && <> {t("dodgeSideHint")}</>}
                 </p>
                 {mode === "body" && (
                   <p>{t(bodyReady ? "dodgeCenter" : "showBody")}</p>
@@ -662,69 +652,29 @@ export function DodgeResultPage({ tone }: { tone: (cue?: SoundCue) => void }) {
       </div>
     );
   return (
-    <div className="cham-result dodge-result">
-      <h1 className="result-heading yellow-text">
-        {t(result.cleared ? "clear" : "dodgeFinished")}
-      </h1>
-      <ResultCelebration
-        newBest={result.newBest}
-        score={result.score}
-        onCelebrate={(record) => tone(record ? "newBest" : "result")}
-      />
-      <div className="result-with-achievements">
-        <section className="panel cham-result-panel">
-          <Character asset="dodge" priority />
-          <div>
-            <h2>{t("dodge")}</h2>
-            <div className="result-stats">
-              {[
-                ["score", result.score],
-                ["dodgeSurvival", result.seconds],
-                ["dodgeAvoided", result.dodged],
-              ].map(([key, value]) => (
-                <div key={key}>
-                  <span className="pink">{t(key as string)}</span>
-                  <b>
-                    {key === "dodgeSurvival" ? (
-                      (value as number).toFixed(1)
-                    ) : (
-                      <CountUp value={value as number} />
-                    )}
-                    {key === "dodgeSurvival" && (
-                      <small>{t("dodgeSeconds")}</small>
-                    )}
-                  </b>
-                </div>
-              ))}
-            </div>
-            <p className="best-comparison">
-              <Trophy />
-              {t("best")}{" "}
-              <b>{localBest("dodge", result.gameMode ?? "standard")}</b>
-            </p>
-            <p className="dodge-result-note">
-              {t(result.cleared ? "dodgeClearNote" : "dodgeRetryNote")}
-            </p>
-            {!result.saved && <p role="alert">{t("recordError")}</p>}
-          </div>
-        </section>
-        <ResultAchievements gameId="dodge" />
-      </div>
-      <div className="result-actions">
-        <Link
-          className="arcade-button pink"
-          to={`/play/dodge?mode=${result.gameMode ?? "standard"}`}
-        >
-          <RotateCcw />
-          {t("replay")}
-        </Link>
-        <Link className="arcade-button cyan" to="/games">
-          {t("next")}
-        </Link>
-        <Link className="arcade-button white" to="/">
-          {t("toHome")}
-        </Link>
-      </div>
-    </div>
+    <GameResult
+      game="dodge"
+      heading={t(result.cleared ? "clear" : "dodgeFinished")}
+      score={result.score}
+      best={localBest("dodge", result.gameMode ?? "standard")}
+      stats={[
+        {
+          label: t("dodgeSurvival"),
+          value: result.seconds.toFixed(1),
+          unit: t("dodgeSeconds"),
+        },
+        { label: t("dodgeAvoided"), value: result.dodged },
+      ]}
+      newBest={result.newBest}
+      saved={result.saved}
+      tone={tone}
+      replay={`/play/dodge?mode=${result.gameMode ?? "standard"}`}
+    >
+      <p className="dodge-result-note">
+        {t(result.cleared ? "dodgeClearNote" : "dodgeRetryNote", {
+          seconds: Math.round(result.seconds),
+        })}
+      </p>
+    </GameResult>
   );
 }

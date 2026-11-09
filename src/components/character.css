@@ -72,8 +72,7 @@
   max-width: 57%;
   overflow-wrap: anywhere;
 }
-.selection-games .card-copy h3,
-.selection-games .future-card .card-copy h3 {
+.selection-games .card-copy h3 {
   font-size: clamp(23px, 2vw, 34px);
   line-height: 1.16;
 }
@@ -156,8 +155,7 @@ html[lang="en"] .recommend-art h2 {
   .selection-games .future-card {
     height: 250px;
   }
-  .selection-games .card-copy h3,
-  .selection-games .future-card .card-copy h3 {
+  .selection-games .card-copy h3 {
     font-size: 32px;
   }
   .selection-games .card-copy p,
@@ -178,8 +176,7 @@ html[lang="en"] .recommend-art h2 {
   .selection-games .future-card {
     height: 240px;
   }
-  .selection-games .card-copy h3,
-  .selection-games .future-card .card-copy h3 {
+  .selection-games .card-copy h3 {
     font-size: 24px;
     max-width: 92%;
   }
@@ -240,8 +237,7 @@ html[lang="en"] .recommend-art h2 {
   .game-card .card-copy h3 {
     font-size: 27px;
   }
-  .selection-games .card-copy h3,
-  .selection-games .future-card .card-copy h3 {
+  .selection-games .card-copy h3 {
     font-size: 28px;
   }
   .filter-panel .selection-character {
@@ -278,8 +274,7 @@ html[lang="en"] .recommend-art h2 {
     height: 245px;
   }
   .game-card .card-copy h3,
-  .selection-games .card-copy h3,
-  .selection-games .future-card .card-copy h3 {
+  .selection-games .card-copy h3 {
     font-size: 33px;
     max-width: 56%;
   }

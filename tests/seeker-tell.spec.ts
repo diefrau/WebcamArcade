@@ -2,6 +2,21 @@ import { test, expect } from "@playwright/test";
 
 test.use({ reducedMotion: "reduce" });
 
+test("seeker closes the response window after one second", async ({ page }) => {
+  await page.clock.install();
+  await page.goto("/play/cham?role=seeker");
+  await page.getByRole("button", { name: "시작!", exact: true }).click();
+  await page.clock.runFor(1550);
+  const cue = page.locator(".cham-cue");
+  await expect(cue).toHaveAttribute("data-phase", "respond");
+  await expect(page.locator(".cham-stage progress")).toHaveAttribute(
+    "max",
+    "1000",
+  );
+  await page.clock.runFor(1050);
+  await expect(cue).toContainText("시간 초과!");
+});
+
 for (const [random, direction, button] of [
   [0, "left", "왼쪽"],
   [0.3, "up", "위"],

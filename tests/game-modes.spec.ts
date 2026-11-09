@@ -1,20 +1,74 @@
 import { test, expect } from "@playwright/test";
 import { advanceDodge, dodgeFinished, newDodge } from "../src/games/dodgeRules";
 
-test("60-second dodge runs beyond 30 seconds and vertical movement changes collisions", () => {
+test("vertical modes mix both sides with falling obstacles and score side dodges once", () => {
+  for (const duration of [30, Infinity]) {
+    let state = newDodge();
+    const spawned = new Map<number, "left" | "right" | undefined>();
+    for (let i = 0; i < 16; i++) {
+      state = advanceDodge(state, 0.25, 0.5, () => 0, duration, 0.87);
+      for (const obstacle of state.obstacles)
+        spawned.set(obstacle.id, obstacle.side);
+    }
+    expect([...spawned.values()].slice(0, 4)).toEqual([
+      undefined,
+      "left",
+      undefined,
+      "right",
+    ]);
+  }
+
+  for (const side of ["left", "right"] as const) {
+    const state = {
+      ...newDodge(),
+      spawnIn: 10,
+      obstacles: [{ id: 0, side, x: side === "left" ? 0.4 : 0.6, y: 0.87 }],
+    };
+    const hit = advanceDodge(state, 0.25, 0.5, () => 0, 30, 0.87);
+    expect(hit.hits).toBe(1);
+    expect(hit.obstacles).toHaveLength(0);
+
+    let movedUp = { ...state, y: 0.6 };
+    for (let i = 0; i < 16; i++)
+      movedUp = advanceDodge(movedUp, 0.25, 0.5, () => 0, 30, 0.6);
+    expect(movedUp.hits).toBe(0);
+    expect(movedUp.dodged).toBe(1);
+    expect(movedUp.obstacles).toHaveLength(0);
+  }
+});
+
+test("dodge hard starts fast and endless difficulty keeps rising beyond 30 seconds", () => {
+  const spawn = (elapsed: number, duration: number) =>
+    advanceDodge(
+      { ...newDodge(), elapsed, spawnIn: 0 },
+      0.02,
+      0.5,
+      () => 0,
+      duration,
+    );
+  const opening = spawn(0, Infinity);
+  const hard = spawn(0, 30);
+  expect(hard.obstacles[0].y).toBeGreaterThan(opening.obstacles[0].y);
+  expect(hard.spawnIn).toBeLessThan(opening.spawnIn);
+  const atThirty = spawn(30, Infinity);
+  const atNinety = spawn(90, Infinity);
+  expect(atNinety.obstacles[0].y).toBeGreaterThan(atThirty.obstacles[0].y);
+  expect(atNinety.spawnIn).toBeLessThan(atThirty.spawnIn);
+});
+
+test("endless dodge runs beyond 30 seconds and vertical movement changes collisions", () => {
   const late = { ...newDodge(), elapsed: 30, spawnIn: 10 };
-  const next = advanceDodge(late, 0.2, 0.5, () => 1, 60, 0.55);
+  const next = advanceDodge(late, 0.2, 0.5, () => 1, Infinity, 0.55);
   expect(next.elapsed).toBeGreaterThan(30);
   expect(next.y).toBeLessThan(0.7);
-  expect(dodgeFinished(next, 60)).toBe(false);
-  expect(dodgeFinished({ ...next, elapsed: 60 }, 60)).toBe(true);
+  expect(dodgeFinished(next, Infinity)).toBe(false);
   const obstacle = { id: 1, x: 0.5, y: 0.59 };
   const collision = advanceDodge(
     { ...newDodge(), y: 0.6, spawnIn: 10, obstacles: [obstacle] },
     0.02,
     0.5,
     () => 1,
-    60,
+    Infinity,
     0.6,
   );
   expect(collision.hits).toBe(1);
@@ -42,9 +96,12 @@ test("survival and vertical modes expose accessible controls and movement", asyn
   await page.clock.install();
   await page.goto("/games");
   await page.getByRole("link", { name: "빨리 피해! 지금 플레이!" }).click();
-  await page.getByRole("button", { name: "60초 생존" }).click();
+  await expect(
+    page.getByRole("button", { name: "생존!", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "60초 생존" })).toHaveCount(0);
   await page.getByRole("button", { name: "상하 이동" }).click();
-  await expect(page.locator(".cham-toolbar strong")).toContainText("60");
+  await expect(page.locator(".timer-bar progress")).toHaveCount(0);
   await page.getByRole("button", { name: "게임 시작!", exact: true }).click();
   await page.clock.runFor(3200);
   await page.keyboard.down("ArrowUp");
@@ -72,18 +129,21 @@ test("hardest cham mode completes ten rounds and unlocks its achievement", async
   expect(state.unlockedIds).toContain("chamMaster");
 });
 
-test("60-second survival completes and unlocks its achievement", async ({
+test("retired 60-second links open Survive and its minute achievement still unlocks", async ({
   page,
 }) => {
   await page.clock.install();
   await page.addInitScript(() => {
     Math.random = () => 1;
   });
-  await page.goto("/games");
-  await page.getByRole("link", { name: "빨리 피해! 지금 플레이!" }).click();
-  await page.getByRole("button", { name: "60초 생존" }).click();
+  await page.goto("/play/dodge?mode=survival");
+  await expect(
+    page.getByRole("button", { name: "생존!", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "게임 시작!", exact: true }).click();
   await page.clock.runFor(64000);
+  await expect(page).toHaveURL(/play\/dodge/);
+  await page.getByRole("button", { name: "그만하고 기록 저장" }).click();
   await expect(page).toHaveURL(/result\/dodge/);
   const state = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("arcade.achievements.v1") || "{}"),
@@ -148,11 +208,12 @@ test("vertical mode unlocks only after moving both directions and finishing", as
 }) => {
   await page.clock.install();
   await page.addInitScript(() => {
-    Math.random = () => 1;
+    Math.random = () => 0;
   });
   await page.goto("/games");
   await page.getByRole("link", { name: "빨리 피해! 지금 플레이!" }).click();
   await page.getByRole("button", { name: "상하 이동" }).click();
+  await page.getByRole("button", { name: "30초 하드 모드" }).click();
   await page.getByRole("button", { name: "게임 시작!", exact: true }).click();
   await page.clock.runFor(3200);
   await page.keyboard.down("ArrowUp");

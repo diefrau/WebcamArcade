@@ -80,7 +80,7 @@ test("mock gate completes, pauses, saves, reloads and replays without camera or 
   });
   await page.clock.install();
   await page.goto("/games");
-  await page.getByRole("link", { name: "뚫어! 지금 플레이!" }).click();
+  await page.getByRole("link", { name: "벽 통과! 지금 플레이!" }).click();
   await page.getByRole("button", { name: "체험 입력", exact: true }).click();
   await expect(
     page
@@ -118,7 +118,7 @@ test("mock gate completes, pauses, saves, reloads and replays without camera or 
   expect(record.last.score).toBe(1500);
   expect(submits).toBe(0);
   await page.reload();
-  await expect(page.getByRole("heading", { name: "1,500 점" })).toBeVisible();
+  await expect(page.locator(".result-stats")).toContainText("1,500");
   await page.getByRole("link", { name: "다시 하기", exact: true }).click();
   await expect(page).toHaveURL(/play\/gate/);
   await expect(

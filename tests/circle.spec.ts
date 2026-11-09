@@ -27,7 +27,7 @@ test("circle drawing evaluates, stores a record and can replay", async ({
   await page.mouse.up();
 
   await expect(page).toHaveURL(/\/result\/circle$/);
-  await expect(page.locator(".circle-result")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "원 완성!!!" })).toBeVisible();
   const result = await page.evaluate(() =>
     JSON.parse(localStorage.getItem("arcade.circle.last") || "null"),
   );
@@ -38,7 +38,7 @@ test("circle drawing evaluates, stores a record and can replay", async ({
   );
   expect(evidence.metadata.drawComplete).toBe(true);
   expect(evidence.inputMode).toBe("mouse");
-  await page.getByRole("button", { name: "다시 하기" }).click();
+  await page.getByRole("link", { name: "다시 하기" }).click();
   await expect(page).toHaveURL(/\/play\/circle$/);
 });
 

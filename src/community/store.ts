@@ -171,14 +171,7 @@ export type GameMode = NonNullable<GameResultDetails["gameMode"]>;
 export const gameModes: Record<GameId, GameMode[]> = {
   shoot: ["standard", "wave", "endless"],
   cham: ["standard", "hard", "seeker"],
-  dodge: [
-    "standard",
-    "survival",
-    "vertical",
-    "vertical-survival",
-    "endless",
-    "vertical-endless",
-  ],
+  dodge: ["endless", "standard", "vertical-endless", "vertical"],
   circle: ["standard"],
   rps: ["standard"],
 };

@@ -67,10 +67,9 @@
   display: grid;
   place-items: center;
   transform: translate(-50%, -50%);
-  font-size: clamp(26px, 3vw, 48px);
-  color: #9948ef;
-  -webkit-text-stroke: 3px #111;
-  paint-order: stroke fill;
+}
+.dodge-obstacle .character {
+  width: 100%;
 }
 .dodge-count {
   position: absolute;

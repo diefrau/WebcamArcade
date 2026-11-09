@@ -1,16 +1,15 @@
-import { ResultAchievements } from "../achievements/ResultAchievements";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import { recordPlay } from "../community/client";
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Hand, Pause, Play, RotateCcw, Trophy } from "lucide-react";
+import { Hand, Pause, Play, Trophy } from "lucide-react";
 import { useCamera } from "../vision/CameraProvider";
 import { useGameInput } from "../vision/useGameInput";
 import { WebcamFrame } from "../components/WebcamFrame";
 import { HandMenuCursor } from "../components/HandMenuCursor";
 import { Character } from "../components/Character";
-import { CountUp, ResultCelebration } from "../components/ResultCelebration";
+import { GameResult } from "../components/GameResult";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { useGameSound } from "../audio/useGameSound";
 import {
@@ -559,65 +558,31 @@ export function RpsResultPage({ tone }: { tone: (kind?: SoundCue) => void }) {
       </div>
     );
   return (
-    <div className="cham-result rps-result">
-      <h1 className="result-heading yellow-text">{t("clear")}</h1>
-      <ResultCelebration
-        newBest={result.newBest}
-        score={result.score}
-        onCelebrate={(record) => tone(record ? "newBest" : "result")}
-      />
-      <div className="result-with-achievements">
-        <section className="panel cham-result-panel">
-          <Character asset="rps" priority />
-          <div>
-            <h2>{t("rps")}</h2>
-            <div className="result-stats">
-              {[
-                ["score", result.score],
-                ["rpsWins", result.wins],
-                ["rpsDraws", result.draws],
-              ].map(([key, value]) => (
-                <div key={key}>
-                  <span className="pink">{t(key as string)}</span>
-                  <b>
-                    <CountUp value={value as number} />
-                  </b>
-                </div>
-              ))}
-            </div>
-            <p className="best-comparison">
-              <Trophy />
-              {t("best")} <b>{Math.max(stored.best, result.score)}</b>
-            </p>
-            <ol className="rps-round-results">
-              {result.rounds.map((round, i) => (
-                <li key={i}>
-                  <span>{i + 1}</span>
-                  <span>
-                    {t("rpsYou")} {round.player ? symbols[round.player] : "—"} ·{" "}
-                    {t("rpsComputer")} {symbols[round.computer]}
-                  </span>
-                  <strong>{t(`rps_${round.outcome}`)}</strong>
-                </li>
-              ))}
-            </ol>
-            {!result.saved && <p role="alert">{t("recordError")}</p>}
-          </div>
-        </section>
-        <ResultAchievements gameId="rps" />
-      </div>
-      <div className="result-actions">
-        <Link className="arcade-button pink" to="/play/rps">
-          <RotateCcw />
-          {t("replay")}
-        </Link>
-        <Link className="arcade-button cyan" to="/games">
-          {t("next")}
-        </Link>
-        <Link className="arcade-button white" to="/">
-          {t("toHome")}
-        </Link>
-      </div>
-    </div>
+    <GameResult
+      game="rps"
+      score={result.score}
+      best={Math.max(stored.best, result.score)}
+      stats={[
+        { label: t("rpsWins"), value: result.wins },
+        { label: t("rpsDraws"), value: result.draws },
+      ]}
+      newBest={result.newBest}
+      saved={result.saved}
+      tone={tone}
+      replay="/play/rps"
+    >
+      <ol className="rps-round-results">
+        {result.rounds.map((round, i) => (
+          <li key={i}>
+            <span>{i + 1}</span>
+            <span>
+              {t("rpsYou")} {round.player ? symbols[round.player] : "—"} ·{" "}
+              {t("rpsComputer")} {symbols[round.computer]}
+            </span>
+            <strong>{t(`rps_${round.outcome}`)}</strong>
+          </li>
+        ))}
+      </ol>
+    </GameResult>
   );
 }

@@ -6,13 +6,13 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Pause, Play, RotateCcw, Trophy } from "lucide-react";
+import { Pause, Play, Trophy } from "lucide-react";
 import { useGatePose } from "../input/useGatePose";
 import { WebcamFrame } from "../components/WebcamFrame";
 import { upperBodyIds } from "../vision/shared/poseNormalization";
 import { PreGameSequence } from "../components/PreGameSequence";
 import { Character } from "../components/Character";
-import { ResultCelebration } from "../components/ResultCelebration";
+import { GameResult } from "../components/GameResult";
 import type { PlaySound } from "../audio/useGameSound";
 import { useGameSound } from "../audio/useGameSound";
 import { adaptGameInput } from "../input/GameInputAdapter";
@@ -365,19 +365,6 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
           {paused ? <Play /> : <Pause />}
         </button>
       </div>
-      <div className="game-mode-choice" role="group" aria-label={t("controls")}>
-        {(["vision", "mock"] as const).map((value) => (
-          <button
-            key={value}
-            disabled={phase !== "ready"}
-            className={source === value ? "active" : ""}
-            aria-pressed={source === value}
-            onClick={() => setParams(value === "mock" ? { input: "mock" } : {})}
-          >
-            {t(value === "mock" ? "gate.mockMode" : "bodyMode")}
-          </button>
-        ))}
-      </div>
       <div className="gate-layout">
         <aside className="gate-hud">
           <section className="hud-panel pink">
@@ -477,6 +464,24 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
               }
               onStart={start}
             >
+              <div
+                className="game-mode-choice"
+                role="group"
+                aria-label={t("controls")}
+              >
+                {(["vision", "mock"] as const).map((value) => (
+                  <button
+                    key={value}
+                    className={source === value ? "active" : ""}
+                    aria-pressed={source === value}
+                    onClick={() =>
+                      setParams(value === "mock" ? { input: "mock" } : {})
+                    }
+                  >
+                    {t(value === "mock" ? "gate.mockMode" : "bodyMode")}
+                  </button>
+                ))}
+              </div>
               {source === "vision" && !pose.camera.stream && (
                 <button
                   className="arcade-button cyan"
@@ -598,48 +603,28 @@ export function GateResultPage({ tone }: { tone: PlaySound }) {
       </section>
     );
   return (
-    <div className="gate-result">
-      <h1 className="result-heading yellow-text">
-        {t("gate.title")} · {t("clear")}
-      </h1>
-      <ResultCelebration
-        score={result.score}
-        newBest={result.newBest}
-        onCelebrate={(best) => tone(best ? "newBest" : "result")}
-      />
-      <section className="panel gate-result-card">
-        <Character asset="pose" size="sm" />
-        <h2>
-          {result.score.toLocaleString()} {t("points")}
-        </h2>
-        <p>{t("gate.prototype")}</p>
-        <ol>
-          {result.outcomes.map((r, i) => (
-            <li key={i}>
-              <b>
-                {t("round")} {i + 1}
-              </b>
-              <span>{t(`gate.${r.grade}`)}</span>
-              <span>
-                {r.similarity}% · +{r.points}
-              </span>
-            </li>
-          ))}
-        </ol>
-        {!result.saved && <p role="alert">{t("recordError")}</p>}
-      </section>
-      <div className="result-actions">
-        <Link
-          className="arcade-button pink"
-          to={`/play/gate?input=${result.source ?? "mock"}`}
-        >
-          <RotateCcw />
-          {t("replay")}
-        </Link>
-        <Link className="arcade-button cyan" to="/games">
-          {t("next")}
-        </Link>
-      </div>
-    </div>
+    <GameResult
+      game="gate"
+      score={result.score}
+      best={Math.max(result.score, readGate(result.source).best)}
+      newBest={result.newBest}
+      saved={result.saved}
+      tone={tone}
+      replay={`/play/gate?input=${result.source ?? "mock"}`}
+    >
+      <ol className="gate-round-results">
+        {result.outcomes.map((r, i) => (
+          <li key={i}>
+            <b>
+              {t("round")} {i + 1}
+            </b>
+            <span>{t(`gate.${r.grade}`)}</span>
+            <span>
+              {r.similarity}% · +{r.points}
+            </span>
+          </li>
+        ))}
+      </ol>
+    </GameResult>
   );
 }
