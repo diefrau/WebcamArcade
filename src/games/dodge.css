@@ -76,13 +76,7 @@
   inset: 0;
   display: grid;
   place-items: center;
-  background: #fff5;
-  font-family: "Bagel Fat One";
-  font-size: 100px;
-  color: #ff43a1;
-  -webkit-text-stroke: 5px #111;
-  paint-order: stroke fill;
-  animation: dodge-pop 0.45s cubic-bezier(0.2, 1.5, 0.5, 1);
+  pointer-events: none;
 }
 .dodge-controls {
   display: flex;
@@ -161,14 +155,6 @@
 .dodge-result .result-stats b small {
   font-size: 16px;
 }
-@keyframes dodge-pop {
-  from {
-    transform: scale(0.65) rotate(-8deg);
-  }
-  to {
-    transform: scale(1) rotate(0deg);
-  }
-}
 @keyframes dodge-hop {
   from {
     transform: translateY(0) rotate(-2deg);
@@ -205,12 +191,10 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .dodge-count,
   .dodge-player .character {
     animation: none;
   }
 }
-[data-motion="reduced"] .dodge-count,
 [data-motion="reduced"] .dodge-player .character {
   animation: none;
 }

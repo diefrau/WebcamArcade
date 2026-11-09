@@ -20,10 +20,14 @@ import { winsRound } from "./chamRules";
 import { GameResult } from "../components/GameResult";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { useGameSound } from "../audio/useGameSound";
+import {
+  countdownBeat,
+  GameCountdown,
+  GAME_COUNTDOWN_MS,
+} from "../components/GameCountdown";
 
 export const directions: Direction[] = ["left", "up", "down", "right"];
 const arrows = { left: "←", right: "→", up: "↑", down: "↓", center: "•" };
-const COUNTDOWN_MS = 1500;
 const RESPONSE_MS = 900;
 const SEEKER_RESPONSE_MS = 1000;
 const FEEDBACK_MS = 1000;
@@ -89,8 +93,9 @@ export function ChamGamePage({
   const [phase, setPhase] = useState<Phase>("ready");
   const [rounds, setRounds] = useState<Round[]>([]);
   const [computer, setComputer] = useState<Direction>("left");
-  const [remaining, setRemaining] = useState(COUNTDOWN_MS);
-  useGameSound(phase, Math.ceil(remaining / 500), rounds.length, tone);
+  const [remaining, setRemaining] = useState(GAME_COUNTDOWN_MS);
+  const beat = countdownBeat(remaining);
+  useGameSound(phase, beat, rounds.length, tone);
   const [neutral, setNeutral] = useState<{ x: number; y: number } | null>(null);
   const [calibrating, setCalibrating] = useState(false);
   const [calibrationCount, setCalibrationCount] = useState(0);
@@ -103,7 +108,7 @@ export function ChamGamePage({
   const centered = useRef(false);
   const faceLostAt = useRef<number | null>(null);
   const phaseRef = useRef<Phase>(phase);
-  const remainingRef = useRef(COUNTDOWN_MS);
+  const remainingRef = useRef(GAME_COUNTDOWN_MS);
   const resumePhase = useRef<Phase>("countdown");
   const roundsRef = useRef<Round[]>([]);
   const complete = useRef(false);
@@ -154,7 +159,7 @@ export function ChamGamePage({
       setComputer(directions[Math.floor(Math.random() * directions.length)]);
     centered.current = mode === "buttons";
     candidate.current = { direction: "center", since: 0 };
-    transition("countdown", COUNTDOWN_MS);
+    transition("countdown", GAME_COUNTDOWN_MS);
   }
   function finish() {
     if (complete.current) return;
@@ -533,9 +538,7 @@ export function ChamGamePage({
           <div className="cham-cue" data-phase={phase} aria-live="polite">
             {phase === "countdown" ? (
               <>
-                <b key={Math.ceil(remaining / 500)} className="bounce-feedback">
-                  {Math.ceil(remaining / 500)}
-                </b>
+                <GameCountdown beat={beat} />
                 <span>
                   {seeker
                     ? t("seekerWatch")
@@ -589,7 +592,7 @@ export function ChamGamePage({
                 ? FEEDBACK_MS
                 : phase === "respond"
                   ? responseMs
-                  : COUNTDOWN_MS
+                  : GAME_COUNTDOWN_MS
             }
             value={remaining}
           />

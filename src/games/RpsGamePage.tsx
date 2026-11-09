@@ -13,6 +13,11 @@ import { GameResult } from "../components/GameResult";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { useGameSound } from "../audio/useGameSound";
 import {
+  countdownBeat,
+  GameCountdown,
+  GAME_COUNTDOWN_MS,
+} from "../components/GameCountdown";
+import {
   classifyRps,
   rpsChoices,
   rpsOutcome,
@@ -28,8 +33,7 @@ const symbols: Record<RpsChoice, string> = {
   paper: "✋",
   scissors: "✌️",
 };
-const COUNTDOWN = 1500,
-  RESPONSE = 3000,
+const RESPONSE = 3000,
   FEEDBACK = 1000,
   ROUNDS = 5;
 type Phase = "ready" | "countdown" | "respond" | "feedback" | "paused";
@@ -105,12 +109,13 @@ export function RpsGamePage({
   const [phase, setPhase] = useState<Phase>("ready");
   const phaseRef = useRef<Phase>("ready");
   const resumePhase = useRef<Phase>("countdown");
-  const [remaining, setRemaining] = useState(COUNTDOWN);
-  const remainingRef = useRef(COUNTDOWN);
+  const [remaining, setRemaining] = useState(GAME_COUNTDOWN_MS);
+  const remainingRef = useRef(GAME_COUNTDOWN_MS);
   const [rounds, setRounds] = useState<Round[]>([]);
   const recognitionFailures = useRef(0);
   const lostTracking = useRef(false);
-  useGameSound(phase, Math.ceil(remaining / 500), rounds.length, tone);
+  const beat = countdownBeat(remaining);
+  useGameSound(phase, beat, rounds.length, tone);
   const roundsRef = useRef<Round[]>([]);
   const computer = useRef<RpsChoice>("rock");
   const finished = useRef(false);
@@ -166,7 +171,7 @@ export function RpsGamePage({
     // Commit the computer's choice before accepting any player input.
     computer.current =
       rpsChoices[Math.floor(Math.random() * rpsChoices.length)];
-    transition("countdown", COUNTDOWN);
+    transition("countdown", GAME_COUNTDOWN_MS);
   }
   function finish() {
     if (finished.current) return;
@@ -414,18 +419,17 @@ export function RpsGamePage({
             </div>
           </div>
           <div className="rps-cue" data-phase={phase} aria-live="polite">
-            <h2
-              className="bounce-feedback"
-              key={`${phase}-${rounds.length}-${phase === "countdown" ? Math.ceil(remaining / 500) : ""}`}
-            >
-              {phase === "countdown"
-                ? Math.ceil(remaining / 500)
-                : phase === "respond"
+            {phase === "countdown" ? (
+              <GameCountdown beat={beat} />
+            ) : (
+              <h2 className="bounce-feedback" key={`${phase}-${rounds.length}`}>
+                {phase === "respond"
                   ? t("rpsShow")
                   : phase === "feedback" && last
                     ? t(`rps_${last.outcome}`)
                     : t("rpsReady")}
-            </h2>
+              </h2>
+            )}
             <p>
               {phase === "respond"
                 ? t(mode === "hand" ? "rpsHold" : "rpsKeyHint")
@@ -441,7 +445,7 @@ export function RpsGamePage({
                 ? RESPONSE
                 : phase === "feedback"
                   ? FEEDBACK
-                  : COUNTDOWN
+                  : GAME_COUNTDOWN_MS
             }
             value={remaining}
           />

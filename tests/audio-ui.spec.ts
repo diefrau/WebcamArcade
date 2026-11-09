@@ -86,8 +86,10 @@ test("countdown follows visible beats and commands do not repeat on pause/resume
   await page.getByRole("button", { name: "게임 시작!", exact: true }).click();
   expect(await calls(page, "game.ready")).toBe(1);
   expect(await calls(page, "game.countdown")).toBe(1);
-  await page.clock.runFor(1100);
+  await expect(page.locator(".game-countdown-beat")).toHaveText("3");
+  await page.clock.runFor(580);
   expect(await calls(page, "game.countdown")).toBe(2);
+  await expect(page.locator(".game-countdown-beat")).toHaveText("2");
   await page.keyboard.press("Escape");
   await page.clock.runFor(1000);
   expect(await calls(page, "game.countdown")).toBe(2);
@@ -95,9 +97,10 @@ test("countdown follows visible beats and commands do not repeat on pause/resume
     .getByRole("button", { name: "계속하기", exact: true })
     .last()
     .click();
-  await page.clock.runFor(2100);
+  await page.clock.runFor(1050);
   expect(await calls(page, "game.countdown")).toBe(3);
   expect(await calls(page, "game.start")).toBe(1);
+  await expect(page.locator(".game-countdown-beat")).toHaveCount(0);
   await page.keyboard.press("Escape");
   await page
     .getByRole("button", { name: "계속하기", exact: true })

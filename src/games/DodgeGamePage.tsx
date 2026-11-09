@@ -27,6 +27,11 @@ import { GameTimer } from "../components/GameTimer";
 import type { SoundCue } from "../audio/ArcadeAudio";
 import { useGameSound } from "../audio/useGameSound";
 import {
+  countdownBeat,
+  GameCountdown,
+  GAME_COUNTDOWN_MS,
+} from "../components/GameCountdown";
+import {
   advanceDodge,
   dodgeFinished,
   dodgeScore,
@@ -120,9 +125,11 @@ export function DodgeGamePage({
   const resumePhase = useRef<Phase>("playing");
   const [state, setState] = useState(newDodge);
   const game = useRef(state);
-  const [countdown, setCountdown] = useState(3);
+  const [countdown, setCountdown] = useState(() =>
+    countdownBeat(GAME_COUNTDOWN_MS),
+  );
   useGameSound(phase, countdown, 0, tone);
-  const count = useRef(3);
+  const countdownRemaining = useRef(GAME_COUNTDOWN_MS);
   const finished = useRef(false);
   const calibration = useRef({ x: 0.5, y: 0.5, width: 0.3 });
   const targetY = useRef(0.7);
@@ -172,8 +179,8 @@ export function DodgeGamePage({
     verticalMoves.current = { up: false, down: false };
     setState(game.current);
     target.current = 0.5;
-    count.current = 3;
-    setCountdown(3);
+    countdownRemaining.current = GAME_COUNTDOWN_MS;
+    setCountdown(countdownBeat(GAME_COUNTDOWN_MS));
     finished.current = false;
     transition("countdown");
     tone("game.ready");
@@ -246,9 +253,12 @@ export function DodgeGamePage({
         return;
       }
       if (phaseRef.current === "countdown") {
-        count.current = Math.max(0, count.current - dt);
-        setCountdown(Math.ceil(count.current));
-        if (count.current === 0) transition("playing");
+        countdownRemaining.current = Math.max(
+          0,
+          countdownRemaining.current - dt * 1000,
+        );
+        setCountdown(countdownBeat(countdownRemaining.current));
+        if (countdownRemaining.current === 0) transition("playing");
         return;
       }
       if (mode === "body") {
@@ -475,8 +485,8 @@ export function DodgeGamePage({
               <span className="dodge-hitbox" />
             </div>
             {phase === "countdown" && (
-              <div className="dodge-count" key={countdown}>
-                {countdown || t("start")}
+              <div className="dodge-count" role="status">
+                <GameCountdown beat={countdown} />
               </div>
             )}
           </div>

@@ -45,7 +45,7 @@
 .rps-cue {
   text-align: center;
   margin-top: 16px;
-  min-height: 85px;
+  min-height: calc(var(--game-countdown-size) + 40px);
 }
 .rps-cue h2 {
   font-family: "Bagel Fat One";
