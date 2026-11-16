@@ -40,7 +40,12 @@ test("vertical modes mix both sides with falling obstacles and score side dodges
 test("dodge hard starts fast and endless difficulty keeps rising beyond 30 seconds", () => {
   const spawn = (elapsed: number, duration: number) =>
     advanceDodge(
-      { ...newDodge(), elapsed, spawnIn: 0 },
+      {
+        ...newDodge(),
+        elapsed,
+        spawnIn: 0,
+        obstacles: [{ id: -1, x: 0.1, y: 0 }],
+      },
       0.02,
       0.5,
       () => 0,

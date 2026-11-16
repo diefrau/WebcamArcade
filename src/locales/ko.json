@@ -469,39 +469,39 @@
       },
       "poseFirst": {
         "title": "그대로 따라해!",
-        "description": "첫 포즈 성공 · 게임 준비 중"
+        "description": "벽 통과 첫 성공"
       },
       "pose80": {
         "title": "제법 비슷한데?",
-        "description": "정확도 80% 이상 · 게임 준비 중"
+        "description": "한 포즈 일치도 80% 이상"
       },
       "pose95": {
         "title": "거울인가요?",
-        "description": "정확도 95% 이상 · 게임 준비 중"
+        "description": "한 포즈 일치도 95% 이상"
       },
       "poseQuick": {
         "title": "찰칵!",
-        "description": "제한시간 절반 이내 성공 · 게임 준비 중"
+        "description": "제한시간 절반 안에 자세를 맞추고 통과"
       },
       "poseFive": {
         "title": "포즈 천재",
-        "description": "5개 연속 성공 · 게임 준비 중"
+        "description": "5개 벽 연속 통과"
       },
       "poseTen": {
         "title": "몸으로 말해요",
-        "description": "10개 연속 성공 · 게임 준비 중"
+        "description": "10개 벽 연속 통과"
       },
       "poseHint": {
         "title": "한 번 보고 척",
-        "description": "힌트 없이 즉시 성공 · 게임 준비 중"
+        "description": "제한시간 절반 안에 일치도 95%를 달성하고 통과"
       },
       "poseFull": {
-        "title": "전신 가동!",
-        "description": "복잡한 전신 포즈 성공 · 게임 준비 중"
+        "title": "짝짝이 팔도 척척!",
+        "description": "좌우 팔 높이가 다른 벽 통과"
       },
       "poseRegular": {
         "title": "카메라 체질",
-        "description": "포즈 따라해 10회 완료 · 게임 준비 중"
+        "description": "웹캠으로 벽 통과! 10회 완료"
       },
       "manners": {
         "title": "어허, 그건 안돼요~",
@@ -552,7 +552,7 @@
   "gate": {
     "title": "벽 통과!",
     "command": "자세를 맞춰!",
-    "prototype": "체험판",
+    "prototype": "NEW",
     "instruction": "벽의 구멍과 같은 팔 자세를 만들어봐요!",
     "mockNotice": "이번 체험판은 웹캠 없이 플레이해요. 체험 기록은 이 기기에 저장돼요.",
     "similarity": "자세 일치",
@@ -581,10 +581,17 @@
     "recalibrate": "준비 상태 다시 확인",
     "autoStart": "상체가 준비되면 자동으로 시작해요!",
     "autoResume": "상체가 다시 보이면 카운트다운 후 이어서 시작해요.",
-    "poseResume": "양팔을 내렸다가 다시 올려 잠시 유지하면 이어서 시작해요."
+    "poseResume": "양팔을 내렸다가 다시 올려 잠시 유지하면 이어서 시작해요.",
+    "upperBodyWall": "상체로 통과!",
+    "cutoutLive": "내 모습 LIVE",
+    "cutoutFallback": "자세 안내로 플레이 중",
+    "cutoutWaiting": "상체가 보이게 서 주세요",
+    "preview": "목표 자세",
+    "rememberPose": "이 자세를 기억해!"
   },
   "perfectCount": "만점 {{count}}회 달성",
   "dodgeSurvivalMode": "생존!",
+  "dodgeSpeedUp": "속도 UP!",
   "dodgeVerticalSurvivalMode": "상하 이동 · 생존!",
   "dodgeEndlessHint": "버틸수록 장애물이 더 빠르고 자주 날아와요. 라이프가 다할 때까지 도전!",
   "dodgeHardHint": "첫 장애물부터 빠르게 날아와요. 30초 동안 살아남으세요!",

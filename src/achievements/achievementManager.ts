@@ -274,6 +274,7 @@ export function validResult(event: GameResultEvent) {
     cham: 1000,
     rps: 500,
     dodge: 10000,
+    gate: 1500,
   };
   if (
     !event ||
@@ -338,6 +339,27 @@ export function validResult(event: GameResultEvent) {
       }))
   )
     return false;
+  if (event.gameId === "gate") {
+    const outcomes = event.metadata?.gateOutcomes;
+    if (
+      event.inputMode !== "body" ||
+      !Array.isArray(outcomes) ||
+      outcomes.length !== 5 ||
+      outcomes.some(
+        (o) =>
+          !o ||
+          !finite(o.similarity) ||
+          o.similarity > 100 ||
+          o.points !==
+            (o.similarity >= 95 ? 300 : o.similarity >= 80 ? 150 : 0) ||
+          typeof o.early !== "boolean" ||
+          typeof o.earlyPerfect !== "boolean" ||
+          typeof o.asymmetric !== "boolean",
+      ) ||
+      outcomes.reduce((sum, o) => sum + o.points, 0) !== event.score
+    )
+      return false;
+  }
   return true;
 }
 export function recordGameResult(event: GameResultEvent): boolean {
@@ -481,6 +503,20 @@ export function recordGameResult(event: GameResultEvent): boolean {
       set("dodge.safe", event.metadata.maxSafeSeconds);
     if (finite(event.metadata?.maxAvoidStreak))
       set("dodge.streak", event.metadata.maxAvoidStreak);
+  }
+  if (g === "gate") {
+    const outcomes = event.metadata?.gateOutcomes ?? [];
+    let streak = s.facts["gate.currentStreak"] ?? 0;
+    for (const outcome of outcomes) {
+      streak = outcome.points > 0 ? streak + 1 : 0;
+      set("gate.streak", streak);
+      flag("gate.first", outcome.points > 0);
+      set("gate.similarity", outcome.similarity);
+      flag("gate.quick", outcome.early && outcome.points > 0);
+      flag("gate.hint", outcome.earlyPerfect && outcome.points > 0);
+      flag("gate.asymmetric", outcome.asymmetric && outcome.points > 0);
+    }
+    s.facts["gate.currentStreak"] = streak;
   }
   const newlyUnlocked = apply(state, peaks, Date.parse(event.date));
   state.lastResults = {

@@ -39,7 +39,7 @@ export function AchievementsPanel({
     "shoot",
     "rps",
     "dodge",
-    "pose",
+    "gate",
   ] as const;
   const selected =
     filter === "all"
@@ -92,7 +92,7 @@ export function AchievementsPanel({
                 ? ko
                   ? "전체"
                   : "All"
-                : t(id === "pose" ? "futurePose" : id)}
+                : t(id === "gate" ? "gate.title" : id)}
             </span>
             {id === "all" && (
               <small>
@@ -102,12 +102,13 @@ export function AchievementsPanel({
           </button>
         ))}
       </div>
-      {filter !== "all" && filter !== "pose" && (
+      {filter !== "all" && (
         <Link
           className="arcade-button cyan achievement-play"
           to={"/play/" + filter}
         >
-          {t(filter)} {ko ? "플레이하기 →" : "Play →"}
+          {t(filter === "gate" ? "gate.title" : filter)}{" "}
+          {ko ? "플레이하기 →" : "Play →"}
         </Link>
       )}
       <div className="achievement-grid">

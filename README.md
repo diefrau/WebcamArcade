@@ -198,3 +198,12 @@ npm test
 구현은 [Google Hand Landmarker 웹 가이드](https://developers.google.com/edge/mediapipe/solutions/vision/hand_landmarker/web_js)를 따릅니다. `@mediapipe/tasks-vision`은 Apache-2.0 라이선스이며, npm 설치/빌드 시 `scripts/prepare-vision.mjs`가 해당 버전의 WASM 런타임을 `public/vision/wasm/`에 복사합니다. 이 폴더는 자동 생성되므로 Git에서 제외했습니다.
 
 `public/vision/hand_landmarker.task`는 [Google의 Hand Landmarker float16 모델 v1](https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task)입니다. 모델과 WASM은 사이트에 포함되므로 플레이 중 외부 CDN에서 받지 않습니다. 빌드 시 `public/vision/` 파일도 함께 배포해야 합니다. 자동 테스트에는 사용자의 실제 카메라를 사용하지 않습니다.
+
+
+## 최적화와 개발 캐시 정리
+
+게임/결과/커뮤니티 화면은 경로별로 불러오며 링크 hover·focus·touch 시 해당 모듈만 미리 받습니다. 공통 레이아웃 CSS는 첫 접속에도 유지합니다. 적용 결과와 용량 비교는 [최적화 보고서](docs/optimization/implemented-2026-11-17.md)를 참고하세요.
+
+- UI 캐릭터 해상도 변형 재생성: `node scripts/prepare-characters.mjs --variants-only`. 원본과 게임 판정용 sprite를 보존합니다.
+- 과거 비교 worktree 캐시 확인: PowerShell에서 `./scripts/clean-comparison-cache.ps1`.
+- 확인한 캐시만 정리: `./scripts/clean-comparison-cache.ps1 -Apply`. 비교 소스와 현재 프로젝트 의존성은 유지하며, 예전 버전 실행 전에는 각 worktree에서 `npm ci`와 `npm run build`가 다시 필요합니다.

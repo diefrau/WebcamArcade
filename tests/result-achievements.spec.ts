@@ -198,6 +198,8 @@ test("result panels fit Korean and English layouts and move below results on nar
     );
     for (const game of games) {
       await page.goto("/result/" + game);
+      // Route modules now load on demand; navigation can finish before React commits them.
+      await expect(page.locator(".result-achievements")).toBeVisible();
       for (const width of [320, 390, 768, 1024, 1440, 1920]) {
         await page.setViewportSize({ width, height: 1080 });
         expect(

@@ -1,10 +1,24 @@
-import landing from "./images/aki-landing.webp";
-import cham from "./images/rabbit-look-out.webp";
-import circle from "./images/dog-full-circle.webp";
-import shoot from "./images/rival-pop-shot.webp";
-import rps from "./images/rabbit-rock-paper.webp";
-import dodge from "./images/chick-dodge.webp";
-import pose from "./images/blue-pose.webp";
+import landing320 from "./images/aki-landing-320.webp";
+import landing640 from "./images/aki-landing-640.webp";
+import cham320 from "./images/rabbit-look-out-320.webp";
+import cham640 from "./images/rabbit-look-out-640.webp";
+import circle320 from "./images/dog-full-circle-320.webp";
+import circle640 from "./images/dog-full-circle-640.webp";
+import shoot320 from "./images/rival-pop-shot-320.webp";
+import shoot640 from "./images/rival-pop-shot-640.webp";
+import rps320 from "./images/rabbit-rock-paper-320.webp";
+import rps640 from "./images/rabbit-rock-paper-640.webp";
+import dodge320 from "./images/chick-dodge-320.webp";
+import dodge640 from "./images/chick-dodge-640.webp";
+import pose320 from "./images/blue-pose-320.webp";
+import pose640 from "./images/blue-pose-640.webp";
+import landing from "./images/aki-landing-960.webp";
+import cham from "./images/rabbit-look-out-960.webp";
+import circle from "./images/dog-full-circle-960.webp";
+import shoot from "./images/rival-pop-shot-960.webp";
+import rps from "./images/rabbit-rock-paper-960.webp";
+import dodge from "./images/chick-dodge-960.webp";
+import pose from "./images/blue-pose-960.webp";
 import chamCenter from "./images/cham-center.webp";
 import chamLeft from "./images/cham-left.webp";
 import chamRight from "./images/cham-right.webp";
@@ -58,3 +72,33 @@ export const gameCharacterMap = {
   dodge: "dodge",
   gate: "pose",
 } as const satisfies Record<string, CharacterAsset>;
+
+const responsiveImages: Partial<Record<CharacterAsset, string>> = {
+  landing: `${landing320} 320w, ${landing640} 640w, ${landing} 960w`,
+  cham: `${cham320} 320w, ${cham640} 640w, ${cham} 960w`,
+  circle: `${circle320} 320w, ${circle640} 640w, ${circle} 960w`,
+  shoot: `${shoot320} 320w, ${shoot640} 640w, ${shoot} 960w`,
+  rps: `${rps320} 320w, ${rps640} 640w, ${rps} 960w`,
+  dodge: `${dodge320} 320w, ${dodge640} 640w, ${dodge} 960w`,
+  pose: `${pose320} 320w, ${pose640} 640w, ${pose} 960w`,
+};
+export function characterResponsiveProps(
+  asset: CharacterAsset,
+  size = "md",
+  className = "",
+) {
+  const srcSet = responsiveImages[asset];
+  if (!srcSet) return {};
+  const sizes = className.includes("card-character")
+    ? "(max-width: 650px) 55vw, (max-width: 1100px) 27vw, 20vw"
+    : size === "hero"
+      ? "(max-width: 650px) 80vw, (max-width: 1100px) 36vw, 440px"
+      : size === "icon"
+        ? "48px"
+        : size === "sm"
+          ? "96px"
+          : size === "lg"
+            ? "320px"
+            : "180px";
+  return { srcSet, sizes };
+}

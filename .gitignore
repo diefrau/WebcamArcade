@@ -4,6 +4,9 @@ test-results
 playwright-report
 artifacts/audio-source/
 artifacts/audio-tools/
+artifacts/optimization-baseline/
+artifacts/optimization-good/
+artifacts/optimization-2026-11-17/
 public/vision/wasm
 
 .env

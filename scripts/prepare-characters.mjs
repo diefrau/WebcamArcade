@@ -32,18 +32,31 @@ const originals = Object.entries(files).map(([original, name]) => [
   original,
   [name],
 ]);
-for (const [original, [name, width]] of [
-  ...originals,
-  ...Object.entries(gameplayFiles),
-]) {
-  const source = new URL(`../char/${original}.png`, import.meta.url);
-  const destination = new URL(`${name}.webp`, out);
-  const image = sharp(fileURLToPath(source));
-  if (width) image.resize({ width, withoutEnlargement: true });
-  await image
-    .webp({ lossless: true, effort: 6 })
-    .toFile(fileURLToPath(destination));
-  console.log(
-    `${name}: ${(await stat(source)).size} -> ${(await stat(destination)).size} bytes`,
-  );
+if (!process.argv.includes("--variants-only"))
+  for (const [original, [name, width]] of [
+    ...originals,
+    ...Object.entries(gameplayFiles),
+  ]) {
+    const source = new URL(`../char/${original}.png`, import.meta.url);
+    const destination = new URL(`${name}.webp`, out);
+    const image = sharp(fileURLToPath(source));
+    if (width) image.resize({ width, withoutEnlargement: true });
+    await image
+      .webp({ lossless: true, effort: 6 })
+      .toFile(fileURLToPath(destination));
+    console.log(
+      `${name}: ${(await stat(source)).size} -> ${(await stat(destination)).size} bytes`,
+    );
+  }
+
+// UI art only: preserve gameplay sprites and their alpha hitboxes exactly.
+for (const name of Object.values(files)) {
+  for (const width of [320, 640, 960]) {
+    const destination = new URL(`${name}-${width}.webp`, out);
+    await sharp(fileURLToPath(new URL(`${name}.webp`, out)))
+      .resize({ width, withoutEnlargement: true })
+      .webp({ lossless: true, effort: 6 })
+      .toFile(fileURLToPath(destination));
+    console.log(`${name}-${width}: ${(await stat(destination)).size} bytes`);
+  }
 }

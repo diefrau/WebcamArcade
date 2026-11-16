@@ -1,0 +1,1270 @@
+{
+  "description": "Synthetic landmarks; validates interpreter outputs only, not actual camera accuracy or whole-game scoring.",
+  "results": [
+    {
+      "name": "normal_open_pinch_hold_release",
+      "frames": [
+        {
+          "index": 0,
+          "timeMs": 0,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 1,
+          "timeMs": 100,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 2,
+          "timeMs": 200,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 3,
+          "timeMs": 300,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 4,
+          "timeMs": 400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 5,
+          "timeMs": 500,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": true,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": true,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 6,
+          "timeMs": 600,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 7,
+          "timeMs": 700,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 8,
+          "timeMs": 800,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 9,
+          "timeMs": 900,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 10,
+          "timeMs": 1000,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 11,
+          "timeMs": 1100,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 12,
+          "timeMs": 1200,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 13,
+          "timeMs": 1300,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 14,
+          "timeMs": 1400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 15,
+          "timeMs": 1500,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        }
+      ],
+      "differences": []
+    },
+    {
+      "name": "edge_jitter",
+      "frames": [
+        {
+          "index": 0,
+          "timeMs": 0,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5026315789473684,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5026315789473684,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 1,
+          "timeMs": 100,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 2,
+          "timeMs": 200,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5008771929824561,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5008771929824561,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 3,
+          "timeMs": 300,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 4,
+          "timeMs": 400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 5,
+          "timeMs": 500,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 6,
+          "timeMs": 600,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": true,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": true,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 7,
+          "timeMs": 700,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 8,
+          "timeMs": 800,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 9,
+          "timeMs": 900,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 10,
+          "timeMs": 1000,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 11,
+          "timeMs": 1100,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 12,
+          "timeMs": 1200,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 13,
+          "timeMs": 1300,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 14,
+          "timeMs": 1400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 15,
+          "timeMs": 1500,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 16,
+          "timeMs": 1600,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 17,
+          "timeMs": 1700,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 18,
+          "timeMs": 1800,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5005263157894737,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 19,
+          "timeMs": 1900,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.49947368421052635,
+            "y": 0.631578947368421
+          }
+        }
+      ],
+      "differences": []
+    },
+    {
+      "name": "tiny_palm",
+      "frames": [
+        {
+          "index": 0,
+          "timeMs": 0,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 1,
+          "timeMs": 100,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 2,
+          "timeMs": 200,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 3,
+          "timeMs": 300,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 4,
+          "timeMs": 400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 5,
+          "timeMs": 500,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": true,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 6,
+          "timeMs": 600,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 7,
+          "timeMs": 700,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 8,
+          "timeMs": 800,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 9,
+          "timeMs": 900,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 10,
+          "timeMs": 1000,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 11,
+          "timeMs": 1100,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 12,
+          "timeMs": 1200,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 13,
+          "timeMs": 1300,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 14,
+          "timeMs": 1400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 15,
+          "timeMs": 1500,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        }
+      ],
+      "differences": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ]
+    },
+    {
+      "name": "tracking_loss",
+      "frames": [
+        {
+          "index": 0,
+          "timeMs": 0,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 1,
+          "timeMs": 100,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 2,
+          "timeMs": 200,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 3,
+          "timeMs": 300,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 4,
+          "timeMs": 400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 5,
+          "timeMs": 500,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": true,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": true,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 6,
+          "timeMs": 600,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 7,
+          "timeMs": 700,
+          "baseline": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          },
+          "current": {
+            "detected": false,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.5
+          }
+        },
+        {
+          "index": 8,
+          "timeMs": 800,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 9,
+          "timeMs": 900,
+          "baseline": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": true,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 10,
+          "timeMs": 1000,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 11,
+          "timeMs": 1100,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 12,
+          "timeMs": 1200,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 13,
+          "timeMs": 1300,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 14,
+          "timeMs": 1400,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        },
+        {
+          "index": 15,
+          "timeMs": 1500,
+          "baseline": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          },
+          "current": {
+            "detected": true,
+            "pinched": false,
+            "fire": false,
+            "x": 0.5,
+            "y": 0.631578947368421
+          }
+        }
+      ],
+      "differences": []
+    }
+  ]
+}

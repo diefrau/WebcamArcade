@@ -1,5 +1,5 @@
 import type { GameId } from "../community/store";
-export type AchievementGameId = GameId | "pose";
+export type AchievementGameId = GameId;
 export type AchievementDefinition = {
   id: string;
   category: "general" | "game" | "secret";
@@ -37,6 +37,13 @@ export type GameResultDetails = {
   rounds?: RoundEvidence[];
   newBest?: boolean;
   metadata?: {
+    gateOutcomes?: {
+      similarity: number;
+      points: number;
+      early: boolean;
+      earlyPerfect: boolean;
+      asymmetric: boolean;
+    }[];
     passed?: boolean;
     chamHard?: boolean;
     dodgeVertical?: boolean;

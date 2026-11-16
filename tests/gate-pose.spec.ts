@@ -94,6 +94,9 @@ test("webcam gate reuses pose worker, calibrates, pauses on missing arms and sav
     .getByRole("button", { name: "카메라 연결", exact: true })
     .click();
   await expect(page.locator(".webcam-frame")).toHaveClass(/is-live/);
+  // Finish lazy-module/camera startup before freezing the clock. Thereafter,
+  // only supplied camera frames advance game time, even on a busy test host.
+  await page.clock.pauseAt(new Date(Date.now() + 1000));
   const send = async (left = 90, right = 90) =>
     page.evaluate(
       (p) => window.dispatchEvent(new CustomEvent("test-body", { detail: p })),
@@ -150,13 +153,14 @@ test("webcam gate reuses pose worker, calibrates, pauses on missing arms and sav
     [0, 90],
     [45, 45],
   ];
-  for (let i = 0; i < 260 && !page.url().includes("/result/"); i++) {
+  for (let i = 0; i < 330 && !page.url().includes("/result/"); i++) {
     const label = await page.locator(".cham-toolbar strong").textContent();
     const round = Number(label?.match(/\d+/)?.[0] ?? 1);
     await send(...(poses[round - 1] as [number, number]));
     await page.clock.runFor(100);
   }
   await expect(page).toHaveURL(/result\/gate\?input=vision/);
+  await page.clock.resume();
   const saved = await page.evaluate(() => ({
     vision: JSON.parse(localStorage.getItem("arcade.gate.vision") || "null"),
     mock: localStorage.getItem("arcade.gate.prototype"),
@@ -165,6 +169,37 @@ test("webcam gate reuses pose worker, calibrates, pauses on missing arms and sav
   expect(saved.vision.last.outcomes).toHaveLength(5);
   expect(saved.vision.last.score).toBe(1500);
   expect(saved.mock).toBeNull();
+  const runs = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("arcade.community.runs") || "[]"),
+  );
+  expect(runs).toHaveLength(1);
+  expect(runs[0]).toMatchObject({
+    game: "gate",
+    score: 1500,
+    details: { inputMode: "body", gameMode: "standard" },
+  });
+  expect(runs[0].details.metadata.gateOutcomes).toHaveLength(5);
+  await expect(
+    page.locator('.result-achievements[data-game="gate"] li'),
+  ).toHaveCount(9);
+  await expect(
+    page.locator('.result-achievements [data-achievement="poseFirst"]'),
+  ).toHaveAttribute("data-new", "true");
+  await page.screenshot({
+    path: "artifacts/gate-result-achievements.png",
+    fullPage: true,
+  });
+  await page.reload();
+  await expect(
+    page.locator('.result-achievements[data-game="gate"] li'),
+  ).toHaveCount(9);
+  expect(
+    await page.evaluate(
+      () =>
+        JSON.parse(localStorage.getItem("arcade.community.runs") || "[]")
+          .length,
+    ),
+  ).toBe(1);
 });
 test("camera denial keeps start gated and allows mock fallback", async ({
   page,

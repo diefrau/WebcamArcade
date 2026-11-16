@@ -194,16 +194,16 @@
 }
 .achievement-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 20px;
 }
 .achievement {
   --badge-color: var(--pink);
-  padding: 24px;
+  padding: 18px;
   background: #fffbed;
   display: grid;
-  gap: 16px;
-  grid-template-rows: auto 1fr auto;
+  gap: 12px;
+  grid-template-rows: auto auto 1fr auto;
   border-bottom-width: 7px;
 }
 .achievement:nth-child(4n + 2) {
@@ -216,12 +216,12 @@
   --badge-color: var(--purple);
 }
 .achievement h2 {
-  font-size: 22px;
+  font-size: 20px;
 }
 .achievement svg {
-  width: 60px;
-  height: 60px;
-  padding: 10px;
+  width: 48px;
+  height: 48px;
+  padding: 8px;
   border: var(--line);
   border-radius: 18px;
   background: color-mix(in srgb, var(--badge-color) 20%, #fffbed);
@@ -271,7 +271,7 @@
   display: block;
   width: 100%;
   min-width: 0;
-  height: 22px;
+  height: 18px;
   border: 3px solid var(--ink);
   border-radius: 999px;
   overflow: hidden;
@@ -309,6 +309,11 @@
 }
 .community-page > .arcade-button {
   justify-self: center;
+}
+@media (min-width: 641px) and (max-width: 1099px) {
+  .achievement-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 @media (max-width: 640px) {
   .community-page > h1 {
@@ -369,6 +374,11 @@
   .community-page {
     margin-top: 16px;
     gap: 20px;
+  }
+}
+@media (max-width: 480px) {
+  .achievement-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 @media (hover: hover) and (prefers-reduced-motion: no-preference) {

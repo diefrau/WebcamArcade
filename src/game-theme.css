@@ -283,6 +283,15 @@
   font-size: 23px;
   padding: 13px 25px;
 }
+/* A hand cursor cannot scroll a long coach panel to uncover its start action. */
+.screen-play
+  :is(.game-dialog, .circle-dialog, .cham-dialog):has(.input-coach)
+  > .arcade-button[data-hand-click] {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  flex-shrink: 0;
+}
 .screen-play :is(.play-hint, .circle-bottom, .cham-note) {
   margin: 24px 0 0;
   min-height: 64px;
@@ -466,4 +475,23 @@
 }
 .screen-play .shoot-finish-run svg {
   flex-shrink: 0;
+}
+.cham-stage-command {
+  display: block;
+  min-width: 0;
+  font-family: "Black Han Sans";
+  font-weight: 400;
+  font-size: 55px;
+  line-height: 1.1;
+  color: var(--yellow);
+  -webkit-text-stroke: 8px #111;
+  paint-order: stroke fill;
+  filter: drop-shadow(2px 3px #111);
+  transform: rotate(-4deg);
+}
+@media (max-width: 720px) {
+  .cham-stage-command {
+    font-size: 42px;
+    -webkit-text-stroke-width: 6px;
+  }
 }

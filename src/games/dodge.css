@@ -198,3 +198,66 @@
 [data-motion="reduced"] .dodge-player .character {
   animation: none;
 }
+.dodge-warning {
+  position: absolute;
+  z-index: 2;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  transform: translate(-50%, -50%);
+  border: 3px solid #111;
+  border-radius: 50%;
+  background: var(--yellow);
+  color: #111;
+  font: 900 22px/1 sans-serif;
+  animation: dodge-warning 220ms ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.dodge-level {
+  position: absolute;
+  top: 70px;
+  left: 12px;
+  z-index: 3;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 900;
+  pointer-events: none;
+}
+.dodge-level b,
+.dodge-level-up {
+  background: var(--yellow);
+  border: 2px solid #111;
+  border-radius: 10px;
+  padding: 5px 8px;
+  font-size: 13px;
+}
+.dodge-level-up {
+  background: var(--pink);
+  animation: dodge-level-up 1600ms ease-out forwards;
+}
+@keyframes dodge-warning {
+  to {
+    opacity: 0.25;
+  }
+}
+@keyframes dodge-level-up {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  20%,
+  75% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dodge-warning {
+    animation: none;
+  }
+}

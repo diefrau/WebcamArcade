@@ -9,7 +9,7 @@ export const GAME_VISION_PROFILE = {
   shoot: { detector: "hand", segmentation: false },
   rps: { detector: "hand", segmentation: false },
   dodge: { detector: "body", segmentation: false },
-  gate: { detector: "body", segmentation: false },
+  gate: { detector: "body", segmentation: true },
   skewer: { detector: "hand", segmentation: false },
   catch: { detector: "hand", segmentation: false, hands: 2 },
   hit: { detector: "body", segmentation: false },

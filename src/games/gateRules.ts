@@ -10,15 +10,16 @@ export type GateOutcome = {
 export type GateState = {
   round: number;
   elapsed: number;
-  phase: "approach" | "feedback" | "finished";
+  phase: "preview" | "approach" | "feedback" | "finished";
   outcomes: GateOutcome[];
 };
-export const GATE_APPROACH = 3.5,
+export const GATE_PREVIEW = 1.2,
+  GATE_APPROACH = 3.5,
   GATE_FEEDBACK = 1;
 export const newGate = (): GateState => ({
   round: 0,
   elapsed: 0,
-  phase: "approach",
+  phase: "preview",
   outcomes: [],
 });
 export function judgeGate(similarity: number | null): GateOutcome {
@@ -46,12 +47,20 @@ export function advanceGate(
   let next = { ...state, outcomes: [...state.outcomes] },
     remaining = Math.min(seconds, 0.25);
   while (remaining > 0 && next.phase !== "finished") {
-    const limit = next.phase === "approach" ? GATE_APPROACH : GATE_FEEDBACK,
+    const limit =
+        next.phase === "preview"
+          ? GATE_PREVIEW
+          : next.phase === "approach"
+            ? GATE_APPROACH
+            : GATE_FEEDBACK,
       dt = Math.min(remaining, limit - next.elapsed);
     next.elapsed += dt;
     remaining -= dt;
     if (next.elapsed + 1e-8 < limit) break;
-    if (next.phase === "approach") {
+    if (next.phase === "preview") {
+      next.phase = "approach";
+      next.elapsed = 0;
+    } else if (next.phase === "approach") {
       const t = gateTargets[next.round],
         target = adaptGameInput(mockVision(t.left, t.right), "mock");
       next.outcomes.push(
@@ -63,7 +72,7 @@ export function advanceGate(
       next.phase = "finished";
     } else {
       next.round++;
-      next.phase = "approach";
+      next.phase = "preview";
       next.elapsed = 0;
     }
   }

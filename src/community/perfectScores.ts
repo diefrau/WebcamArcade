@@ -4,6 +4,7 @@ export function perfectScore(
   game: GameId,
   mode: GameMode = "standard",
 ): number | null {
+  if (game === "gate" && mode === "standard") return 1500;
   if (game === "circle" && mode === "standard") return 1000;
   if (game === "cham" && ["standard", "hard", "seeker"].includes(mode))
     return 1000;

@@ -1,0 +1,83 @@
+{
+  "description": "Synthetic scoring function inputs only. Does not emulate webcam pipeline, gesture detection, or full game events.",
+  "rows": [
+    {
+      "name": "closed_64",
+      "points": 65,
+      "baseline": {
+        "score": 1000,
+        "accuracy": 100
+      },
+      "current": {
+        "score": 1000,
+        "accuracy": 100
+      }
+    },
+    {
+      "name": "partial_64",
+      "points": 65,
+      "baseline": {
+        "score": 436,
+        "accuracy": 44
+      },
+      "current": {
+        "score": 436,
+        "accuracy": 44
+      }
+    },
+    {
+      "name": "ellipse_64",
+      "points": 65,
+      "baseline": {
+        "score": 957,
+        "accuracy": 96
+      },
+      "current": {
+        "score": 957,
+        "accuracy": 96
+      }
+    },
+    {
+      "name": "closed_24",
+      "points": 25,
+      "baseline": {
+        "score": 1000,
+        "accuracy": 100
+      },
+      "current": {
+        "score": 1000,
+        "accuracy": 100
+      }
+    },
+    {
+      "name": "closed_12",
+      "points": 13,
+      "baseline": null,
+      "current": null
+    },
+    {
+      "name": "multi_stroke_gap",
+      "points": 65,
+      "baseline": {
+        "score": 1000,
+        "accuracy": 100
+      },
+      "current": {
+        "score": 1000,
+        "accuracy": 100
+      }
+    },
+    {
+      "name": "partial_gap",
+      "points": 65,
+      "baseline": {
+        "score": 436,
+        "accuracy": 44
+      },
+      "current": {
+        "score": 432,
+        "accuracy": 43
+      }
+    }
+  ]
+}

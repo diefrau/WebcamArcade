@@ -12,6 +12,7 @@ import { WebcamFrame } from "../components/WebcamFrame";
 import { upperBodyIds } from "../vision/shared/poseNormalization";
 import { PreGameSequence } from "../components/PreGameSequence";
 import { Character } from "../components/Character";
+import { recordPlay } from "../community/client";
 import { GameResult } from "../components/GameResult";
 import type { PlaySound } from "../audio/useGameSound";
 import { useGameSound } from "../audio/useGameSound";
@@ -23,10 +24,13 @@ import {
   newGate,
   gateScore,
   GATE_APPROACH,
+  GATE_PREVIEW,
+  GATE_FEEDBACK,
   type GateState,
   type GateOutcome,
 } from "./gateRules";
 import type { PosePoint } from "../vision/visionTypes";
+import { GateCutout } from "./GateCutout";
 import "./gate.css";
 export type GateResult = {
   source?: "mock" | "vision";
@@ -85,21 +89,31 @@ function PoseDrawing({
       )
       .join(" ");
   return (
-    <g fill={color} stroke={color} strokeLinecap="round" strokeLinejoin="round">
+    <g
+      data-part="upper-body"
+      fill={color}
+      stroke={color}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle
         cx={500 + (points[0].x - 0.5) * 600}
         cy={points[0].y * 600}
-        r={hole ? 41 : 31}
+        r={hole ? 57 : 36}
       />
       <path
         d={path([15, 13, 11, 12, 14, 16])}
         fill="none"
-        strokeWidth={hole ? 68 : 24}
+        strokeWidth={hole ? 88 : 30}
       />
+      <path d="M500 160 L500 280" fill="none" strokeWidth={hole ? 90 : 48} />
       <path
-        d="M410 270 L500 380 L590 270 M500 300 L500 420 M500 420 L420 520 M500 420 L580 520"
-        fill="none"
-        strokeWidth={hole ? 80 : 28}
+        d={
+          hole
+            ? "M406 256 Q500 230 594 256 L582 506 Q500 530 418 506 Z"
+            : "M430 270 Q500 250 570 270 L560 490 L440 490 Z"
+        }
+        strokeWidth={hole ? 16 : 8}
       />
     </g>
   );
@@ -111,6 +125,7 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
   const [params, setParams] = useSearchParams();
   const source = params.get("input") === "mock" ? "mock" : "vision";
   const pose = useGatePose(source === "vision");
+  const [cutoutVisible, setCutoutVisible] = useState(false);
   const lostAt = useRef<number | null>(null);
   const pauseReason = useRef<"manual" | "tracking">("manual");
   const recoveryHold = useRef(0);
@@ -126,6 +141,8 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
     count = useRef(3);
   const [state, setState] = useState(newGate),
     game = useRef(state);
+  const earlyMatches = useRef<boolean[]>([]);
+  const earlyPerfectMatches = useRef<boolean[]>([]);
   const [angles, setAngles] = useState({ left: -60, right: -60 });
   const mockInput = adaptGameInput(
     mockVision(angles.left, angles.right),
@@ -145,7 +162,10 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
       };
     });
   useEffect(() => {
+    setCutoutVisible(false);
     game.current = newGate();
+    earlyMatches.current = [];
+    earlyPerfectMatches.current = [];
     setState(game.current);
     phaseRef.current = "ready";
     setPhase("ready");
@@ -254,7 +274,19 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
       }
       return;
     }
-    const next = advanceGate(game.current, dt, inputRef.current);
+    const current = game.current;
+    const pattern = gateTargets[current.round];
+    const targetVector = adaptGameInput(
+      mockVision(pattern.left, pattern.right),
+      "mock",
+    ).poseVector;
+    const similarity =
+      poseSimilarity(inputRef.current.poseVector, targetVector) ?? 0;
+    if (current.phase === "approach" && current.elapsed <= GATE_APPROACH / 2) {
+      if (similarity >= 80) earlyMatches.current[current.round] = true;
+      if (similarity >= 95) earlyPerfectMatches.current[current.round] = true;
+    }
+    const next = advanceGate(current, dt, inputRef.current);
     if (next.outcomes.length > game.current.outcomes.length)
       tone(next.outcomes.at(-1)!.points > 0 ? "success" : "fail");
     game.current = next;
@@ -280,6 +312,35 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
         );
       } catch {
         result.saved = false;
+      }
+      if (source === "vision") {
+        recordPlay(
+          "gate",
+          score,
+          Math.round(
+            next.outcomes.reduce(
+              (sum, outcome) => sum + outcome.similarity,
+              0,
+            ) / next.outcomes.length,
+          ),
+          next.outcomes.length * (GATE_PREVIEW + GATE_APPROACH + GATE_FEEDBACK),
+          {
+            inputMode: "body",
+            gameMode: "standard",
+            newBest: result.newBest,
+            metadata: {
+              passed: next.outcomes.every((outcome) => outcome.points > 0),
+              gateOutcomes: next.outcomes.map((outcome, index) => ({
+                similarity: outcome.similarity,
+                points: outcome.points,
+                early: earlyMatches.current[index] === true,
+                earlyPerfect: earlyPerfectMatches.current[index] === true,
+                asymmetric:
+                  gateTargets[index].left !== gateTargets[index].right,
+              })),
+            },
+          },
+        );
       }
       navigate(`/result/gate?input=${source}`, {
         replace: true,
@@ -344,6 +405,7 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
   }, []);
   const progress = Math.min(1, state.elapsed / GATE_APPROACH),
     last = state.outcomes.at(-1);
+  const previewing = phase === "playing" && state.phase === "preview";
   return (
     <div className={`gate-page gate-${source}`}>
       <div className="cham-toolbar">
@@ -389,52 +451,146 @@ export function GateGamePage({ tone }: { tone: PlaySound }) {
             <strong role="status">
               {phase === "countdown"
                 ? beat
-                : state.phase === "feedback" && last
-                  ? t(`gate.${last.grade}`)
-                  : t("gate.command")}
+                : previewing
+                  ? t("gate.preview")
+                  : state.phase === "feedback" && last
+                    ? t(`gate.${last.grade}`)
+                    : t("gate.command")}
             </strong>
           </div>
-          <svg
+          <div
             className="gate-world"
-            viewBox="0 0 1000 600"
-            aria-label={t("gate.field")}
+            data-cutout={cutoutVisible ? "live" : "fallback"}
+            data-preview={previewing}
           >
-            <defs>
-              <mask id={mask}>
-                <rect width="1000" height="600" fill="white" />
-                <PoseDrawing
-                  points={mockPose(target.left, target.right)}
-                  color="black"
-                  hole
-                />
-              </mask>
-            </defs>
-            <path d="M0 600 L500 220 L1000 600" fill="#a5e957" />
-            {(source === "mock" || input.poseVector) && (
-              <PoseDrawing points={displayPose} />
-            )}
-            <g
-              className="gate-wall"
-              style={{
-                transform: `scale(${state.phase === "feedback" ? 1.1 : 0.35 + progress * 0.75})`,
-              }}
+            <svg
+              className="gate-world-art"
+              viewBox="0 0 1000 600"
+              aria-label={t("gate.field")}
             >
-              <rect
-                x="5"
-                y="5"
-                width="990"
-                height="590"
-                rx="24"
-                fill="var(--cyan)"
+              <defs>
+                <mask
+                  id={mask}
+                  maskUnits="userSpaceOnUse"
+                  x="0"
+                  y="0"
+                  width="1000"
+                  height="600"
+                >
+                  <rect width="1000" height="600" fill="white" />
+                  <PoseDrawing
+                    points={mockPose(target.left, target.right)}
+                    color="black"
+                    hole
+                  />
+                </mask>
+                <pattern
+                  id={`${mask}-dots`}
+                  width="24"
+                  height="24"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <circle cx="6" cy="6" r="3" fill="#111" opacity=".12" />
+                </pattern>
+              </defs>
+              <path d="M0 600 L500 230 L1000 600" fill="#a5e957" />
+              <path
+                d="M0 600 L500 230 L1000 600 M170 600 L500 230 L830 600 M350 600 L500 230 L650 600"
+                fill="none"
                 stroke="#111"
-                strokeWidth="12"
-                mask={`url(#${mask})`}
+                strokeWidth="3"
+                opacity=".15"
               />
-              <text x="80" y="100" fontSize="46" fontWeight="900">
-                {state.round + 1}
-              </text>
-            </g>
-          </svg>
+              <ellipse
+                cx="500"
+                cy="530"
+                rx="210"
+                ry="25"
+                fill="#111"
+                opacity=".15"
+              />
+              <g
+                className="gate-wall"
+                data-phase={state.phase}
+                style={{
+                  transform: `scale(${state.phase === "preview" ? 0.94 : state.phase === "feedback" ? 1.04 + Math.min(1, state.elapsed / GATE_FEEDBACK) * 0.08 : 0.38 + progress * 0.62})`,
+                  opacity:
+                    state.phase === "feedback"
+                      ? 1 - Math.min(1, state.elapsed / GATE_FEEDBACK)
+                      : 1,
+                }}
+              >
+                {state.phase === "preview" && (
+                  <PoseDrawing
+                    points={mockPose(target.left, target.right)}
+                    color="#ffffffdd"
+                    hole
+                  />
+                )}
+                <g mask={`url(#${mask})`}>
+                  <rect
+                    x="16"
+                    y="16"
+                    width="968"
+                    height="528"
+                    rx="24"
+                    fill="var(--cyan)"
+                    stroke="#111"
+                    strokeWidth="12"
+                  />
+                  <rect
+                    x="22"
+                    y="22"
+                    width="956"
+                    height="516"
+                    rx="20"
+                    fill={`url(#${mask}-dots)`}
+                  />
+                  <path
+                    d="M40 42 H960"
+                    stroke="#fff"
+                    strokeWidth="10"
+                    opacity=".75"
+                  />
+                </g>
+                <text x="62" y="106" fontSize="46" fontWeight="900">
+                  {state.round + 1}
+                </text>
+              </g>
+              {(source === "mock" || (!cutoutVisible && input.poseVector)) && (
+                <g className="gate-body-guide">
+                  <PoseDrawing points={displayPose} />
+                </g>
+              )}
+            </svg>
+            {source === "vision" && (
+              <GateCutout
+                frames={pose.camera.bodyCutout}
+                onVisible={setCutoutVisible}
+              />
+            )}
+            <span className="gate-world-label">{t("gate.upperBodyWall")}</span>
+            {previewing && (
+              <div className="gate-preview-banner" role="status">
+                {t("gate.rememberPose")}
+              </div>
+            )}
+            {source === "vision" && (
+              <span
+                className="gate-cutout-status"
+                data-live={cutoutVisible}
+                role="status"
+              >
+                {t(
+                  cutoutVisible
+                    ? "gate.cutoutLive"
+                    : pose.camera.cutoutState === "unavailable"
+                      ? "gate.cutoutFallback"
+                      : "gate.cutoutWaiting",
+                )}
+              </span>
+            )}
+          </div>
           <div className="gate-rounds">
             {gateTargets.map((_, i) => (
               <span key={i} className={state.outcomes[i] ? "settled" : ""}>
@@ -605,6 +761,7 @@ export function GateResultPage({ tone }: { tone: PlaySound }) {
   return (
     <GameResult
       game="gate"
+      achievements={result.source === "vision"}
       score={result.score}
       best={Math.max(result.score, readGate(result.source).best)}
       newBest={result.newBest}

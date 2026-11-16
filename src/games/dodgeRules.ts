@@ -3,6 +3,7 @@ export type Obstacle = {
   x: number;
   y: number;
   side?: "left" | "right";
+  warning?: number;
 };
 export type DodgeState = {
   elapsed: number;
@@ -21,6 +22,7 @@ export type DodgeState = {
   maxAvoidStreak: number;
 };
 export const DODGE_DURATION = 30;
+export const dodgeLevel = (elapsed: number) => 1 + Math.floor(elapsed / 15);
 export function newDodge(): DodgeState {
   return {
     elapsed: 0,
@@ -55,8 +57,8 @@ export function advanceDodge(
   let s = { ...state, obstacles: state.obstacles.map((o) => ({ ...o })) };
   const endless = duration === Infinity;
   const hard = duration === DODGE_DURATION;
-  const speedRamp = endless ? 0.6 : hard ? 0.42 : 0.28;
-  const spawnRamp = endless ? 0.7 : hard ? 0.43 : 0.5;
+  const speedRamp = endless ? 0.6 : hard ? 0.54 : 0.28;
+  const spawnRamp = endless ? 0.7 : hard ? 0.52 : 0.5;
   let left = Math.max(0, Math.min(0.25, seconds));
   while (left > 0.00001 && !dodgeFinished(s, duration)) {
     const dt = Math.min(left, 0.02, duration - s.elapsed);
@@ -75,6 +77,9 @@ export function advanceDodge(
       : hard
         ? 0.65 + s.elapsed / 90
         : Math.min(1, s.elapsed / DODGE_DURATION);
+    const levelBoost = endless
+      ? Math.min(1.6, 1 + (dodgeLevel(s.elapsed) - 1) * 0.06)
+      : 1;
     s.spawnIn -= dt;
     if (s.spawnIn <= 0) {
       const id = s.nextId++;
@@ -87,14 +92,19 @@ export function advanceDodge(
           side,
           x: side === "left" ? -0.08 : 1.08,
           y: 0.5 + lane * 0.4,
+          warning: 0.65,
         });
       } else {
-        s.obstacles.push({ id, x: 0.1 + lane * 0.8, y: -0.08 });
+        s.obstacles.push({ id, x: 0.1 + lane * 0.8, y: -0.08, warning: 0.65 });
       }
-      s.spawnIn += 1 - difficulty * spawnRamp;
+      s.spawnIn += (1 - difficulty * spawnRamp) / levelBoost;
     }
-    const step = dt * (0.26 + difficulty * speedRamp);
+    const step = dt * (0.26 + difficulty * speedRamp) * levelBoost;
     s.obstacles = s.obstacles.filter((o) => {
+      if ((o.warning ?? 0) > 0) {
+        o.warning = Math.max(0, o.warning! - dt);
+        return true;
+      }
       if (o.side === "left") o.x += step;
       else if (o.side === "right") o.x -= step;
       else o.y += step;

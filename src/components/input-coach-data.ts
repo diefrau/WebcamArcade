@@ -5,6 +5,7 @@ export const inputKind: Record<GameId, "hand" | "face" | "body"> = {
   cham: "face",
   rps: "hand",
   dodge: "body",
+  gate: "body",
 };
 export const coachCopy: Record<
   GameId,
@@ -13,6 +14,14 @@ export const coachCopy: Record<
     steps: [[string, string], [string, string], [string, string]];
   }
 > = {
+  gate: {
+    goal: ["벽의 구멍과 같은 팔 자세를 만들어요.", "Match the wall opening"],
+    steps: [
+      ["준비", "Ready"],
+      ["자세 맞추기", "Pose"],
+      ["통과", "Pass"],
+    ],
+  },
   shoot: {
     goal: [
       "과녁을 조준하고 집어서 쏘세요.",
@@ -105,6 +114,7 @@ export const pointerCopy: typeof coachCopy = {
     ],
   },
   rps: coachCopy.rps,
+  gate: coachCopy.gate,
   dodge: {
     goal: [
       "좌우 버튼으로 장애물을 피하세요.",

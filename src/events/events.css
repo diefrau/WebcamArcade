@@ -1,0 +1,197 @@
+.event-popup,
+.events-page {
+  color: var(--ink);
+  background: #fffbed;
+  border: 4px solid #111;
+  border-radius: 28px;
+  box-shadow: 7px 8px #111;
+  padding: 28px;
+  position: relative;
+}
+.event-popup {
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100dvh - 40px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  margin: auto;
+}
+.event-popup::backdrop {
+  background: #19233399;
+  backdrop-filter: blur(3px);
+}
+.event-close {
+  position: absolute;
+  right: 14px;
+  top: 14px;
+  background: white;
+  border: 3px solid #111;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.event-eyebrow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-weight: 900;
+  color: #8c245e;
+  margin: 0 40px 12px 0;
+}
+.event-popup h1,
+.events-page h1 {
+  font-family: "Bagel Fat One";
+  letter-spacing: -0.02em;
+  font-size: clamp(28px, 4vw, 44px);
+  line-height: 1.25;
+  color: var(--yellow);
+  -webkit-text-stroke: 5px #111;
+  paint-order: stroke fill;
+  margin: 0 0 16px;
+}
+.event-illustration {
+  height: 190px;
+  border: 3px solid #111;
+  border-radius: 20px;
+  background:
+    radial-gradient(#fff9 2px, transparent 3px) 0 0/14px 14px,
+    var(--cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  overflow: hidden;
+}
+.event-illustration .character {
+  height: 100%;
+  width: auto;
+  max-width: 65%;
+}
+.event-illustration b {
+  font-family: "Black Han Sans";
+  font-size: 28px;
+  transform: rotate(-8deg);
+  color: #111;
+}
+.event-body {
+  line-height: 1.8;
+  font-weight: 700;
+  margin: 18px 0 12px;
+  white-space: pre-line;
+}
+.event-period {
+  font-size: 13px;
+  font-weight: 800;
+}
+.event-popup-actions {
+  position: sticky;
+  bottom: -28px;
+  background: #fffbed;
+  padding: 16px 0 24px;
+  display: grid;
+  gap: 16px;
+  margin-bottom: -28px;
+}
+.event-popup-actions .arcade-button {
+  justify-content: center;
+}
+.event-popup-actions label {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: 14px;
+  cursor: pointer;
+}
+.event-popup input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--pink);
+}
+.events-page {
+  max-width: 960px;
+  margin: 20px auto;
+}
+.events-page > h2 {
+  font-family: "Black Han Sans";
+  margin-top: 24px;
+}
+.event-missions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+.event-missions article {
+  display: grid;
+  gap: 12px;
+  border: 3px solid #111;
+  border-radius: 18px;
+  padding: 16px;
+  background: white;
+}
+.event-missions h3 {
+  font-size: 16px;
+  margin: 0;
+  min-height: 48px;
+}
+.event-missions progress {
+  width: 100%;
+  accent-color: #9be83f;
+  height: 20px;
+}
+.event-missions strong {
+  text-align: right;
+}
+.event-missions .arcade-button {
+  font-size: 15px;
+  justify-content: center;
+}
+.event-stamp {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: #eee;
+  border: 3px dashed #999;
+  border-radius: 18px;
+  padding: 20px;
+  margin-top: 24px;
+}
+.event-stamp svg {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+}
+.event-stamp.earned {
+  background: var(--yellow);
+  border: 3px solid #111;
+  box-shadow: 4px 4px #111;
+}
+@media (max-width: 640px) {
+  .event-popup,
+  .events-page {
+    padding: 20px;
+    border-radius: 22px;
+  }
+  .event-illustration {
+    height: 155px;
+    gap: 4px;
+  }
+  .event-illustration b {
+    font-size: 22px;
+  }
+  .event-missions {
+    grid-template-columns: 1fr;
+  }
+  .event-missions h3 {
+    min-height: 0;
+  }
+  .event-popup-actions {
+    bottom: -20px;
+    margin-bottom: -20px;
+  }
+  .event-body {
+    font-size: 14px;
+  }
+}

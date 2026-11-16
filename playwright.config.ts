@@ -11,6 +11,7 @@ export default defineConfig({
         {
           origin: "http://127.0.0.1:5177",
           localStorage: [
+            { name: "arcade.event.hiddenUntil", value: "4102444800000" },
             { name: "arcade.intro.seen.v1", value: "true" },
             {
               name: "arcade.player.choice",

@@ -60,7 +60,7 @@ export function AchievementCard({
                 ? ko
                   ? "공통"
                   : "General"
-                : t(item.gameId === "pose" ? "futurePose" : item.gameId!)}
+                : t(item.gameId === "gate" ? "gate.title" : item.gameId!)}
         </span>
       </div>
       <h2>{title}</h2>

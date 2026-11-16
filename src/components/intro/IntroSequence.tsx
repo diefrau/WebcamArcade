@@ -2,7 +2,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Volume2, VolumeX, ArrowRight } from "lucide-react";
-import { characterAssets } from "../../assets/characters";
+import {
+  characterAssets,
+  characterResponsiveProps,
+} from "../../assets/characters";
 import { EntryGate } from "./EntryGate";
 import { CountdownIntro } from "./CountdownIntro";
 import { TitleCard } from "./TitleCard";
@@ -51,6 +54,9 @@ export function IntroSequence({
     document.body.style.overflow = "hidden";
     document.documentElement.dataset.intro = "active";
     const image = new Image();
+    const { srcSet, sizes } = characterResponsiveProps("landing", "hero");
+    if (sizes) image.sizes = sizes;
+    if (srcSet) image.srcset = srcSet;
     image.src = characterAssets.landing.src;
     return () => {
       document.body.style.overflow = previous;

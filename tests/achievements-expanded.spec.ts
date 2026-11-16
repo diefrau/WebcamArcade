@@ -34,7 +34,7 @@ async function state(page: Page) {
 }
 test("catalog has translated stable unique entries and excludes unavailable conditions from completion", () => {
   expect(new Set(catalog.map((a) => a.id)).size).toBe(74);
-  expect(catalog.filter((a) => !a.pending)).toHaveLength(64);
+  expect(catalog.filter((a) => !a.pending)).toHaveLength(73);
   for (const id of ["chamMaster", "shootAll", "dodgeMinute", "dodgeDance"])
     expect(catalog.find((a) => a.id === id)?.pending).toBe(false);
   for (const a of catalog) {
@@ -232,8 +232,12 @@ test("filters hide secrets, pending goals cannot unlock, localized mobile layout
     "/play/circle",
   );
   await filters.last().click();
-  await expect(page.locator(".achievement-pending")).toHaveCount(9);
-  await expect(page.locator(".achievement-play")).toHaveCount(0);
+  await expect(page.locator(".achievement-pending")).toHaveCount(0);
+  await expect(page.locator(".achievement-grid article")).toHaveCount(9);
+  await expect(page.locator(".achievement-play")).toHaveAttribute(
+    "href",
+    "/play/gate",
+  );
   await filters.first().click();
   for (const width of [320, 390, 1920]) {
     await page.setViewportSize({ width, height: 1080 });
@@ -275,4 +279,76 @@ test("damaged cached stats recover from valid history instead of crashing the pa
   await page.goto("/achievements");
   await expect(page.locator(".achievement-grid article")).toHaveCount(74);
   expect((await state(page)).stats.totalGamesCompleted).toBe(0);
+});
+
+test("gate achievements require webcam evidence, accumulate across rounds and reset streaks on misses", async ({
+  page,
+}) => {
+  await page.goto("/achievements");
+  const outcomes = Array.from({ length: 5 }, (_, i) => ({
+    similarity: 100,
+    points: 300,
+    early: true,
+    earlyPerfect: true,
+    asymmetric: i === 2 || i === 3,
+  }));
+  const one = event("gate", {
+    score: 1500,
+    accuracy: 100,
+    inputMode: "body",
+    metadata: { gateOutcomes: outcomes },
+  });
+  expect(
+    await record(page, [
+      event("gate"),
+      { ...one, inputMode: "pointer" },
+      { ...one, score: 1501 },
+      { ...one, metadata: { gateOutcomes: [null] as any } },
+      one,
+      one,
+    ]),
+  ).toEqual([false, false, false, false, true, false]);
+  let s = await state(page);
+  expect(s.unlockedIds).toEqual(
+    expect.arrayContaining([
+      "poseFirst",
+      "pose80",
+      "pose95",
+      "poseQuick",
+      "poseFive",
+      "poseHint",
+      "poseFull",
+    ]),
+  );
+  expect(s.unlockedIds).not.toContain("poseTen");
+  const miss = event("gate", {
+    score: 1200,
+    inputMode: "body",
+    metadata: {
+      gateOutcomes: [
+        {
+          ...outcomes[0],
+          similarity: 0,
+          points: 0,
+          early: false,
+          earlyPerfect: false,
+        },
+        ...outcomes.slice(1),
+      ],
+    },
+  });
+  await record(page, [miss, { ...one, id: crypto.randomUUID() }]);
+  s = await state(page);
+  expect(s.unlockedIds).not.toContain("poseTen");
+  await record(
+    page,
+    Array.from({ length: 7 }, () => ({ ...one, id: crypto.randomUUID() })),
+  );
+  s = await state(page);
+  expect(s.unlockedIds).toEqual(
+    expect.arrayContaining(["poseTen", "poseRegular"]),
+  );
+  expect(s.stats.gamePlayCount.gate).toBe(10);
+  await page.reload();
+  expect((await state(page)).unlockedIds).toContain("poseRegular");
 });

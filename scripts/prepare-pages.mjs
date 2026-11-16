@@ -7,6 +7,7 @@ const html = await readFile(new URL("index.html", output), "utf8");
 const base = "/WebcamArcade";
 const routes = [
   "/games",
+  "/events",
   "/play/gate",
   "/result/gate",
   "/ranking",

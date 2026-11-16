@@ -223,7 +223,7 @@ export function CommunityPage({
                   setGameMode(gameModes[id][0]);
                 }}
               >
-                {t(id)}
+                {t(id === "gate" ? "gate.title" : id)}
               </button>
             ))}
           </div>
@@ -260,7 +260,7 @@ export function CommunityPage({
           </div>
           <section className="panel community-board">
             <h2>
-              {t(game)} ·{" "}
+              {t(game === "gate" ? "gate.title" : game)} ·{" "}
               {text(
                 online ? "온라인 랭킹" : "이 기기의 최고 기록",
                 online ? "Online rankings" : "Best on this device",

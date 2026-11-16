@@ -16,6 +16,7 @@ test.beforeEach(async ({ page }) => {
 
 const routes = [
   ["/games", ".selection-games"],
+  ["/events", ".events-page"],
   ["/ranking", ".community-board"],
   ["/achievements", ".achievement-grid"],
   ["/play/shoot", ".playfield"],

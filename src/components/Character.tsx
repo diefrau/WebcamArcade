@@ -1,4 +1,8 @@
-import { characterAssets, type CharacterAsset } from "../assets/characters";
+import {
+  characterAssets,
+  characterResponsiveProps,
+  type CharacterAsset,
+} from "../assets/characters";
 import "./character.css";
 
 type CharacterProps = {
@@ -20,6 +24,7 @@ export function Character({
   return (
     <img
       src={image.src}
+      {...characterResponsiveProps(asset, size, className)}
       width={image.width}
       height={image.height}
       className={`character character--${size} character--${image.layout} ${className}`}

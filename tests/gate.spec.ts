@@ -10,6 +10,9 @@ import {
   advanceGate,
   judgeGate,
   gateScore,
+  GATE_PREVIEW,
+  GATE_APPROACH,
+  GATE_FEEDBACK,
 } from "../src/games/gateRules";
 import { trajectory, recentPoints } from "../src/vision/shared/trajectory";
 import { lineCircle } from "../src/vision/shared/collision";
@@ -53,6 +56,27 @@ test("five wall crossings score once and finish identically at different render 
     ).toEqual(s);
   }
 });
+
+test("every wall previews without scoring before its approach begins", () => {
+  let s = newGate();
+  const input = adaptGameInput(mockVision(90, 90), "mock");
+  expect(s.phase).toBe("preview");
+  const advance = (seconds: number) => {
+    for (let i = 0; i < Math.round(seconds * 100); i++)
+      s = advanceGate(s, 0.01, input);
+  };
+  advance(GATE_PREVIEW - 0.1);
+  expect(s.phase).toBe("preview");
+  expect(s.outcomes).toHaveLength(0);
+  advance(0.1);
+  expect(s.phase).toBe("approach");
+  expect(s.elapsed).toBeCloseTo(0);
+  advance(GATE_APPROACH);
+  expect(s.outcomes).toHaveLength(1);
+  advance(GATE_FEEDBACK);
+  expect(s.round).toBe(1);
+  expect(s.phase).toBe("preview");
+});
 test("trajectory and collision math handle closed loops and zero-length lines", () => {
   const p = [
     { x: 0, y: 0, time: 0 },
@@ -95,8 +119,16 @@ test("mock gate completes, pauses, saves, reloads and replays without camera or 
   });
   await page.getByRole("button", { name: "시작!", exact: true }).click();
   await page.clock.runFor(3200);
+  await expect(page.locator(".gate-world")).toHaveAttribute(
+    "data-preview",
+    "true",
+  );
+  await expect(page.locator(".gate-preview-banner")).toHaveText(
+    "이 자세를 기억해!",
+  );
+  await expect(page.locator(".gate-body-guide")).toHaveCSS("opacity", "0");
   await page.screenshot({
-    path: "artifacts/gate-play-desktop.png",
+    path: "artifacts/gate-wall-preview.png",
     fullPage: true,
   });
   await page.getByRole("button", { name: "일시정지", exact: true }).click();
@@ -109,7 +141,17 @@ test("mock gate completes, pauses, saves, reloads and replays without camera or 
     await page
       .getByRole("button", { name: new RegExp(`^${i + 1}\\.`) })
       .click();
-    await page.clock.runFor(4500);
+    await expect(page.locator(".gate-world")).toHaveAttribute(
+      "data-preview",
+      "true",
+    );
+    await page.clock.runFor(GATE_PREVIEW * 1000);
+    await expect(page.locator(".gate-world")).toHaveAttribute(
+      "data-preview",
+      "false",
+    );
+    await expect(page.locator(".gate-body-guide")).toHaveCSS("opacity", "1");
+    await page.clock.runFor((GATE_APPROACH + GATE_FEEDBACK) * 1000);
   }
   await expect(page).toHaveURL(/result\/gate/);
   const record = await page.evaluate(() =>
@@ -150,7 +192,7 @@ test("gate mobile controls fit and English translations exist", async ({
     page
       .locator(".game-dialog")
       .getByText(
-        "This prototype uses no webcam. Prototype scores stay on this device.",
+        "Practice without a webcam. Practice scores stay on this device.",
       ),
   ).toBeVisible();
 });

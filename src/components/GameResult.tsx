@@ -20,7 +20,7 @@ const games = {
     color: "orange",
     description: "futureDodgeDesc",
   },
-  gate: { art: "pose", color: "purple", description: "gate.prototype" },
+  gate: { art: "pose", color: "purple", description: "gate.instruction" },
 } as const satisfies Record<
   GameId | "gate",
   { art: CharacterAsset; color: string; description: string }
@@ -43,6 +43,7 @@ export function GameResult({
   children,
   camera,
   extraAction,
+  achievements = true,
 }: {
   game: keyof typeof games;
   heading?: string;
@@ -57,6 +58,7 @@ export function GameResult({
   children?: ReactNode;
   camera?: ReactNode;
   extraAction?: ReactNode;
+  achievements?: boolean;
 }) {
   const { t } = useTranslation();
   const { art, color, description } = games[game];
@@ -73,7 +75,7 @@ export function GameResult({
         newBest={newBest}
         onCelebrate={(record) => tone(record ? "newBest" : "result")}
       />
-      <div className="game-result-layout" data-solo={game === "gate"}>
+      <div className="game-result-layout" data-solo={!achievements}>
         <section className="result-panel panel">
           <div className="result-game">
             <div className={`result-thumbnail ${color}`}>
@@ -109,7 +111,7 @@ export function GameResult({
           {children}
           {!saved && <p role="alert">{t("recordError")}</p>}
         </section>
-        {game !== "gate" && (
+        {achievements && (
           <div className="game-result-side">
             <ResultAchievements gameId={game} />
             {camera && (

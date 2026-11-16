@@ -1,0 +1,23 @@
+{
+  "before": {
+    "initialJS": 571804,
+    "initialJSGzip": 183187
+  },
+  "after": {
+    "js": {
+      "bytes": 464755,
+      "gzip": 153020
+    },
+    "css": {
+      "bytes": 107632,
+      "gzip": 22670
+    }
+  },
+  "freedCacheMiB": 622.79,
+  "imageBytes": {
+    "original7": 5234696,
+    "width320": 507850,
+    "width640": 1630044,
+    "width960": 3257290
+  }
+}

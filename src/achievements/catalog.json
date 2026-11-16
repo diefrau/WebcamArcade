@@ -463,74 +463,74 @@
   {
     "id": "poseFirst",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
+    "gameId": "gate",
+    "metric": "gate.first",
     "target": 1,
-    "pending": true
+    "pending": false
   },
   {
     "id": "pose80",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
-    "target": 1,
-    "pending": true
+    "gameId": "gate",
+    "metric": "gate.similarity",
+    "target": 80,
+    "pending": false
   },
   {
     "id": "pose95",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
-    "target": 1,
-    "pending": true
+    "gameId": "gate",
+    "metric": "gate.similarity",
+    "target": 95,
+    "pending": false
   },
   {
     "id": "poseQuick",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
+    "gameId": "gate",
+    "metric": "gate.quick",
     "target": 1,
-    "pending": true
+    "pending": false
   },
   {
     "id": "poseFive",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
-    "target": 1,
-    "pending": true
+    "gameId": "gate",
+    "metric": "gate.streak",
+    "target": 5,
+    "pending": false
   },
   {
     "id": "poseTen",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
-    "target": 1,
-    "pending": true
+    "gameId": "gate",
+    "metric": "gate.streak",
+    "target": 10,
+    "pending": false
   },
   {
     "id": "poseHint",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
+    "gameId": "gate",
+    "metric": "gate.hint",
     "target": 1,
-    "pending": true
+    "pending": false
   },
   {
     "id": "poseFull",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
+    "gameId": "gate",
+    "metric": "gate.asymmetric",
     "target": 1,
-    "pending": true
+    "pending": false
   },
   {
     "id": "poseRegular",
     "category": "game",
-    "gameId": "pose",
-    "metric": "pending",
-    "target": 1,
-    "pending": true
+    "gameId": "gate",
+    "metric": "plays.gate",
+    "target": 10,
+    "pending": false
   },
   {
     "id": "manners",

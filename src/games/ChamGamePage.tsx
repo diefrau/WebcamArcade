@@ -31,34 +31,13 @@ const arrows = { left: "←", right: "→", up: "↑", down: "↓", center: "•
 const RESPONSE_MS = 900;
 const SEEKER_RESPONSE_MS = 1000;
 const FEEDBACK_MS = 1000;
-type Round = {
-  computer: Direction;
-  player: Direction | null;
-  win: boolean;
-  responseMs?: number;
-};
-export type ChamResult = {
-  gameMode?: "standard" | "hard" | "seeker";
-  score: number;
-  wins: number;
-  rounds: Round[];
-  newBest: boolean;
-  saved: boolean;
-};
-export function readCham(): {
-  best: number;
-  plays: number;
-  last: ChamResult | null;
-} {
-  try {
-    const value = JSON.parse(localStorage.getItem("arcade.cham") || "null");
-    if (value && Number.isFinite(value.best) && Number.isFinite(value.plays))
-      return value;
-  } catch {
-    /* Storage can be disabled. */
-  }
-  return { best: 0, plays: 0, last: null };
-}
+import {
+  readCham,
+  type ChamResult,
+  type ChamRound as Round,
+} from "./chamRecords";
+export { readCham } from "./chamRecords";
+export type { ChamResult } from "./chamRecords";
 type Phase = "ready" | "countdown" | "respond" | "feedback" | "paused";
 
 import { pointingDirection } from "../vision/pointingDirection";
@@ -496,7 +475,7 @@ export function ChamGamePage({
         </aside>
         <section className="cham-stage panel">
           <div className="cham-stage-top">
-            <span className="cham-sticker">
+            <span className="cham-stage-command">
               {seeker
                 ? text("내가 술래!", "YOUR TURN!")
                 : text("다른 방향으로!", "LOOK AWAY!")}

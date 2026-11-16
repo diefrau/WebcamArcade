@@ -36,7 +36,11 @@ export function ResultAchievements({ gameId }: { gameId: GameId }) {
     <aside
       className="result-achievements panel"
       data-game={gameId}
-      aria-label={t(gameId) + " " + (ko ? "도전과제" : "achievements")}
+      aria-label={
+        t(gameId === "gate" ? "gate.title" : gameId) +
+        " " +
+        (ko ? "도전과제" : "achievements")
+      }
     >
       <header>
         <h2>

@@ -67,8 +67,8 @@ for (const game of ["shoot", "circle", "rps"]) {
     const viewport = page.viewportSize()!;
     let x = 1 - (0.12 + ((box!.x + box!.width / 2) / viewport.width) * 0.76);
     let y = 0.12 + ((box!.y + box!.height / 2) / viewport.height) * 0.76;
-    const send = (pinch: boolean) =>
-      page.evaluate(
+    const send = async (pinch: boolean) => {
+      await page.evaluate(
         ({ x, y, pinch }) => {
           const points = Array.from({ length: 21 }, () => ({ x, y, z: 0 }));
           points[5].x -= 0.1;
@@ -81,6 +81,10 @@ for (const game of ["shoot", "circle", "rps"]) {
         },
         { x, y, pinch },
       );
+      // Gesture smoothing uses elapsed time. A camera produces spaced frames,
+      // not five synchronous landmark events with nearly identical timestamps.
+      await page.waitForTimeout(50);
+    };
     // Entering with a closed pinch must not activate anything.
     await send(true);
     await expect(button).toBeVisible();

@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
   type ReactNode,
+  type RefObject,
 } from "react";
 import { visionProfile } from "./visionProfiles";
 import { emptyHand, GestureInterpreter, type HandSample } from "./gestures";
@@ -13,6 +14,7 @@ import { useLocation } from "react-router-dom";
 import { emptyFace, faceSample, type FaceSample } from "./face";
 import { emptyBody, bodySample, type BodySample } from "./body";
 import { useInputEnvironment } from "../components/InputEnvironment";
+import type { BodyCutoutFrame, CutoutState } from "./bodyCutout";
 import type { HomeMotionFrame } from "./homeSecrets";
 
 export type CameraState =
@@ -32,6 +34,8 @@ type CameraContextValue = {
   hand: HandSample;
   face: FaceSample;
   body: BodySample;
+  bodyCutout: RefObject<BodyCutoutFrame | null>;
+  cutoutState: CutoutState;
   homeTracking: boolean;
   homeMotion: HomeMotionFrame | null;
   tracking: "hand" | "face" | "body";
@@ -55,6 +59,13 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   const [homeMotion, setHomeMotion] = useState<HomeMotionFrame | null>(null);
   const profile = visionProfile(path, routeLocation.search);
   const pipelineEnabled = profile.detector !== null;
+  const segmentation = profile.segmentation;
+  const bodyCutout = useRef<BodyCutoutFrame | null>(null);
+  const [cutoutState, setCutoutState] = useState<CutoutState>("idle");
+  const clearCutout = useCallback(() => {
+    bodyCutout.current?.bitmap.close();
+    bodyCutout.current = null;
+  }, []);
   const tracking = profile.detector ?? "hand";
   const [body, setBody] = useState<BodySample>(emptyBody);
   const [face, setFace] = useState<FaceSample>(emptyFace);
@@ -72,6 +83,8 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     pending.current = false;
     activeStream.current?.getTracks().forEach((track) => track.stop());
     activeStream.current = null;
+    clearCutout();
+    setCutoutState("idle");
     setStream(null);
     setState("idle");
     setVision("idle");
@@ -79,7 +92,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     setFace({ ...emptyFace });
     setBody({ ...emptyBody });
     setHomeMotion(null);
-  }, []);
+  }, [clearCutout]);
   const connect = useCallback(async () => {
     if (pending.current || activeStream.current) return;
     const id = ++request.current;
@@ -140,6 +153,8 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   );
 
   useEffect(() => {
+    clearCutout();
+    setCutoutState(stream && segmentation ? "loading" : "idle");
     if (!stream || !pipelineEnabled) {
       setHand({ ...emptyHand });
       setFace({ ...emptyFace });
@@ -153,7 +168,8 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       raf = 0,
       busy = false,
       lastFrame = -1,
-      lastRun = 0;
+      lastRun = 0,
+      cutoutInterval = 84;
     let startupTimer: ReturnType<typeof setTimeout>;
     let frameTimer: ReturnType<typeof setTimeout>;
     let staleTimer: ReturnType<typeof setTimeout>;
@@ -168,6 +184,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     const invalidateTracking = () => {
       if (disposed) return;
       gesture.reset();
+      clearCutout();
       setHand({ ...emptyHand });
       setFace({ ...emptyFace });
       setBody({ ...emptyBody });
@@ -176,6 +193,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     const fail = () => {
       if (disposed) return;
       setVision("error");
+      setCutoutState(segmentation ? "unavailable" : "idle");
       invalidateTracking();
       worker?.terminate();
       worker = undefined;
@@ -195,7 +213,8 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         busy ||
         video.readyState < 2 ||
         video.currentTime === lastFrame ||
-        time - lastRun < (homeTracking ? 84 : 42)
+        time - lastRun <
+          (segmentation ? cutoutInterval : homeTracking ? 84 : 42)
       )
         return;
       busy = true;
@@ -242,10 +261,15 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         startupTimer = setTimeout(fail, 30000);
         worker.onerror = fail;
         worker.onmessage = (event) => {
-          if (disposed) return;
+          if (disposed) {
+            event.data.cutout?.close();
+            return;
+          }
           if (event.data.type === "ready") {
             clearTimeout(startupTimer);
             setVision("ready");
+            if (segmentation && event.data.segmentation === false)
+              setCutoutState("unavailable");
             raf = requestAnimationFrame(tick);
           } else if (event.data.type === "error") fail();
           else if (event.data.type === "result") {
@@ -284,6 +308,23 @@ export function CameraProvider({ children }: { children: ReactNode }) {
             }
             if (fresh) staleTimer = setTimeout(invalidateTracking, 900 - age);
             if (tracking === "body") {
+              clearCutout();
+              if (segmentation) {
+                // Back off on slow devices; never enqueue inference frames.
+                cutoutInterval = Math.min(200, Math.max(84, age * 1.15));
+                if (fresh && event.data.cutout && landmarks) {
+                  bodyCutout.current = {
+                    bitmap: event.data.cutout,
+                    landmarks,
+                    time: event.data.time,
+                  };
+                  setCutoutState("ready");
+                } else {
+                  event.data.cutout?.close();
+                  if (event.data.segmentation === false)
+                    setCutoutState("unavailable");
+                }
+              } else event.data.cutout?.close();
               setBody(
                 bodySample(landmarks, event.data.time, event.data.aspect),
               );
@@ -307,6 +348,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         worker.postMessage({
           type: "init",
           home: homeTracking,
+          segmentation,
           base: new URL(import.meta.env.BASE_URL, location.href).href,
         });
       } catch {
@@ -325,11 +367,21 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       clearTimeout(frameTimer);
       clearTimeout(staleTimer);
       worker?.terminate();
+      clearCutout();
       video.pause();
       video.srcObject = null;
       video.remove();
     };
-  }, [stream, attempt, disconnect, tracking, homeTracking, pipelineEnabled]);
+  }, [
+    stream,
+    attempt,
+    disconnect,
+    tracking,
+    homeTracking,
+    pipelineEnabled,
+    segmentation,
+    clearCutout,
+  ]);
   return (
     <CameraContext.Provider
       value={{
@@ -339,6 +391,8 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         hand,
         face,
         body,
+        bodyCutout,
+        cutoutState,
         homeTracking,
         homeMotion,
         tracking,

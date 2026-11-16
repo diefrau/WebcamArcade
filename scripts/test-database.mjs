@@ -66,6 +66,15 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    new URL(
+      "../supabase/migrations/202611170001_gate_rankings.sql",
+      import.meta.url,
+    ),
+    "utf8",
+  ),
+);
 const a = "11111111-1111-4111-8111-111111111111",
   b = "22222222-2222-4222-8222-222222222222";
 await db.query("insert into auth.users values($1),($2)", [a, b]);
@@ -311,6 +320,21 @@ assert.equal(
     )
   ).rows[0].max_count,
   0,
+);
+const gateId = crypto.randomUUID();
+await submit(gateId, "gate", 1500, 100, 22.5);
+await submit(gateId, "gate", 1500, 100, 22.5);
+await submit(crypto.randomUUID(), "gate", 1500, 100, 22.5);
+const gateBoard = (
+  await db.query("select * from public.arcade_board_mode_v2('gate','standard')")
+).rows;
+assert.equal(gateBoard[0].score, 1500);
+assert.equal(gateBoard[0].max_count, 2);
+await assert.rejects(submit(crypto.randomUUID(), "gate", 1501));
+await assert.rejects(
+  db.query("select public.arcade_submit_mode($1,'gate',100,0,1,'hard')", [
+    crypto.randomUUID(),
+  ]),
 );
 await db.exec("reset role;set role anon");
 assert.equal(

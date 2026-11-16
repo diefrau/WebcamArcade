@@ -1,6 +1,13 @@
 import { readSecrets, type SecretId } from "./secrets";
 import type { GameResultDetails } from "../achievements/types";
-export const gameIds = ["shoot", "circle", "cham", "rps", "dodge"] as const;
+export const gameIds = [
+  "shoot",
+  "circle",
+  "cham",
+  "rps",
+  "dodge",
+  "gate",
+] as const;
 export type GameId = (typeof gameIds)[number];
 export type Run = {
   id: string;
@@ -47,6 +54,7 @@ const caps: Record<GameId, number> = {
   cham: 1000,
   rps: 500,
   dodge: 10000,
+  gate: 1500,
 };
 export const isEndless = (mode?: string) =>
   mode === "endless" || mode === "vertical-endless";
@@ -174,6 +182,7 @@ export const gameModes: Record<GameId, GameMode[]> = {
   dodge: ["endless", "standard", "vertical-endless", "vertical"],
   circle: ["standard"],
   rps: ["standard"],
+  gate: ["standard"],
 };
 const modeBestKey = "arcade.mode-bests.v1";
 export function saveModeBest(game: GameId, mode: GameMode, score: number) {
