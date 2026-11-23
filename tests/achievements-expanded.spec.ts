@@ -33,8 +33,10 @@ async function state(page: Page) {
   );
 }
 test("catalog has translated stable unique entries and excludes unavailable conditions from completion", () => {
-  expect(new Set(catalog.map((a) => a.id)).size).toBe(74);
-  expect(catalog.filter((a) => !a.pending)).toHaveLength(73);
+  expect(new Set(catalog.map((a) => a.id)).size).toBe(107);
+  expect(catalog.filter((a) => !a.pending)).toHaveLength(106);
+  for (const [game, count] of [["face-hockey", 10], ["slice", 9], ["bubble-shooter", 14]] as const)
+    expect(catalog.filter((a) => "gameId" in a && a.gameId === game)).toHaveLength(count);
   for (const id of ["chamMaster", "shootAll", "dodgeMinute", "dodgeDance"])
     expect(catalog.find((a) => a.id === id)?.pending).toBe(false);
   for (const a of catalog) {
@@ -43,6 +45,39 @@ test("catalog has translated stable unique entries and excludes unavailable cond
     expect(a.target).toBeGreaterThan(0);
   }
 });
+test("new arcade achievements distinguish wins, clean rounds, and Bubble Pop modes", async ({ page }) => {
+  await page.goto("/achievements");
+  const hockey = { score: 5, misses: 2, duration: 60, metadata: {
+    hockeyGoalStreak: 3, hockeyDeficit: 2, hockeyFastGoal: true,
+  } };
+  const slice = { duration: 30, hits: 30, misses: 0, maxCombo: 10, metadata: {
+    sliceFruitAppeared: 30, sliceMaxSwipe: 4,
+  } };
+  const survival = { gameMode: "time-attack", duration: 61, metadata: {
+    bubblePopped: 40, bubbleSurvivedRows: 20, bubbleMouthShots: 1,
+    bubbleShotPopped: 6, bubbleMatchStreak: 3, bubbleBankMatch: true,
+  } } as const;
+  await record(page, [event("face-hockey", hockey), event("slice", slice), event("bubble-shooter", survival)]);
+  let unlocked = (await state(page)).unlockedIds;
+  expect(unlocked).toEqual(expect.arrayContaining([
+    "hockeyFirst", "hockeyStreak", "hockeyComeback", "hockeyLead", "hockeyFast",
+    "sliceQuad", "sliceCombo", "sliceThirty", "sliceNoBomb", "slicePerfect",
+    "bubbleMouth", "bubbleBigShot", "bubbleStreak", "bubbleBank",
+    "bubbleSurvivalTwenty", "bubbleSurvivalCombo",
+  ]));
+  expect(unlocked).not.toContain("hockeyShutout");
+  expect(unlocked).not.toContain("bubbleBothModes");
+  expect(unlocked).not.toContain("bubbleEndlessFifty");
+  await record(page, [
+    ...Array.from({ length: 9 }, () => event("face-hockey", { score: 1, misses: 0 })),
+    event("bubble-shooter", { gameMode: "endless", duration: 300, metadata: { bubblePopped: 100 } }),
+  ]);
+  unlocked = (await state(page)).unlockedIds;
+  expect(unlocked).toEqual(expect.arrayContaining([
+    "hockeyWins", "hockeyShutout", "bubbleBothModes", "bubbleEndlessHundred", "bubbleEndlessFive",
+  ]));
+});
+
 test("real counters persist past history limits, reject malformed results and ignore duplicate events", async ({
   page,
 }) => {
@@ -218,27 +253,33 @@ test("filters hide secrets, pending goals cannot unlock, localized mobile layout
   page,
 }) => {
   await page.goto("/achievements");
-  await expect(page.locator(".achievement-grid article")).toHaveCount(74);
+  await expect(page.locator(".achievement-grid article")).toHaveCount(107);
   await expect(page.locator(".secret-locked h2")).toHaveText(
     Array(6).fill("???"),
   );
   await expect(page.locator(".achievement-grid")).not.toContainText("어허");
   const filters = page.locator(".achievement-filters button");
-  await filters.nth(2).click();
+  await filters.getByText("원 그리기", { exact: true }).click();
   await expect(page.locator(".achievement-grid article")).toHaveCount(10);
   await expect(page.locator(".secret-achievement")).toHaveCount(0);
   await expect(page.locator(".achievement-play")).toHaveAttribute(
     "href",
     "/play/circle",
   );
-  await filters.last().click();
+  await filters.getByText("벽 통과!", { exact: true }).click();
   await expect(page.locator(".achievement-pending")).toHaveCount(0);
   await expect(page.locator(".achievement-grid article")).toHaveCount(9);
   await expect(page.locator(".achievement-play")).toHaveAttribute(
     "href",
     "/play/gate",
   );
-  await filters.first().click();
+  await filters.getByText("얼굴 하키", { exact: true }).click();
+  await expect(page.locator(".achievement-grid article")).toHaveCount(10);
+  await filters.getByText("썰어!", { exact: true }).click();
+  await expect(page.locator(".achievement-grid article")).toHaveCount(9);
+  await filters.getByText("버블 팡!", { exact: true }).click();
+  await expect(page.locator(".achievement-grid article")).toHaveCount(14);
+  await filters.last().click();
   for (const width of [320, 390, 1920]) {
     await page.setViewportSize({ width, height: 1080 });
     expect(
@@ -277,7 +318,7 @@ test("damaged cached stats recover from valid history instead of crashing the pa
     ),
   );
   await page.goto("/achievements");
-  await expect(page.locator(".achievement-grid article")).toHaveCount(74);
+  await expect(page.locator(".achievement-grid article")).toHaveCount(107);
   expect((await state(page)).stats.totalGamesCompleted).toBe(0);
 });
 

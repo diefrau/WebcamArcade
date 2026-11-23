@@ -23,6 +23,7 @@ export type SliceItem = {
   vy: number;
   radius: number;
   kind: (typeof fruitKinds)[number] | "bomb";
+  appeared?: boolean;
 };
 
 export type SliceRound = {
@@ -30,6 +31,8 @@ export type SliceRound = {
   score: number;
   lives: number;
   sliced: number;
+  fruitAppeared: number;
+  maxSwipe: number;
   combo: number;
   maxCombo: number;
   lastCut: number;
@@ -44,6 +47,8 @@ export function newSliceRound(): SliceRound {
     score: 0,
     lives: SLICE_LIVES,
     sliced: 0,
+    fruitAppeared: 0,
+    maxSwipe: 0,
     combo: 0,
     maxCombo: 0,
     lastCut: -Infinity,
@@ -61,7 +66,7 @@ export function advanceSlice(
 ) {
   round.elapsed = Math.min(SLICE_SECONDS, round.elapsed + dt);
   if (round.elapsed - round.lastCut > 0.65) round.combo = 0;
-  if (round.elapsed >= round.nextWave) {
+  if (round.elapsed < SLICE_SECONDS && round.elapsed >= round.nextWave) {
     round.wave++;
     round.nextWave += round.elapsed > 16 ? 0.9 : 1.12;
     const center = 205 + random() * 550;
@@ -87,6 +92,10 @@ export function advanceSlice(
     item.x += item.vx * dt;
     item.y += item.vy * dt + (gravity * dt * dt) / 2;
     item.vy += gravity * dt;
+    if (item.kind !== "bomb" && !item.appeared && item.y - item.radius < SLICE_HEIGHT) {
+      item.appeared = true;
+      round.fruitAppeared++;
+    }
   }
   round.items = round.items.filter(
     (item) => item.vy < 0 || item.y - item.radius < SLICE_HEIGHT,
@@ -94,14 +103,21 @@ export function advanceSlice(
 }
 
 export class SlashTracker {
+  private fruitCut = 0;
   private points: TimedPoint[] = [];
   private hand?: string;
   private cutThrough = -Infinity;
 
   reset() {
+    this.fruitCut = 0;
     this.points = [];
     this.hand = undefined;
     this.cutThrough = -Infinity;
+  }
+
+  countFruit(count: number) {
+    this.fruitCut += count;
+    return this.fruitCut;
   }
 
   canBridge(point: TimedPoint, hand?: string) {
@@ -129,7 +145,10 @@ export class SlashTracker {
     this.hand = hand;
     this.points = recentPoints(this.points, point.time, SLICE_SAMPLE_GAP_MS);
     const start = this.points.at(-1);
-    if (start && trajectory([start, point]).velocity < 620) this.points = [];
+    if (start && trajectory([start, point]).velocity < 620) {
+      this.points = [];
+      this.fruitCut = 0;
+    }
     this.points.push(point);
     const { length, linearity } = trajectory(this.points);
     if (length < 26 || linearity < 0.72) return null;
@@ -158,6 +177,7 @@ export function cutAlongPath(round: SliceRound, path: TimedPoint[]) {
         round.combo = 0;
         if (!round.lives) break;
       } else {
+        if (!item.appeared) round.fruitAppeared++;
         round.sliced++;
         round.lastCut = round.elapsed;
         round.combo++;

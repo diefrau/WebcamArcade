@@ -194,6 +194,10 @@ export function SliceGamePage({
       hits: sliced,
       misses: SLICE_LIVES - lives,
       maxCombo,
+      metadata: {
+        sliceFruitAppeared: game.current.fruitAppeared,
+        sliceMaxSwipe: game.current.maxSwipe,
+      },
       newBest,
     });
     const result: SliceResult = {
@@ -223,6 +227,8 @@ export function SliceGamePage({
     trail.current = { points: path, born: now };
     const cut = cutAlongPath(game.current, path);
     if (!cut.length) return;
+    const fruit = track.current.countFruit(cut.filter((item) => item.kind !== "bomb").length);
+    game.current.maxSwipe = Math.max(game.current.maxSwipe, fruit);
     for (const item of cut) {
       if (!reduceMotion || item.kind === "bomb")
         bursts.current.push({ item, born: now });
@@ -666,7 +672,6 @@ export function SliceResultPage({ tone }: { tone: PlaySound }) {
       saved={result.saved}
       replay="/play/slice"
       tone={tone}
-      achievements={false}
       stats={[
         { label: t("sliceCutCount"), value: result.sliced },
         { label: t("combo"), value: result.combo },

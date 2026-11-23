@@ -64,7 +64,7 @@
   "bubbleRules": "같은 색을 3개 이상 연결해 {{count}}발 안에 모두 터뜨려요. 1~3발마다 새 줄이 내려와요.",
   "bubbleRowCounter": "다음 줄까지 {{count}}발",
   "bubbleRowTimer": "다음 줄까지 {{seconds}}초",
-  "bubbleTimeAttack": "타임어택",
+  "bubbleTimeAttack": "서바이벌",
   "bubbleEndlessRules": "발사 횟수는 무제한이에요. 1~3발마다 새 줄이 내려와요.",
   "bubbleTimedRules": "{{seconds}}초마다 새 줄이 내려와요. 시간과 발사 횟수는 무제한이에요.",
   "bubbleShots": "{{count}}발",
@@ -285,6 +285,138 @@
   "replayIntro": "인트로 다시 보기",
   "achievements": {
     "items": {
+      "hockeyFirst": {
+        "title": "얼굴 좀 봅시다!",
+        "description": "얼굴 하키 경기를 처음으로 완료하세요."
+      },
+      "hockeyGoal": {
+        "title": "얼굴로 한 골!",
+        "description": "상대방의 골대에 처음으로 골을 넣으세요."
+      },
+      "hockeyThree": {
+        "title": "얼굴값 하는 중",
+        "description": "한 경기에서 3골 이상 득점하세요."
+      },
+      "hockeyFive": {
+        "title": "안면 강타!",
+        "description": "한 경기에서 5골 이상 득점하세요."
+      },
+      "hockeyShutout": {
+        "title": "어림도 없지!",
+        "description": "상대에게 한 골도 내주지 않고 승리하세요."
+      },
+      "hockeyStreak": {
+        "title": "못 막겠지?",
+        "description": "상대의 득점 없이 3골을 연속으로 넣으세요."
+      },
+      "hockeyComeback": {
+        "title": "이게 역전이 되네?",
+        "description": "2골 이상 뒤처진 상황에서 역전 승리하세요."
+      },
+      "hockeyLead": {
+        "title": "얼굴이 무기다",
+        "description": "상대보다 3골 이상 앞선 점수로 승리하세요."
+      },
+      "hockeyWins": {
+        "title": "이 구역의 얼굴",
+        "description": "얼굴 하키에서 누적 10승을 달성하세요."
+      },
+      "hockeyFast": {
+        "title": "초고속 안면 슛",
+        "description": "강력한 속도로 퍽을 날려 골을 넣으세요."
+      },
+      "sliceFirst": {
+        "title": "칼을 뽑았다!",
+        "description": "처음으로 재료 하나를 성공적으로 베어보세요."
+      },
+      "sliceDouble": {
+        "title": "일석이조!",
+        "description": "한 번의 손동작으로 재료 2개를 동시에 베세요."
+      },
+      "sliceTriple": {
+        "title": "일석삼조!",
+        "description": "한 번의 손동작으로 재료 3개를 동시에 베세요."
+      },
+      "sliceQuad": {
+        "title": "이게 다 썰리네?",
+        "description": "한 번의 손동작으로 재료 4개 이상을 동시에 베세요."
+      },
+      "sliceCombo": {
+        "title": "칼춤 좀 추시네?",
+        "description": "10콤보를 달성하세요."
+      },
+      "sliceTwenty": {
+        "title": "오늘 저녁은 내가!",
+        "description": "한 판에서 재료 20개 이상을 베세요."
+      },
+      "sliceThirty": {
+        "title": "주방의 지배자",
+        "description": "한 판에서 재료 30개 이상을 베세요."
+      },
+      "sliceNoBomb": {
+        "title": "폭탄은 반찬이 아니야!",
+        "description": "한 판에서 재료 15개 이상을 베고, 위험물에 한 번도 닿지 않은 채 게임을 완료하세요."
+      },
+      "slicePerfect": {
+        "title": "흘리는 건 못 참지",
+        "description": "재료가 10개 이상 등장한 한 판에서 정상 재료를 하나도 놓치지 않고 완료하세요."
+      },
+      "bubbleMouth": {
+        "title": "입 좀 벌려봐!",
+        "description": "입을 벌려 버블을 처음으로 발사하세요."
+      },
+      "bubbleFirstPop": {
+        "title": "팡! 터졌다!",
+        "description": "같은 색 버블을 3개 이상 연결해 처음으로 제거하세요."
+      },
+      "bubbleBigShot": {
+        "title": "한 방에 와르르!",
+        "description": "단 한 번의 발사로 버블 6개 이상을 제거하세요."
+      },
+      "bubbleStreak": {
+        "title": "입이 쉬질 않네!",
+        "description": "3번 연속 발사하여 매번 버블 제거에 성공하세요."
+      },
+      "bubbleBank": {
+        "title": "벽도 내 편이야!",
+        "description": "벽에 버블을 반사시켜 버블 제거에 성공하세요."
+      },
+      "bubbleBothModes": {
+        "title": "양쪽 다 맛봤다!",
+        "description": "무한 모드와 서바이벌 모드를 각각 한 번 이상 플레이 완료하세요."
+      },
+      "bubbleEndlessFifty": {
+        "title": "이제 시작인데?",
+        "description": "무한 모드 한 판에서 버블 50개 이상을 제거하세요."
+      },
+      "bubbleEndlessHundred": {
+        "title": "언제 끝나요?",
+        "description": "무한 모드 한 판에서 버블 100개 이상을 제거하세요."
+      },
+      "bubbleEndlessThree": {
+        "title": "입에 모터 달았나?",
+        "description": "무한 모드에서 3분 이상 생존하세요."
+      },
+      "bubbleEndlessFive": {
+        "title": "끝이 없는 팡!",
+        "description": "무한 모드에서 5분 이상 생존하세요."
+      },
+      "bubbleSurvivalFive": {
+        "title": "줄줄이 내려온다!",
+        "description": "서바이벌 모드에서 새 줄이 5번 내려올 때까지 생존하세요. (약 15초)"
+      },
+      "bubbleSurvivalTen": {
+        "title": "아직 공간 있어!",
+        "description": "서바이벌 모드에서 새 줄이 10번 내려올 때까지 생존하세요. (약 30초)"
+      },
+      "bubbleSurvivalTwenty": {
+        "title": "이 정도는 버텨야지!",
+        "description": "서바이벌 모드에서 새 줄이 20번 내려올 때까지 생존하세요. (약 60초)"
+      },
+      "bubbleSurvivalCombo": {
+        "title": "내려와도 소용없어!",
+        "description": "서바이벌 모드 한 판에서 새 줄이 10번 내려올 때까지 생존하고 버블 40개 이상을 제거하세요."
+      },
       "first": {
         "title": "첫 발을 내딛다!",
         "description": "게임 1회 완료"

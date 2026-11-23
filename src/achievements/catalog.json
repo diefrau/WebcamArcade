@@ -533,6 +533,270 @@
     "pending": false
   },
   {
+    "id": "hockeyFirst",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "plays.face-hockey",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "hockeyGoal",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "score.face-hockey",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "hockeyThree",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "score.face-hockey",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "hockeyFive",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "score.face-hockey",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "hockeyShutout",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "hockey.shutout",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "hockeyStreak",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "hockey.streak",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "hockeyComeback",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "hockey.comeback",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "hockeyLead",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "hockey.lead",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "hockeyWins",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "hockey.wins",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "hockeyFast",
+    "category": "game",
+    "gameId": "face-hockey",
+    "metric": "hockey.fast",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "sliceFirst",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.fruit",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "sliceDouble",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.swipe",
+    "target": 2,
+    "pending": false
+  },
+  {
+    "id": "sliceTriple",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.swipe",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "sliceQuad",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.swipe",
+    "target": 4,
+    "pending": false
+  },
+  {
+    "id": "sliceCombo",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.combo",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "sliceTwenty",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.fruit",
+    "target": 20,
+    "pending": false
+  },
+  {
+    "id": "sliceThirty",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.fruit",
+    "target": 30,
+    "pending": false
+  },
+  {
+    "id": "sliceNoBomb",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.noBomb",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "slicePerfect",
+    "category": "game",
+    "gameId": "slice",
+    "metric": "slice.perfectFruit",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "bubbleMouth",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.mouth",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "bubbleFirstPop",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.popped",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "bubbleBigShot",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.shot",
+    "target": 6,
+    "pending": false
+  },
+  {
+    "id": "bubbleStreak",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.streak",
+    "target": 3,
+    "pending": false
+  },
+  {
+    "id": "bubbleBank",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.bank",
+    "target": 1,
+    "pending": false
+  },
+  {
+    "id": "bubbleBothModes",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.modes",
+    "target": 2,
+    "pending": false
+  },
+  {
+    "id": "bubbleEndlessFifty",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.endlessPopped",
+    "target": 50,
+    "pending": false
+  },
+  {
+    "id": "bubbleEndlessHundred",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.endlessPopped",
+    "target": 100,
+    "pending": false
+  },
+  {
+    "id": "bubbleEndlessThree",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.endlessSeconds",
+    "target": 180,
+    "pending": false
+  },
+  {
+    "id": "bubbleEndlessFive",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.endlessSeconds",
+    "target": 300,
+    "pending": false
+  },
+  {
+    "id": "bubbleSurvivalFive",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.survivalRows",
+    "target": 5,
+    "pending": false
+  },
+  {
+    "id": "bubbleSurvivalTen",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.survivalRows",
+    "target": 10,
+    "pending": false
+  },
+  {
+    "id": "bubbleSurvivalTwenty",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.survivalRows",
+    "target": 20,
+    "pending": false
+  },
+  {
+    "id": "bubbleSurvivalCombo",
+    "category": "game",
+    "gameId": "bubble-shooter",
+    "metric": "bubble.survivalCombo",
+    "target": 1,
+    "pending": false
+  },
+  {
     "id": "manners",
     "category": "secret",
     "metric": "secret",

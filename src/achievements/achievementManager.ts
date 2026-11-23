@@ -329,7 +329,10 @@ export function validResult(event: GameResultEvent) {
     event.metadata !== undefined &&
     (!event.metadata ||
       typeof event.metadata !== "object" ||
-      ["maxSafeSeconds", "maxAvoidStreak", "dodged"].some((key) => {
+      ["maxSafeSeconds", "maxAvoidStreak", "dodged", "hockeyGoalStreak",
+        "hockeyDeficit", "sliceFruitAppeared", "sliceMaxSwipe", "bubblePopped",
+        "bubbleMouthShots", "bubbleShotPopped", "bubbleMatchStreak",
+        "bubbleSurvivedRows"].some((key) => {
         const value = (event.metadata as Record<string, unknown>)[key];
         return value !== undefined && !finite(value);
       }))
@@ -499,6 +502,47 @@ export function recordGameResult(event: GameResultEvent): boolean {
       set("dodge.safe", event.metadata.maxSafeSeconds);
     if (finite(event.metadata?.maxAvoidStreak))
       set("dodge.streak", event.metadata.maxAvoidStreak);
+  }
+  if (g === "face-hockey" && event.misses !== undefined) {
+    const lead = event.score - event.misses;
+    set("hockey.streak", event.metadata?.hockeyGoalStreak ?? 0);
+    flag("hockey.fast", event.metadata?.hockeyFastGoal === true);
+    if (lead > 0) {
+      set("hockey.wins", (s.facts["hockey.wins"] ?? 0) + 1);
+      set("hockey.lead", lead);
+      flag("hockey.shutout", event.misses === 0);
+      flag("hockey.comeback", (event.metadata?.hockeyDeficit ?? 0) >= 2);
+    }
+  }
+  if (g === "slice") {
+    const fruit = event.hits ?? 0;
+    set("slice.fruit", fruit);
+    set("slice.swipe", event.metadata?.sliceMaxSwipe ?? 0);
+    set("slice.combo", event.maxCombo ?? 0);
+    flag("slice.noBomb", fruit >= 15 && event.misses === 0);
+    flag("slice.perfectFruit", fruit >= 10 && event.duration >= 30 &&
+      event.metadata?.sliceFruitAppeared === fruit);
+  }
+  if (g === "bubble-shooter") {
+    const popped = event.metadata?.bubblePopped ?? 0;
+    set("bubble.mouth", event.metadata?.bubbleMouthShots ?? 0);
+    set("bubble.popped", popped);
+    set("bubble.shot", event.metadata?.bubbleShotPopped ?? 0);
+    set("bubble.streak", event.metadata?.bubbleMatchStreak ?? 0);
+    flag("bubble.bank", event.metadata?.bubbleBankMatch === true);
+    if (event.gameMode === "endless") {
+      set("bubble.endlessPopped", popped);
+      set("bubble.endlessSeconds", event.duration);
+      flag("bubble.endlessPlayed", true);
+    }
+    if (event.gameMode === "time-attack") {
+      const rows = event.metadata?.bubbleSurvivedRows ?? 0;
+      set("bubble.survivalRows", rows);
+      flag("bubble.survivalCombo", rows >= 10 && popped >= 40);
+      flag("bubble.survivalPlayed", true);
+    }
+    set("bubble.modes", (s.facts["bubble.endlessPlayed"] ?? 0) +
+      (s.facts["bubble.survivalPlayed"] ?? 0));
   }
   if (g === "gate") {
     const outcomes = event.metadata?.gateOutcomes ?? [];

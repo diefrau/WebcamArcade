@@ -28,6 +28,11 @@ export type HockeyState = {
   players: Record<Side, Disc>;
   puck: Disc;
   score: Record<Side, number>;
+  goalStreak: number;
+  maxGoalStreak: number;
+  maxDeficit: number;
+  fastShot: boolean;
+  fastGoal: boolean;
   serveIn: number;
   serveDirection: -1 | 1;
   cpuTarget: Point2D;
@@ -59,6 +64,11 @@ export function newHockey(): HockeyState {
     players: { player: disc(PLAYER_HOME), cpu: disc(CPU_HOME) },
     puck: disc(HOCKEY_CENTER),
     score: { player: 0, cpu: 0 },
+    goalStreak: 0,
+    maxGoalStreak: 0,
+    maxDeficit: 0,
+    fastShot: false,
+    fastGoal: false,
     serveIn: SERVE_DELAY,
     serveDirection: -1,
     cpuTarget: CPU_HOME,
@@ -144,6 +154,7 @@ function bounceFromMallet(state: HockeyState, side: Side, dt: number) {
   puck.vx += impulse * nx;
   puck.vy += impulse * ny;
   const speed = Math.hypot(puck.vx, puck.vy);
+  state.fastShot = side === "player" && speed >= 900;
   if (speed > MAX_PUCK_SPEED) {
     puck.vx *= MAX_PUCK_SPEED / speed;
     puck.vy *= MAX_PUCK_SPEED / speed;
@@ -204,6 +215,15 @@ export function stepHockey(
   const goal = rails(puck);
   if (goal) {
     state.score[goal]++;
+    if (goal === "player") {
+      state.goalStreak++;
+      state.maxGoalStreak = Math.max(state.maxGoalStreak, state.goalStreak);
+      state.fastGoal ||= state.fastShot;
+    } else {
+      state.goalStreak = 0;
+      state.maxDeficit = Math.max(state.maxDeficit, state.score.cpu - state.score.player);
+    }
+    state.fastShot = false;
     state.puck = disc(HOCKEY_CENTER);
     state.serveIn = SERVE_DELAY;
     state.serveDirection = goal === "player" ? 1 : -1;

@@ -225,7 +225,7 @@ test("the mode selector shows unlimited shots and a three-second row countdown",
   await stage.getByRole("button", { name: "무한 모드", exact: true }).click();
   await expect(shots.locator("strong")).toHaveText("∞");
   await expect(shots).toContainText("발");
-  await stage.getByRole("button", { name: "타임어택", exact: true }).click();
+  await stage.getByRole("button", { name: "서바이벌", exact: true }).click();
   await expect(shots).toContainText("다음 줄까지 3초");
   const start = stage.getByRole("button", { name: "시작!", exact: true });
   await page.clock.pauseAt(new Date(Date.now() + 220));

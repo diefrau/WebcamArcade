@@ -65,7 +65,7 @@
   "bubbleRowCounter_one": "{{count}} shot until the next row",
   "bubbleRowCounter_other": "{{count}} shots until the next row",
   "bubbleRowTimer": "Next row in {{seconds}}s",
-  "bubbleTimeAttack": "Time Attack",
+  "bubbleTimeAttack": "Survival",
   "bubbleEndlessRules": "Shots are unlimited. A new row drops every 1–3 shots.",
   "bubbleTimedRules": "A new row drops every {{seconds}} seconds. There is no time or shot limit.",
   "bubbleShots": "{{count}} shots",
@@ -286,6 +286,138 @@
   "replayIntro": "Replay intro",
   "achievements": {
     "items": {
+      "hockeyFirst": {
+        "title": "Face-Off!",
+        "description": "Complete your first Face Hockey match."
+      },
+      "hockeyGoal": {
+        "title": "Face the Goal",
+        "description": "Score your first goal."
+      },
+      "hockeyThree": {
+        "title": "Hat Trick",
+        "description": "Score at least 3 goals in one match."
+      },
+      "hockeyFive": {
+        "title": "Five-Star Face",
+        "description": "Score at least 5 goals in one match."
+      },
+      "hockeyShutout": {
+        "title": "Not a Chance!",
+        "description": "Win without conceding a goal."
+      },
+      "hockeyStreak": {
+        "title": "Can't Stop Me",
+        "description": "Score 3 goals in a row without conceding."
+      },
+      "hockeyComeback": {
+        "title": "What a Comeback!",
+        "description": "Win after trailing by at least 2 goals."
+      },
+      "hockeyLead": {
+        "title": "Face the Music",
+        "description": "Win by at least 3 goals."
+      },
+      "hockeyWins": {
+        "title": "Face of the Arena",
+        "description": "Win 10 Face Hockey matches."
+      },
+      "hockeyFast": {
+        "title": "Face Rocket",
+        "description": "Score with a high-speed puck shot."
+      },
+      "sliceFirst": {
+        "title": "Draw Your Blade",
+        "description": "Slice your first ingredient."
+      },
+      "sliceDouble": {
+        "title": "Two in One",
+        "description": "Slice 2 ingredients in one swipe."
+      },
+      "sliceTriple": {
+        "title": "Three in One",
+        "description": "Slice 3 ingredients in one swipe."
+      },
+      "sliceQuad": {
+        "title": "All in One Swipe",
+        "description": "Slice at least 4 ingredients in one swipe."
+      },
+      "sliceCombo": {
+        "title": "Blade Dancer",
+        "description": "Reach a 10-hit combo."
+      },
+      "sliceTwenty": {
+        "title": "Dinner's on Me!",
+        "description": "Slice at least 20 ingredients in one round."
+      },
+      "sliceThirty": {
+        "title": "Master of the Kitchen",
+        "description": "Slice at least 30 ingredients in one round."
+      },
+      "sliceNoBomb": {
+        "title": "Bombs Aren't Food!",
+        "description": "Finish a round with at least 15 slices and no bombs hit."
+      },
+      "slicePerfect": {
+        "title": "Nothing Goes to Waste",
+        "description": "Finish a round with at least 10 ingredients and slice every one."
+      },
+      "bubbleMouth": {
+        "title": "Open Wide!",
+        "description": "Fire your first bubble by opening your mouth."
+      },
+      "bubbleFirstPop": {
+        "title": "Pop!",
+        "description": "Clear your first match of 3 or more bubbles."
+      },
+      "bubbleBigShot": {
+        "title": "One-Shot Cascade",
+        "description": "Remove at least 6 bubbles with one shot."
+      },
+      "bubbleStreak": {
+        "title": "Three Pops Running",
+        "description": "Remove bubbles with 3 consecutive shots."
+      },
+      "bubbleBank": {
+        "title": "Bank on It!",
+        "description": "Remove bubbles with a shot that bounces off a wall."
+      },
+      "bubbleBothModes": {
+        "title": "Best of Both",
+        "description": "Complete a round in both Endless and Survival."
+      },
+      "bubbleEndlessFifty": {
+        "title": "Just Getting Started",
+        "description": "Remove at least 50 bubbles in one Endless round."
+      },
+      "bubbleEndlessHundred": {
+        "title": "When Does It End?",
+        "description": "Remove at least 100 bubbles in one Endless round."
+      },
+      "bubbleEndlessThree": {
+        "title": "Keep Popping",
+        "description": "Survive for at least 3 minutes in Endless."
+      },
+      "bubbleEndlessFive": {
+        "title": "Pop Forever",
+        "description": "Survive for at least 5 minutes in Endless."
+      },
+      "bubbleSurvivalFive": {
+        "title": "Here They Come!",
+        "description": "Survive 5 row drops in Survival (about 15 seconds)."
+      },
+      "bubbleSurvivalTen": {
+        "title": "Room to Spare",
+        "description": "Survive 10 row drops in Survival (about 30 seconds)."
+      },
+      "bubbleSurvivalTwenty": {
+        "title": "Still Standing",
+        "description": "Survive 20 row drops in Survival (about 60 seconds)."
+      },
+      "bubbleSurvivalCombo": {
+        "title": "Keep Them Coming!",
+        "description": "Survive 10 row drops and remove at least 40 bubbles in one Survival round."
+      },
       "first": {
         "title": "First steps!",
         "description": "Complete one game"

@@ -40,6 +40,16 @@ export type GameResultDetails = {
   metadata?: {
     bubblePopped?: number;
     bubbleCleared?: boolean;
+    bubbleMouthShots?: number;
+    bubbleShotPopped?: number;
+    bubbleMatchStreak?: number;
+    bubbleBankMatch?: boolean;
+    bubbleSurvivedRows?: number;
+    hockeyGoalStreak?: number;
+    hockeyDeficit?: number;
+    hockeyFastGoal?: boolean;
+    sliceFruitAppeared?: number;
+    sliceMaxSwipe?: number;
     gateOutcomes?: {
       similarity: number;
       points: number;

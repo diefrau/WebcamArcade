@@ -202,6 +202,11 @@ export function HockeyGamePage({
     const saved = recordPlay(HOCKEY_ID, player, 0, HOCKEY_SECONDS, {
       hits: player,
       misses: cpu,
+      metadata: {
+        hockeyGoalStreak: game.current.maxGoalStreak,
+        hockeyDeficit: game.current.maxDeficit,
+        hockeyFastGoal: game.current.fastGoal,
+      },
       inputMode: mode,
       newBest,
     });
@@ -578,7 +583,6 @@ export function HockeyResultPage({ tone }: { tone: PlaySound }) {
       stats={[{ label: t("hockeyCpuGoals"), value: result.cpu }]}
       replay={replay}
       tone={tone}
-      achievements={false}
     />
   );
 }

@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { achievementSnapshot } from "./achievementManager";
 import { AchievementCard } from "./AchievementCard";
 import type { AchievementGameId } from "./types";
-import type { Progress } from "../community/store";
+import { gameIds, type Progress } from "../community/store";
 import "../community/secrets.css";
 import "./achievements.css";
 export function AchievementsPanel({
@@ -32,15 +32,7 @@ export function AchievementsPanel({
     unlocked = available.filter((a) => a.unlocked).length;
   const pending = all.length - available.length,
     percent = Math.round((100 * unlocked) / available.length);
-  const games = [
-    "all",
-    "cham",
-    "circle",
-    "shoot",
-    "rps",
-    "dodge",
-    "gate",
-  ] as const;
+  const games = [...gameIds, "all"] as const;
   const selected =
     filter === "all"
       ? all

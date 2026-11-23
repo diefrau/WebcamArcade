@@ -212,6 +212,7 @@ export function BubbleGamePage({
     )
       return;
     if (manual) face.current.stop();
+    else game.mouthShots++;
     setFeedback(0);
     updateHud();
     tone("bubble.launch");
@@ -261,7 +262,15 @@ export function BubbleGamePage({
         shots,
         inputMode: mode,
         newBest,
-        metadata: { bubblePopped: game.popped, bubbleCleared: cleared },
+        metadata: {
+          bubblePopped: game.popped,
+          bubbleCleared: cleared,
+          bubbleMouthShots: game.mouthShots,
+          bubbleShotPopped: game.maxShotPopped,
+          bubbleMatchStreak: game.maxMatchStreak,
+          bubbleBankMatch: game.bankMatch,
+          bubbleSurvivedRows: game.survivedRows,
+        },
       },
     );
     tone(cleared ? "game.success" : "game.fail");
@@ -681,7 +690,6 @@ export function BubbleResultPage({ tone }: { tone: PlaySound }) {
       saved={result.saved}
       replay={replay}
       tone={tone}
-      achievements={false}
       stats={[
         { label: t("bubblePopped"), value: result.popped },
         { label: t("bubbleUsed"), value: result.shots },

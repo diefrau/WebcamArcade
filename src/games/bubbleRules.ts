@@ -33,6 +33,12 @@ export type BubbleRound = {
   shotsUntilRow: number;
   secondsUntilRow: number;
   shotsFired: number;
+  mouthShots: number;
+  maxShotPopped: number;
+  matchStreak: number;
+  maxMatchStreak: number;
+  bankMatch: boolean;
+  survivedRows: number;
   color: BubbleColor;
   next: BubbleColor;
   shotsLeft: number;
@@ -106,6 +112,12 @@ export function newBubbleRound(mode: BubbleMode = "standard"): BubbleRound {
     shotsUntilRow: nextRowInterval(),
     secondsUntilRow: BUBBLE_ROW_SECONDS,
     shotsFired: 0,
+    mouthShots: 0,
+    maxShotPopped: 0,
+    matchStreak: 0,
+    maxMatchStreak: 0,
+    bankMatch: false,
+    survivedRows: 0,
     color: 2,
     next: nextColor(board),
     shotsLeft: mode === "standard" ? BUBBLE_SHOTS : Infinity,
@@ -258,6 +270,7 @@ export function advanceBubbleRowClock(
   round.secondsUntilRow += BUBBLE_ROW_SECONDS;
   round.revision++;
   lowerRow(round, random);
+  if (!round.outcome) round.survivedRows++;
   return true;
 }
 
@@ -298,6 +311,10 @@ function land(
     }
   }
   round.popped += bursts.length;
+  round.maxShotPopped = Math.max(round.maxShotPopped, bursts.length);
+  round.matchStreak = bursts.length ? round.matchStreak + 1 : 0;
+  round.maxMatchStreak = Math.max(round.maxMatchStreak, round.matchStreak);
+  round.bankMatch ||= bursts.length > 0 && shot.path.points.length > 2;
   if (round.mode !== "time-attack") round.shotsUntilRow--;
   if (!board.some((row) => row.some((color) => color !== null))) {
     round.score += 50;
