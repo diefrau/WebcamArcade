@@ -4,16 +4,10 @@ import { useTranslation } from "react-i18next";
 import { achievementSnapshot } from "./achievementManager";
 import { AchievementCard } from "./AchievementCard";
 import type { AchievementGameId } from "./types";
-import { gameIds, type Progress } from "../community/store";
+import { gameIds } from "../community/store";
 import "../community/secrets.css";
 import "./achievements.css";
-export function AchievementsPanel({
-  remote,
-  online,
-}: {
-  remote?: Progress;
-  online: boolean;
-}) {
+export function AchievementsPanel() {
   const { t, i18n } = useTranslation(),
     ko = i18n.language.startsWith("ko");
   const [filter, setFilter] = useState<"all" | AchievementGameId>("all");
@@ -27,7 +21,7 @@ export function AchievementsPanel({
       window.removeEventListener("arcade:community", change);
     };
   }, []);
-  const all = achievementSnapshot(online ? remote : undefined);
+  const all = achievementSnapshot();
   const available = all.filter((a) => !a.pending),
     unlocked = available.filter((a) => a.unlocked).length;
   const pending = all.length - available.length,
@@ -61,13 +55,6 @@ export function AchievementsPanel({
           </span>
         </p>
       </div>
-      {online && (
-        <p className="achievement-sync-note">
-          {ko
-            ? "기존 온라인 기록과 이 기기의 확장 도전과제를 함께 표시합니다. 추가 도전과제의 상세 진행은 이 기기에 저장됩니다."
-            : "Existing online records are combined with this device’s expanded achievements. Detailed progress for new challenges is stored on this device."}
-        </p>
-      )}
       <div
         className="community-games achievement-filters"
         role="group"

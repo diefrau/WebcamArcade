@@ -9,18 +9,17 @@ import {
   localBest,
   readRuns,
   type GameMode,
-  readProgress,
   type GameId,
-  type Progress,
 } from "./store";
 import {
   communityConfigured,
   joined,
   joinCommunity,
   loadBoard,
-  loadProgress,
+  loadAchievementBoard,
   syncRuns,
   type BoardRow,
+  type AchievementBoardRow,
 } from "./client";
 import "./community.css";
 import { AchievementsPanel } from "../achievements/AchievementsPanel";
@@ -37,7 +36,7 @@ export function CommunityPage({
   const [gameMode, setGameMode] = useState<GameMode>("standard");
   const [online, setOnline] = useState(false);
   const [rows, setRows] = useState<BoardRow[]>([]);
-  const [progress, setProgress] = useState<Progress>(readProgress);
+  const [achievementRows, setAchievementRows] = useState<AchievementBoardRow[]>([]);
   const [participating, setParticipating] = useState(false);
   const [nickname, setNickname] = useState(() => {
     try {
@@ -71,7 +70,7 @@ export function CommunityPage({
     const id = ++request.current;
     setError(false);
     setRows([]);
-    setProgress(readProgress());
+    setAchievementRows([]);
     if (!online) {
       setLoading(false);
       return;
@@ -79,13 +78,13 @@ export function CommunityPage({
     setLoading(true);
     void (async () => {
       if (participating) await syncRuns().catch(() => {});
-      const [board, unlocks] = await Promise.all([
-        achievements ? Promise.resolve([]) : loadBoard(game, gameMode),
-        participating ? loadProgress() : Promise.resolve(null),
-      ]);
-      if (id !== request.current) return;
-      setRows(board);
-      if (unlocks) setProgress(unlocks);
+      if (achievements) {
+        const board = await loadAchievementBoard();
+        if (id === request.current) setAchievementRows(board);
+      } else {
+        const board = await loadBoard(game, gameMode);
+        if (id === request.current) setRows(board);
+      }
     })()
       .catch(() => {
         if (id === request.current) setError(true);
@@ -136,10 +135,15 @@ export function CommunityPage({
         <section className="panel community-profile">
           <h2>{text("익명으로 함께 플레이!", "Play together anonymously!")}</h2>
           <p>
-            {text(
-              "닉네임은 선택이에요. 참가하면 이 기기에 남은 최근 게임 기록이 공개 랭킹에 반영돼요.",
-              "A nickname is optional. Joining shares recent game records from this device on the public leaderboard.",
-            )}
+            {achievements
+              ? text(
+                  "닉네임은 선택이에요. 참가하면 도전과제 달성 수와 달성률이 공개 랭킹에 표시돼요.",
+                  "A nickname is optional. Joining shows your achievement count and completion rate on the public leaderboard.",
+                )
+              : text(
+                  "닉네임은 선택이에요. 참가하면 이 기기에 남은 최근 게임 기록이 공개 랭킹에 반영돼요.",
+                  "A nickname is optional. Joining shares recent game records from this device on the public leaderboard.",
+                )}
           </p>
           <form
             onSubmit={(e) => {
@@ -196,21 +200,26 @@ export function CommunityPage({
         <p role="status">{text("기록을 불러오는 중…", "Loading records…")}</p>
       )}
       {achievements ? (
-        <>
-          {online && !participating ? (
-            <p>
-              {text(
-                "익명으로 참가하면 온라인 도전과제를 확인할 수 있어요.",
-                "Join anonymously to see online achievements.",
-              )}
-            </p>
-          ) : online && (loading || error) ? null : (
-            <AchievementsPanel
-              online={online}
-              remote={online ? progress : undefined}
-            />
-          )}
-        </>
+        online ? (
+          <section className="panel community-board">
+            <h2>{text("도전과제 달성률 랭킹", "Achievement completion rankings")}</h2>
+            {!loading && !error && achievementRows.length === 0 && (
+              <p>{text("아직 등록된 달성 기록이 없어요.", "No achievement records yet.")}</p>
+            )}
+            <ol>
+              {achievementRows.map((row) => (
+                <li key={row.place}>
+                  <strong>{row.place}</strong>
+                  <span>{row.nickname}</span>
+                  <b>
+                    {Math.round((row.unlocked / row.total) * 100)}%
+                    <small className="perfect-count"> · {row.unlocked} / {row.total}</small>
+                  </b>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : <AchievementsPanel />
       ) : (
         <>
           <div className="community-games">

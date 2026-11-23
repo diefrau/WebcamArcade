@@ -10,6 +10,7 @@ import {
   PersonStanding,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 import type { achievementSnapshot } from "./achievementManager";
 export function AchievementCard({
   item,
@@ -67,6 +68,11 @@ export function AchievementCard({
       <p>
         {hidden ? "???" : t("achievements.items." + item.id + ".description")}
       </p>
+      {item.id === "shootAll" && (
+        <Link className="arcade-button cyan" to="/play/shoot?mode=wave">
+          {t("waveMode")} · {t("playNow")}
+        </Link>
+      )}
       <div className="achievement-status">
         {!hidden && !secret && !item.pending && (
           <div className="achievement-meter">

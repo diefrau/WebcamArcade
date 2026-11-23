@@ -9,8 +9,6 @@ import {
 } from "./secrets";
 import {
   readRuns,
-  readProgress,
-  achievementIds,
   writeRuns,
   saveModeBest,
   isEndless,
@@ -19,11 +17,11 @@ import {
   type Run,
   type GameId,
   type GameMode,
-  type Progress,
 } from "./store";
 import { announceAchievement } from "./achievementNotices";
 import { secretDescriptions } from "./secrets";
 import {
+  achievementSnapshot,
   readAchievementState,
   recordGameResult,
   syncSecretAchievement,
@@ -181,6 +179,15 @@ export function syncRuns(resumeAfterCurrent = false): Promise<void> {
         readRuns().map((r) => (r.id === run!.id ? { ...r, synced: true } : r)),
       );
     }
+    const unlocked = achievementSnapshot()
+      .filter((item) => item.unlocked && !item.pending)
+      .map((item) => item.id);
+    if (unlocked.length) {
+      const { error } = await (await api()).rpc("arcade_sync_achievements", {
+        p_ids: unlocked,
+      });
+      if (error && error.code !== "PGRST202") throw error;
+    }
     setSyncState(deferred.size ? "offline" : "synced");
     window.dispatchEvent(new Event("arcade:synced"));
   })()
@@ -202,7 +209,7 @@ export function unlockSecret(id: SecretId) {
   syncSecretAchievement(id, readSecrets().find((r) => r.id === id)!.date);
   announceAchievement({ id, title: secretDescriptions[id].name, secret: true });
   window.dispatchEvent(new Event("arcade:community"));
-  if (communityConfigured) void syncRuns().catch(() => {});
+  if (communityConfigured) void syncRuns(true).catch(() => {});
   return true;
 }
 export function recordPlay(
@@ -245,7 +252,7 @@ export function recordPlay(
   );
   window.dispatchEvent(new Event("arcade:community"));
   // The first-visit name choice opts this device into automatic result sync.
-  if (communityConfigured) void syncRuns().catch(() => {});
+  if (communityConfigured) void syncRuns(true).catch(() => {});
   return saved;
 }
 export type BoardRow = {
@@ -276,8 +283,14 @@ export async function loadBoard(
   if (fallback.error) throw fallback.error;
   return fallback.data ?? [];
 }
-export async function loadProgress(): Promise<Progress> {
-  const { data, error } = await (await api()).rpc("arcade_progress");
+export type AchievementBoardRow = {
+  place: number;
+  nickname: string;
+  unlocked: number;
+  total: number;
+};
+export async function loadAchievementBoard(): Promise<AchievementBoardRow[]> {
+  const { data, error } = await (await api()).rpc("arcade_achievement_board");
   if (error) throw error;
-  return data;
+  return data ?? [];
 }

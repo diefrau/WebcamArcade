@@ -95,6 +95,16 @@ test("wave ends after 12 hits and unlocks its achievement", async ({
   expect(state.unlockedIds).toContain("shootAll");
 });
 
+test("the wave achievement opens Shoot with Target Wave selected", async ({ page }) => {
+  await page.goto("/achievements");
+  const achievement = page.locator('[data-achievement="shootAll"]');
+  await expect(achievement).toContainText("타깃 웨이브 모드에서");
+  await achievement.getByRole("link").click();
+  await expect(page).toHaveURL(/\/play\/shoot\?mode=wave$/);
+  await expect(page.getByRole("button", { name: "타깃 웨이브", exact: true }))
+    .toHaveAttribute("aria-pressed", "true");
+});
+
 test("survival and vertical modes expose accessible controls and movement", async ({
   page,
 }) => {

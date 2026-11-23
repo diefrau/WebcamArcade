@@ -189,7 +189,6 @@ export function ShootGamePage({
         ),
         newBest: s.score > localBest("shoot", shootMode),
         metadata: {
-          shootWaveCleared: wave && s.hits === 12 && s.shots === 12,
           passed: wave
             ? s.hits === 12
             : s.hits > 0 &&

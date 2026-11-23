@@ -388,35 +388,35 @@
       },
       "bubbleEndlessFifty": {
         "title": "Just Getting Started",
-        "description": "Remove at least 50 bubbles in one Endless round."
+        "description": "In Endless mode, remove at least 50 bubbles in one round."
       },
       "bubbleEndlessHundred": {
         "title": "When Does It End?",
-        "description": "Remove at least 100 bubbles in one Endless round."
+        "description": "In Endless mode, remove at least 100 bubbles in one round."
       },
       "bubbleEndlessThree": {
         "title": "Keep Popping",
-        "description": "Survive for at least 3 minutes in Endless."
+        "description": "In Endless mode, survive for at least 3 minutes."
       },
       "bubbleEndlessFive": {
         "title": "Pop Forever",
-        "description": "Survive for at least 5 minutes in Endless."
+        "description": "In Endless mode, survive for at least 5 minutes."
       },
       "bubbleSurvivalFive": {
         "title": "Here They Come!",
-        "description": "Survive 5 row drops in Survival (about 15 seconds)."
+        "description": "In Survival mode, survive 5 row drops (about 15 seconds)."
       },
       "bubbleSurvivalTen": {
         "title": "Room to Spare",
-        "description": "Survive 10 row drops in Survival (about 30 seconds)."
+        "description": "In Survival mode, survive 10 row drops (about 30 seconds)."
       },
       "bubbleSurvivalTwenty": {
         "title": "Still Standing",
-        "description": "Survive 20 row drops in Survival (about 60 seconds)."
+        "description": "In Survival mode, survive 20 row drops (about 60 seconds)."
       },
       "bubbleSurvivalCombo": {
         "title": "Keep Them Coming!",
-        "description": "Survive 10 row drops and remove at least 40 bubbles in one Survival round."
+        "description": "In Survival mode, survive 10 row drops and remove at least 40 bubbles in one round."
       },
       "first": {
         "title": "First steps!",
@@ -492,7 +492,7 @@
       },
       "chamMaster": {
         "title": "Cham master",
-        "description": "Complete 10 rounds on hardest difficulty"
+        "description": "In the hardest mode, complete 10 rounds."
       },
       "circleFirst": {
         "title": "Circle beginner",
@@ -564,7 +564,7 @@
       },
       "shootAll": {
         "title": "Nothing gets away",
-        "description": "Hit every target in a wave without missing"
+        "description": "In Target Wave mode, hit all 12 targets without missing."
       },
       "shootHigh": {
         "title": "High-scoring shooter",
@@ -648,7 +648,7 @@
       },
       "dodgeDance": {
         "title": "Is this a dance?",
-        "description": "Move up and down and finish vertical mode"
+        "description": "In Vertical mode, move up and down and finish a round."
       },
       "dodgePeak": {
         "title": "Phoenix",

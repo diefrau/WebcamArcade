@@ -397,7 +397,10 @@ export function recordGameResult(event: GameResultEvent): boolean {
     if (condition) set(key, 1);
   };
   if (g === "shoot") {
-    flag("shoot.wavePerfect", event.metadata?.shootWaveCleared === true);
+    flag(
+      "shoot.wavePerfect",
+      event.gameMode === "wave" && event.hits === 12 && event.shots === 12,
+    );
     const hits = event.hits ?? 0,
       shots = event.shots ?? 0;
     s.totalShootHits += hits;

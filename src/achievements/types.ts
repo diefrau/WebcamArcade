@@ -60,7 +60,6 @@ export type GameResultDetails = {
     passed?: boolean;
     chamHard?: boolean;
     dodgeVertical?: boolean;
-    shootWaveCleared?: boolean;
     drawComplete?: boolean;
     maxSafeSeconds?: number;
     maxAvoidStreak?: number;

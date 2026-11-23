@@ -410,7 +410,32 @@ await assert.rejects(
     crypto.randomUUID(),
   ]),
 );
-await db.exec("reset role;set role anon");
+await db.exec("reset role");
+const achievementRankingSql = await readFile(
+  new URL("../supabase/migrations/202611240002_achievement_rankings.sql", import.meta.url),
+  "utf8",
+);
+await db.exec(achievementRankingSql);
+const catalog = JSON.parse(await readFile(new URL("../src/achievements/catalog.json", import.meta.url), "utf8"));
+const { rows: [{ ids }] } = await db.query("select public.arcade_achievement_ids() as ids");
+assert.deepEqual([...ids].sort(), catalog.filter((entry) => !entry.pending).map((entry) => entry.id).sort());
+await identity(a);
+await db.query("select public.arcade_sync_achievements($1)", [["first", "first", "invalid"]]);
+await db.query("select public.arcade_sync_achievements($1)", [["five"]]);
+await db.exec("reset role");
+await db.query("insert into auth.users(id) values ($1) on conflict do nothing", [b]);
+await identity(b);
+await db.query("select public.arcade_join('Tester')");
+await db.query("select public.arcade_sync_achievements($1)", [["first"]]);
+await assert.rejects(db.query("select * from public.arcade_achievement_unlocks"));
+await db.exec("reset role");
+await db.exec(achievementRankingSql);
+await db.exec("set role anon");
+await assert.rejects(db.query("select public.arcade_sync_achievements($1)", [["first"]]));
+assert.deepEqual(
+  (await db.query("select unlocked, total from public.arcade_achievement_board()")).rows,
+  [{ unlocked: 2, total: ids.length }, { unlocked: 1, total: ids.length }],
+);
 assert.equal(
   (
     await db.query(

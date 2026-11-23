@@ -387,11 +387,11 @@
       },
       "bubbleEndlessFifty": {
         "title": "이제 시작인데?",
-        "description": "무한 모드 한 판에서 버블 50개 이상을 제거하세요."
+        "description": "무한 모드에서 한 판에 버블 50개 이상을 제거하세요."
       },
       "bubbleEndlessHundred": {
         "title": "언제 끝나요?",
-        "description": "무한 모드 한 판에서 버블 100개 이상을 제거하세요."
+        "description": "무한 모드에서 한 판에 버블 100개 이상을 제거하세요."
       },
       "bubbleEndlessThree": {
         "title": "입에 모터 달았나?",
@@ -415,7 +415,7 @@
       },
       "bubbleSurvivalCombo": {
         "title": "내려와도 소용없어!",
-        "description": "서바이벌 모드 한 판에서 새 줄이 10번 내려올 때까지 생존하고 버블 40개 이상을 제거하세요."
+        "description": "서바이벌 모드에서 한 판에 새 줄이 10번 내려올 때까지 생존하고 버블 40개 이상을 제거하세요."
       },
       "first": {
         "title": "첫 발을 내딛다!",
@@ -491,7 +491,7 @@
       },
       "chamMaster": {
         "title": "참참참 마스터",
-        "description": "최고 난이도로 10라운드 완료"
+        "description": "최고 난이도 모드에서 10라운드를 완료하세요."
       },
       "circleFirst": {
         "title": "동그라미 입문",
@@ -563,7 +563,7 @@
       },
       "shootAll": {
         "title": "놓치지 않아",
-        "description": "타깃 웨이브의 모든 타깃을 놓치지 않고 명중"
+        "description": "타깃 웨이브 모드에서 한 발도 빗나가지 않고 타깃 12개를 명중시키세요."
       },
       "shootHigh": {
         "title": "고득점 사수",
