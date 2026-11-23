@@ -3,11 +3,13 @@ import ko from "../locales/ko.json";
 import en from "../locales/en.json";
 import {
   gameIds,
+  gameScoreCaps,
   isEndless,
   gameModes,
   readRuns,
   readProgress,
   type Progress,
+  type GameId,
 } from "../community/store";
 import { readSecrets, type SecretId } from "../community/secrets";
 import { announceAchievement } from "../community/achievementNotices";
@@ -30,7 +32,8 @@ export const legacyIds = [
   "survivor",
 ] as const;
 let memory: AchievementState | null = null;
-const sessionGames = new Set<string>();
+const sessionGames = new Set<GameId>();
+const originalGames = new Set<GameId>(["shoot", "circle", "cham", "rps", "dodge", "gate"]);
 let warmupGames: string[] = [];
 const liveMetrics = new Set(["session", "warmup", "daily"]);
 const finite = (n: unknown): n is number =>
@@ -74,7 +77,8 @@ function metrics(state: AchievementState) {
     ...s.facts,
     total: s.totalGamesCompleted,
     variety: s.completedGameIds.length,
-    session: sessionGames.size,
+    allrounder: s.completedGameIds.filter((id) => originalGames.has(id)).length,
+    session: [...sessionGames].filter((id) => originalGames.has(id)).length,
     same: s.consecutiveSameGameCount,
     warmup: new Set(warmupGames).size,
     records: s.recordGameIds.length,
@@ -268,14 +272,6 @@ export function syncSecretAchievement(id: SecretId, date: string) {
   save(state);
 }
 export function validResult(event: GameResultEvent) {
-  const caps = {
-    shoot: 200000,
-    circle: 1000,
-    cham: 1000,
-    rps: 500,
-    dodge: 10000,
-    gate: 1500,
-  };
   if (
     !event ||
     !event.completed ||
@@ -285,7 +281,7 @@ export function validResult(event: GameResultEvent) {
     !Number.isInteger(event.score) ||
     event.score < 0 ||
     event.score >
-      (isEndless(event.gameMode) ? 2147483647 : caps[event.gameId]) ||
+      (isEndless(event.gameMode) ? 2147483647 : gameScoreCaps[event.gameId]) ||
     !finite(event.duration) ||
     event.duration > (isEndless(event.gameMode) ? 31536000 : 3600) ||
     !finite(event.accuracy) ||

@@ -14,17 +14,26 @@ import {
   RpsResultPage,
   DodgeGamePage,
   DodgeResultPage,
+  SliceGamePage,
+  SliceResultPage,
+  HockeyGamePage,
+  HockeyResultPage,
+  BubbleGamePage,
+  BubbleResultPage,
   useRoutePrefetch,
 } from "./routes/lazyPages";
 import { readCham } from "./games/chamRecords";
 import { readRps } from "./games/rpsRecords";
 import { readDodge } from "./games/dodgeRecords";
+import { HOCKEY_SECONDS } from "./games/hockeyConfig";
+import { BUBBLE_SHOTS } from "./games/bubbleConfig";
 import { recordPlay } from "./community/client";
-import { localBest } from "./community/store";
+import { localBest, type GameId } from "./community/store";
 import { PlayerSession, PlayerWelcome } from "./community/PlayerWelcome";
 import { HomeEasterEggs } from "./community/HomeEasterEggs";
 import { AchievementToasts } from "./community/AchievementToasts";
 import { InputBadge } from "./components/InputBadge";
+import { inputKind } from "./components/input-coach-data";
 import {
   InputEnvironment,
   useInputEnvironment,
@@ -130,7 +139,6 @@ void i18n.use(initReactI18next).init({
   fallbackLng: "ko",
   interpolation: { escapeValue: false },
 });
-type GameId = "cham" | "circle" | "shoot" | "rps" | "dodge";
 import {
   emptyShootRecords as emptyRecords,
   type ShootRecords as Records,
@@ -145,13 +153,18 @@ const Context = createContext({
   tone: (_type?: SoundCue, _options?: PlayOptions) => {},
   records: emptyRecords,
 });
-const games: { id: GameId; color: string; duration: number; badge: string }[] =
+type GameCardEntry = { id: GameId; color: string; badge: string } &
+  ({ duration: number; shots?: never } | { shots: number; duration?: never });
+const games: GameCardEntry[] =
   [
     { id: "cham", color: "pink", duration: 30, badge: "popular" },
     { id: "circle", color: "cyan", duration: 20, badge: "new" },
     { id: "shoot", color: "lime", duration: 30, badge: "easy" },
     { id: "rps", color: "purple", duration: 30, badge: "new" },
     { id: "dodge", color: "orange", duration: 30, badge: "new" },
+    { id: "slice", color: "orange", duration: 30, badge: "new" },
+    { id: "face-hockey", color: "cyan", duration: HOCKEY_SECONDS, badge: "new" },
+    { id: "bubble-shooter", color: "purple", shots: BUBBLE_SHOTS, badge: "new" },
   ];
 
 function Logo() {
@@ -239,8 +252,9 @@ function GameCard({
   id,
   color,
   duration,
+  shots,
   badge,
-}: Omit<(typeof games)[number], "id"> & { id: GameId | "gate" }) {
+}: GameCardEntry) {
   const { t } = useTranslation();
   const title = t(id === "gate" ? "gate.title" : id);
   return (
@@ -271,10 +285,12 @@ function GameCard({
           {t("onePlayer")}
         </span>
         <span>
-          ◷{" "}
+          {shots === undefined && "◷ "}
           {id === "dodge"
             ? t("dodgeSurvivalMode")
-            : t("seconds", { count: duration })}
+            : shots !== undefined
+              ? t("bubbleShots", { count: shots })
+              : t("seconds", { count: duration })}
         </span>
         {id === "gate" ? <InputBadge kind="body" /> : <InputBadge game={id} />}
         <span className="card-arrow" aria-hidden="true">
@@ -484,11 +500,7 @@ function GamesPage() {
           <div className="game-grid">
             {games
               .filter((g) =>
-                filter === "face"
-                  ? g.id === "cham"
-                  : filter === "hand"
-                    ? g.id !== "cham" && g.id !== "dodge"
-                    : true,
+                filter !== "face" && filter !== "hand" || inputKind[g.id] === filter,
               )
               .map((g) => (
                 <GameCard key={g.id} {...g} />
@@ -1013,6 +1025,24 @@ function App() {
                       path="/result/dodge"
                       element={<DodgeResultPage tone={tone} />}
                     />
+                    <Route
+                      path="/play/slice"
+                      element={<SliceGamePage tone={tone} onFinish={finishCham} />}
+                    />
+                    <Route
+                      path="/result/slice"
+                      element={<SliceResultPage tone={tone} />}
+                    />
+                    <Route
+                      path="/play/face-hockey"
+                      element={<HockeyGamePage tone={tone} onFinish={finishCham} />}
+                    />
+                    <Route
+                      path="/result/face-hockey"
+                      element={<HockeyResultPage tone={tone} />}
+                    />
+                    <Route path="/play/bubble-shooter" element={<BubbleGamePage tone={tone} onFinish={finishCham} />} />
+                    <Route path="/result/bubble-shooter" element={<BubbleResultPage tone={tone} />} />
                     <Route path="/events" element={<EventsPage />} />
                     <Route path="/ranking" element={<CommunityPage />} />
                     <Route

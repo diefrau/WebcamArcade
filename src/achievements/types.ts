@@ -17,6 +17,7 @@ export type RoundEvidence = {
 export type GameResultDetails = {
   gameMode?:
     | "endless"
+    | "time-attack"
     | "vertical-endless"
     | "seeker"
     | "standard"
@@ -37,6 +38,8 @@ export type GameResultDetails = {
   rounds?: RoundEvidence[];
   newBest?: boolean;
   metadata?: {
+    bubblePopped?: number;
+    bubbleCleared?: boolean;
     gateOutcomes?: {
       similarity: number;
       points: number;

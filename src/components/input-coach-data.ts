@@ -6,9 +6,12 @@ export const inputKind: Record<GameId, "hand" | "face" | "body"> = {
   rps: "hand",
   dodge: "body",
   gate: "body",
+  slice: "hand",
+  "face-hockey": "face",
+  "bubble-shooter": "face",
 };
 export const coachCopy: Record<
-  GameId,
+  Exclude<GameId, "slice" | "face-hockey" | "bubble-shooter">,
   {
     goal: [string, string];
     steps: [[string, string], [string, string], [string, string]];

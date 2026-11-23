@@ -21,6 +21,9 @@ const games = {
     description: "futureDodgeDesc",
   },
   gate: { art: "pose", color: "purple", description: "gate.instruction" },
+  slice: { art: "slice", color: "orange", description: "sliceDesc" },
+  "face-hockey": { art: "hockey", color: "cyan", description: "face-hockeyDesc" },
+  "bubble-shooter": { art: "bubble", color: "purple", description: "bubble-shooterDesc" },
 } as const satisfies Record<
   GameId | "gate",
   { art: CharacterAsset; color: string; description: string }

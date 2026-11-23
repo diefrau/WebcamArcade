@@ -2,6 +2,8 @@ export type VisionProfile = {
   detector: "hand" | "face" | "body" | null;
   segmentation: boolean;
   hands?: 1 | 2;
+  faceGeometry?: boolean;
+  faceAim?: boolean;
 };
 export const GAME_VISION_PROFILE = {
   cham: { detector: "face", segmentation: false },
@@ -10,6 +12,14 @@ export const GAME_VISION_PROFILE = {
   rps: { detector: "hand", segmentation: false },
   dodge: { detector: "body", segmentation: false },
   gate: { detector: "body", segmentation: true },
+  slice: { detector: "hand", segmentation: false },
+  "face-hockey": { detector: "face", segmentation: false, faceGeometry: true },
+  "bubble-shooter": {
+    detector: "face",
+    segmentation: false,
+    faceGeometry: true,
+    faceAim: true,
+  },
   skewer: { detector: "hand", segmentation: false },
   catch: { detector: "hand", segmentation: false, hands: 2 },
   hit: { detector: "body", segmentation: false },

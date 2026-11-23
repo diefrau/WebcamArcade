@@ -1,0 +1,114 @@
+.screen-play .slice-page .slice-stage {
+  display: grid;
+  align-items: center;
+  padding: clamp(10px, 1.6vw, 26px);
+  background:
+    radial-gradient(circle, #fff9 1.5px, transparent 2px) 0 0 / 15px 15px,
+    linear-gradient(135deg, #ff9b54, #ffc56b 61%, #fff094);
+}
+
+.slice-board {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 18px;
+  box-shadow:
+    0 0 0 3px var(--ink),
+    3px 5px 0 3px var(--ink);
+  background:
+    repeating-conic-gradient(
+      from 10deg at 50% 90%,
+      transparent 0deg 14deg,
+      #fff5 14deg 28deg
+    ),
+    linear-gradient(#fff8da, #ffdb87);
+}
+
+.slice-board canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.slice-stage[data-phase="playing"] canvas {
+  cursor: crosshair;
+}
+
+.slice-tracking,
+.slice-feedback {
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+}
+
+.slice-tracking {
+  inset: 12px 12px auto;
+  justify-self: center;
+  width: fit-content;
+  border: 3px solid var(--ink);
+  border-radius: 32px;
+  padding: 6px 12px;
+  background: #fffbed;
+  text-align: center;
+  font-weight: 900;
+}
+
+.slice-feedback {
+  top: 10%;
+  left: 6%;
+  color: var(--yellow);
+  font:
+    400 clamp(26px, 3.6vw, 53px) / 1 "Black Han Sans",
+    sans-serif;
+  -webkit-text-stroke: 6px var(--ink);
+  paint-order: stroke fill;
+  transform: rotate(-7deg);
+}
+
+.slice-feedback.bomb {
+  color: var(--pink);
+}
+
+.slice-feedback.combo {
+  color: var(--lime);
+}
+
+.slice-lives {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+  color: var(--ink);
+}
+
+.slice-lives svg {
+  width: clamp(22px, 2.5vw, 35px);
+  height: auto;
+  fill: #fffbed;
+}
+
+.slice-lives svg[data-filled="true"] {
+  fill: var(--pink);
+}
+
+.slice-page .game-dialog > .character {
+  max-height: 83px;
+  object-fit: contain;
+}
+
+.screen-play .slice-page .slice-mode {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin: 0;
+}
+
+@media (max-width: 720px) {
+  .slice-page .game-dialog > .character {
+    display: none;
+  }
+  .slice-feedback {
+    -webkit-text-stroke-width: 4px;
+  }
+}

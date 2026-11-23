@@ -14,6 +14,7 @@ import {
   writeRuns,
   saveModeBest,
   isEndless,
+  maxRunSeconds,
   validRun,
   type Run,
   type GameId,
@@ -111,8 +112,11 @@ export function syncRuns(resumeAfterCurrent = false): Promise<void> {
     else if (!(await joined())) return;
     setSyncState("syncing");
     // Drain again after every upload: a second completed game can arrive mid-sync.
+    const deferred = new Set<string>();
     while (true) {
-      const pending = readRuns().filter((r) => !r.synced);
+      const pending = readRuns().filter(
+        (r) => !r.synced && !deferred.has(r.id),
+      );
       const run =
         pending.find(
           (r) => !r.details?.gameMode || r.details.gameMode === "standard",
@@ -151,13 +155,33 @@ export function syncRuns(resumeAfterCurrent = false): Promise<void> {
           : await (
               await api()
             ).rpc("arcade_submit_mode", { ...args, p_mode: mode });
+      if (
+        error?.code === "23514" &&
+        (((run!.game === "slice" ||
+          run!.game === "face-hockey" ||
+          run!.game === "bubble-shooter") &&
+          error.message.includes("arcade_runs_game_check")) ||
+          (run!.game === "bubble-shooter" &&
+            (error.message.includes("arcade_runs_seconds_check") ||
+              error.message.includes("arcade_runs_game_score_check") ||
+              error.message.includes("arcade_runs_game_mode_check") ||
+              error.message.includes("arcade_runs_score_check"))) ||
+          (run!.game === "face-hockey" &&
+            run!.seconds > 30 &&
+            (error.message.includes("arcade_runs_seconds_check") ||
+              error.message.includes("arcade_runs_game_score_check"))))
+      ) {
+        // Keep newer game records pending during a staggered schema rollout.
+        deferred.add(run!.id);
+        continue;
+      }
       if (error) throw error;
       // Re-read so a game completed during upload cannot be overwritten.
       writeRuns(
         readRuns().map((r) => (r.id === run!.id ? { ...r, synced: true } : r)),
       );
     }
-    setSyncState("synced");
+    setSyncState(deferred.size ? "offline" : "synced");
     window.dispatchEvent(new Event("arcade:synced"));
   })()
     .catch((error) => {
@@ -194,22 +218,17 @@ export function recordPlay(
     score,
     accuracy,
     seconds: Math.min(
-      isEndless(details.gameMode)
-        ? 31536000
-        : game === "dodge" &&
-            ["survival", "vertical-survival"].includes(details.gameMode ?? "")
-          ? 60
-          : 30,
+      maxRunSeconds(game, details.gameMode),
       Math.max(0, seconds),
     ),
     date: new Date().toISOString(),
     details,
   };
-  if (!validRun(run)) return;
+  if (!validRun(run)) return false;
   readAchievementState();
   recordPerfectRun(run, readRuns());
   saveModeBest(game, details.gameMode ?? "standard", score);
-  writeRuns([...readRuns(), run]);
+  const saved = writeRuns([...readRuns(), run]);
   const event: GameResultEvent = {
     ...details,
     id: run.id,
@@ -227,6 +246,7 @@ export function recordPlay(
   window.dispatchEvent(new Event("arcade:community"));
   // The first-visit name choice opts this device into automatic result sync.
   if (communityConfigured) void syncRuns().catch(() => {});
+  return saved;
 }
 export type BoardRow = {
   place: number;

@@ -75,6 +75,48 @@ await db.exec(
     "utf8",
   ),
 );
+await db.exec(
+  await readFile(
+    new URL("../supabase/migrations/202611230001_slice_rankings.sql", import.meta.url),
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    new URL("../supabase/migrations/202611230002_face_hockey_rankings.sql", import.meta.url),
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    new URL("../supabase/migrations/202611230003_face_hockey_duration.sql", import.meta.url),
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    new URL("../supabase/migrations/202611230004_bubble_rankings.sql", import.meta.url),
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    new URL("../supabase/migrations/202611230005_bubble_ceiling_score.sql", import.meta.url),
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    new URL("../supabase/migrations/202611230006_bubble_row_score.sql", import.meta.url),
+    "utf8",
+  ),
+);
+await db.exec(
+  await readFile(
+    new URL("../supabase/migrations/202611240001_bubble_modes.sql", import.meta.url),
+    "utf8",
+  ),
+);
 const a = "11111111-1111-4111-8111-111111111111",
   b = "22222222-2222-4222-8222-222222222222";
 await db.query("insert into auth.users values($1),($2)", [a, b]);
@@ -330,6 +372,38 @@ const gateBoard = (
 ).rows;
 assert.equal(gateBoard[0].score, 1500);
 assert.equal(gateBoard[0].max_count, 2);
+await submit(crypto.randomUUID(), "slice", 1280, 0, 30);
+const sliceBoard = (
+  await db.query("select * from public.arcade_board_mode_v2('slice','standard')")
+).rows;
+assert.equal(sliceBoard[0].score, 1280);
+await submit(crypto.randomUUID(), "face-hockey", 7, 0, 30);
+await submit(crypto.randomUUID(), "face-hockey", 8, 0, 60);
+const hockeyBoard = (
+  await db.query("select * from public.arcade_board_mode_v2('face-hockey','standard')")
+).rows;
+assert.equal(hockeyBoard[0].score, 8);
+await assert.rejects(submit(crypto.randomUUID(), "face-hockey", 8, 0, 60.1));
+await assert.rejects(submit(crypto.randomUUID(), "face-hockey", 61));
+await submit(crypto.randomUUID(), "bubble-shooter", 335, 62, 90);
+await submit(crypto.randomUUID(), "bubble-shooter", 1220, 83, 127);
+await submit(crypto.randomUUID(), "bubble-shooter", 2100, 85, 140);
+const bubbleBoard = (
+  await db.query("select * from public.arcade_board_mode_v2('bubble-shooter','standard')")
+).rows;
+assert.equal(bubbleBoard[0].score, 2100);
+for (const mode of ["endless", "time-attack"]) {
+  await db.query("select public.arcade_submit_mode($1,'bubble-shooter',5300,80,3700,$2)", [
+    crypto.randomUUID(), mode,
+  ]);
+  const board = (
+    await db.query("select * from public.arcade_board_mode_v2('bubble-shooter',$1)", [mode])
+  ).rows;
+  assert.equal(board[0].score, 5300);
+}
+await assert.rejects(submit(crypto.randomUUID(), "bubble-shooter", 335, 0, 3600.1));
+await assert.rejects(submit(crypto.randomUUID(), "bubble-shooter", 5201));
+await assert.rejects(submit(crypto.randomUUID(), "slice", 3001));
 await assert.rejects(submit(crypto.randomUUID(), "gate", 1501));
 await assert.rejects(
   db.query("select public.arcade_submit_mode($1,'gate',100,0,1,'hard')", [

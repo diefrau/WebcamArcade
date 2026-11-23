@@ -11,6 +11,11 @@ const files = {
   DodgeIt: "chick-dodge",
   StrikeAPose: "blue-pose",
 };
+const trimmedUiFiles = {
+  Slice: "slice-mascot",
+  Hockey: "hockey-mascot",
+  BubblePop: "bubble-pop-mascot",
+};
 const gameplayFiles = {
   LookDefault: ["cham-center", 450],
   LookLeft: ["cham-left", 450],
@@ -50,10 +55,16 @@ if (!process.argv.includes("--variants-only"))
   }
 
 // UI art only: preserve gameplay sprites and their alpha hitboxes exactly.
-for (const name of Object.values(files)) {
+for (const [original, name] of Object.entries({ ...files, ...trimmedUiFiles })) {
+  const trimmed = Object.hasOwn(trimmedUiFiles, original);
+  const source = trimmed
+    ? new URL(`../char/${original}.png`, import.meta.url)
+    : new URL(`${name}.webp`, out);
   for (const width of [320, 640, 960]) {
     const destination = new URL(`${name}-${width}.webp`, out);
-    await sharp(fileURLToPath(new URL(`${name}.webp`, out)))
+    const image = sharp(fileURLToPath(source));
+    if (trimmed) image.trim();
+    await image
       .resize({ width, withoutEnlargement: true })
       .webp({ lossless: true, effort: 6 })
       .toFile(fileURLToPath(destination));

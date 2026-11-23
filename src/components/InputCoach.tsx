@@ -7,7 +7,6 @@ import { PracticeSession, type PracticePoint } from "./practiceSession";
 import { InputDemo } from "./InputDemo";
 import { coachCopy, pointerCopy, inputKind } from "./input-coach-data";
 import { rpsChoices } from "../games/rpsRules";
-import type { GameId } from "../community/store";
 import "./input-coach.css";
 export function InputCoach({
   game,
@@ -17,7 +16,7 @@ export function InputCoach({
   onCalibrate,
   calibrating = false,
 }: {
-  game: GameId;
+  game: keyof typeof coachCopy;
   cameraMode: boolean;
   onModeChange: (camera: boolean) => void;
   faceNeutral?: { x: number; y: number } | null;

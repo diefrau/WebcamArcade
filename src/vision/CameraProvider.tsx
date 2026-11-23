@@ -11,7 +11,12 @@ import {
 import { visionProfile } from "./visionProfiles";
 import { emptyHand, GestureInterpreter, type HandSample } from "./gestures";
 import { useLocation } from "react-router-dom";
-import { emptyFace, faceSample, type FaceSample } from "./face";
+import {
+  emptyFace,
+  faceSample,
+  type FaceMotionFrame,
+  type FaceSample,
+} from "./face";
 import { emptyBody, bodySample, type BodySample } from "./body";
 import { useInputEnvironment } from "../components/InputEnvironment";
 import type { BodyCutoutFrame, CutoutState } from "./bodyCutout";
@@ -27,6 +32,7 @@ export type CameraState =
   | "busy"
   | "error";
 type VisionState = "idle" | "loading" | "ready" | "error";
+type HandFrameListener = (sample: HandSample) => void;
 type CameraContextValue = {
   state: CameraState;
   vision: VisionState;
@@ -40,6 +46,11 @@ type CameraContextValue = {
   homeMotion: HomeMotionFrame | null;
   tracking: "hand" | "face" | "body";
   shotSequence: number;
+  subscribeGameHand: (listener: HandFrameListener) => () => void;
+  subscribeFaceMotion: (
+    listener: (frame: FaceMotionFrame | null) => void,
+  ) => () => void;
+  sourceVideo: RefObject<HTMLVideoElement | null>;
   connect: () => Promise<void>;
   disconnect: () => void;
   retryVision: () => void;
@@ -60,6 +71,28 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   const profile = visionProfile(path, routeLocation.search);
   const pipelineEnabled = profile.detector !== null;
   const segmentation = profile.segmentation;
+  const faceGeometry = profile.faceGeometry === true;
+  const faceAim = profile.faceAim === true;
+  const sourceVideo = useRef<HTMLVideoElement | null>(null);
+  const latestFaceMotion = useRef<FaceMotionFrame | null>(null);
+  const faceMotionListeners = useRef(
+    new Set<(frame: FaceMotionFrame | null) => void>(),
+  );
+  const publishFaceMotion = useCallback((frame: FaceMotionFrame | null) => {
+    latestFaceMotion.current = frame;
+    for (const listener of faceMotionListeners.current) listener(frame);
+  }, []);
+  const subscribeFaceMotion = useCallback(
+    (listener: (frame: FaceMotionFrame | null) => void) => {
+      const listeners = faceMotionListeners.current;
+      listeners.add(listener);
+      listener(latestFaceMotion.current);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    [],
+  );
   const bodyCutout = useRef<BodyCutoutFrame | null>(null);
   const [cutoutState, setCutoutState] = useState<CutoutState>("idle");
   const clearCutout = useCallback(() => {
@@ -73,6 +106,24 @@ export function CameraProvider({ children }: { children: ReactNode }) {
   const [vision, setVision] = useState<VisionState>("idle");
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [hand, setHand] = useState({ ...emptyHand });
+  const latestHand = useRef<HandSample>(emptyHand);
+  const gameHands = useRef(new Set<HandFrameListener>());
+  const publishHand = useCallback((sample: HandSample) => {
+    const detectionChanged = latestHand.current.detected !== sample.detected;
+    latestHand.current = sample;
+    // During direct game input, React only needs tracking status. The game reads every sample.
+    if (!gameHands.current.size || detectionChanged) setHand(sample);
+    for (const listener of gameHands.current) listener(sample);
+  }, []);
+  const subscribeGameHand = useCallback((listener: HandFrameListener) => {
+    const listeners = gameHands.current;
+    listeners.add(listener);
+    listener(latestHand.current);
+    return () => {
+      listeners.delete(listener);
+      if (!listeners.size) setHand(latestHand.current);
+    };
+  }, []);
   const [shotSequence, setShotSequence] = useState(0);
   const [attempt, setAttempt] = useState(0);
   const activeStream = useRef<MediaStream | null>(null);
@@ -88,11 +139,12 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     setStream(null);
     setState("idle");
     setVision("idle");
-    setHand({ ...emptyHand });
+    publishHand(emptyHand);
     setFace({ ...emptyFace });
+    publishFaceMotion(null);
     setBody({ ...emptyBody });
     setHomeMotion(null);
-  }, [clearCutout]);
+  }, [clearCutout, publishFaceMotion, publishHand]);
   const connect = useCallback(async () => {
     if (pending.current || activeStream.current) return;
     const id = ++request.current;
@@ -154,9 +206,10 @@ export function CameraProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     clearCutout();
+    publishFaceMotion(null);
     setCutoutState(stream && segmentation ? "loading" : "idle");
     if (!stream || !pipelineEnabled) {
-      setHand({ ...emptyHand });
+      publishHand(emptyHand);
       setFace({ ...emptyFace });
       setBody({ ...emptyBody });
       setHomeMotion(null);
@@ -178,6 +231,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     video.muted = true;
     video.playsInline = true;
     video.srcObject = stream;
+    sourceVideo.current = video;
     video.className = "vision-source";
     video.setAttribute("aria-hidden", "true");
     document.body.append(video);
@@ -185,8 +239,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       if (disposed) return;
       gesture.reset();
       clearCutout();
-      setHand({ ...emptyHand });
+      publishHand(emptyHand);
       setFace({ ...emptyFace });
+      publishFaceMotion(null);
       setBody({ ...emptyBody });
       setHomeMotion(null);
     };
@@ -238,7 +293,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         if (disposed) return;
         setState("ready");
         setVision("loading");
-        setHand({ ...emptyHand });
+        publishHand(emptyHand);
         setFace({ ...emptyFace });
         setBody({ ...emptyBody });
         setHomeMotion(null);
@@ -331,6 +386,17 @@ export function CameraProvider({ children }: { children: ReactNode }) {
               return;
             }
             if (tracking === "face") {
+              if (faceGeometry) {
+                const box = fresh ? event.data.box : null;
+                const frame: FaceMotionFrame | null = box
+                  ? { box, aim: event.data.aim, time: event.data.time }
+                  : null;
+                const detected = Boolean(frame);
+                if (Boolean(latestFaceMotion.current) !== detected)
+                  setFace({ ...emptyFace, detected, time: event.data.time });
+                publishFaceMotion(frame);
+                return;
+              }
               setFace(
                 faceSample(landmarks, event.data.time, event.data.aspect),
               );
@@ -340,14 +406,17 @@ export function CameraProvider({ children }: { children: ReactNode }) {
               landmarks,
               event.data.time,
               event.data.aspect,
+              event.data.handedness,
             );
-            setHand(next);
+            publishHand(next);
             if (next.fire) setShotSequence((sequence) => sequence + 1);
           }
         };
         worker.postMessage({
           type: "init",
           home: homeTracking,
+          faceGeometry,
+          faceAim,
           segmentation,
           base: new URL(import.meta.env.BASE_URL, location.href).href,
         });
@@ -370,6 +439,7 @@ export function CameraProvider({ children }: { children: ReactNode }) {
       clearCutout();
       video.pause();
       video.srcObject = null;
+      if (sourceVideo.current === video) sourceVideo.current = null;
       video.remove();
     };
   }, [
@@ -380,7 +450,11 @@ export function CameraProvider({ children }: { children: ReactNode }) {
     homeTracking,
     pipelineEnabled,
     segmentation,
+    faceGeometry,
+    faceAim,
     clearCutout,
+    publishFaceMotion,
+    publishHand,
   ]);
   return (
     <CameraContext.Provider
@@ -397,6 +471,9 @@ export function CameraProvider({ children }: { children: ReactNode }) {
         homeMotion,
         tracking,
         shotSequence,
+        subscribeGameHand,
+        subscribeFaceMotion,
+        sourceVideo,
         connect,
         disconnect,
         retryVision: () => setAttempt((value) => value + 1),

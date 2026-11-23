@@ -1,5 +1,10 @@
 import { readSecrets, type SecretId } from "./secrets";
 import type { GameResultDetails } from "../achievements/types";
+import { HOCKEY_SECONDS } from "../games/hockeyConfig";
+import {
+  BUBBLE_MAX_RECORD_SECONDS,
+  BUBBLE_MAX_SCORE,
+} from "../games/bubbleConfig";
 export const gameIds = [
   "shoot",
   "circle",
@@ -7,6 +12,9 @@ export const gameIds = [
   "rps",
   "dodge",
   "gate",
+  "slice",
+  "face-hockey",
+  "bubble-shooter",
 ] as const;
 export type GameId = (typeof gameIds)[number];
 export type Run = {
@@ -48,16 +56,27 @@ export function countProgress(progress: Progress, id: string) {
         : 0;
   return { value, target };
 }
-const caps: Record<GameId, number> = {
+export const gameScoreCaps: Record<GameId, number> = {
   shoot: 200000,
   circle: 1000,
   cham: 1000,
   rps: 500,
   dodge: 10000,
   gate: 1500,
+  slice: 3000,
+  "face-hockey": 60,
+  "bubble-shooter": BUBBLE_MAX_SCORE,
 };
 export const isEndless = (mode?: string) =>
-  mode === "endless" || mode === "vertical-endless";
+  mode === "endless" || mode === "vertical-endless" || mode === "time-attack";
+export function maxRunSeconds(game: GameId, mode?: GameMode) {
+  if (isEndless(mode)) return 31536000;
+  if (game === "face-hockey") return HOCKEY_SECONDS;
+  if (game === "bubble-shooter") return BUBBLE_MAX_RECORD_SECONDS;
+  if (game === "dodge" && (mode === "survival" || mode === "vertical-survival"))
+    return 60;
+  return 30;
+}
 export function validRun(r: Run) {
   return (
     r &&
@@ -67,7 +86,8 @@ export function validRun(r: Run) {
     /^[0-9a-f-]{36}$/i.test(r.id) &&
     Number.isInteger(r.score) &&
     r.score >= 0 &&
-    r.score <= (isEndless(r.details?.gameMode) ? 2147483647 : caps[r.game]) &&
+    r.score <=
+      (isEndless(r.details?.gameMode) ? 2147483647 : gameScoreCaps[r.game]) &&
     (isEndless(r.details?.gameMode) ||
       r.game !== "dodge" ||
       ["survival", "vertical-survival"].includes(
@@ -79,15 +99,7 @@ export function validRun(r: Run) {
     r.accuracy <= 100 &&
     Number.isFinite(r.seconds) &&
     r.seconds >= 0 &&
-    r.seconds <=
-      (isEndless(r.details?.gameMode)
-        ? 31536000
-        : r.game === "dodge" &&
-            ["survival", "vertical-survival"].includes(
-              r.details?.gameMode ?? "",
-            )
-          ? 60
-          : 30)
+    r.seconds <= maxRunSeconds(r.game, r.details?.gameMode)
   );
 }
 export function readRuns(): Run[] {
@@ -183,6 +195,9 @@ export const gameModes: Record<GameId, GameMode[]> = {
   circle: ["standard"],
   rps: ["standard"],
   gate: ["standard"],
+  slice: ["standard"],
+  "face-hockey": ["standard"],
+  "bubble-shooter": ["standard", "endless", "time-attack"],
 };
 const modeBestKey = "arcade.mode-bests.v1";
 export function saveModeBest(game: GameId, mode: GameMode, score: number) {

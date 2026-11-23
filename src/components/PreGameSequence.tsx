@@ -12,6 +12,7 @@ export function PreGameSequence({
   onStart,
   children,
   autoStartLabel,
+  handClick = false,
 }: {
   title: string;
   instruction: string;
@@ -21,6 +22,7 @@ export function PreGameSequence({
   onStart: () => void;
   children?: ReactNode;
   autoStartLabel?: string;
+  handClick?: boolean;
 }) {
   const { t } = useTranslation();
   return (
@@ -37,6 +39,7 @@ export function PreGameSequence({
         ) : (
           <button
             className="arcade-button pink"
+            data-hand-click={handClick ? "true" : undefined}
             disabled={!ready}
             onClick={onStart}
           >

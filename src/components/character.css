@@ -36,7 +36,7 @@
   z-index: 0;
   right: 0;
   bottom: 42px;
-  width: 45%;
+  width: calc(45% + var(--card-art-extra, 0px));
   height: calc(100% - 55px);
   max-width: none;
   object-position: center bottom;
@@ -44,7 +44,7 @@
 }
 .game-card .card-character.character--landscape,
 .future-card .card-character.character--landscape {
-  width: 55%;
+  width: calc(55% + var(--card-art-extra, 0px));
   height: calc(100% - 42px);
   right: -1%;
 }
@@ -87,12 +87,21 @@
 }
 .selection-games .card-character {
   bottom: 39px;
-  height: calc(100% - 60px);
+  height: calc(100% - 60px + var(--card-art-extra, 0px));
 }
 .selection-games .card-character.character--landscape {
   bottom: 39px;
-  height: calc(100% - 85px);
-  width: 55%;
+  height: calc(100% - 85px + var(--card-art-extra, 0px));
+  width: calc(55% + var(--card-art-extra, 0px));
+}
+.selection-games .card-character:is([data-character="circle"], [data-character="shoot"], [data-character="rps"]) {
+  --card-art-extra: 5px;
+  scale: 1.05;
+  transform-origin: right bottom;
+}
+.selection-games .card-character:is([data-character="slice"], [data-character="hockey"]) {
+  scale: 0.95;
+  transform-origin: right bottom;
 }
 .hero-mascot .hero-character {
   position: absolute;
@@ -186,11 +195,11 @@ html[lang="en"] .recommend-art h2 {
     max-width: 54%;
   }
   .selection-games .card-character {
-    height: 145px;
+    height: calc(145px + var(--card-art-extra, 0px));
     bottom: 36px;
   }
   .selection-games .card-character.character--landscape {
-    height: 135px;
+    height: calc(135px + var(--card-art-extra, 0px));
     bottom: 36px;
   }
   html[lang="en"] .selection-games .card-copy h3,
@@ -286,14 +295,14 @@ html[lang="en"] .recommend-art h2 {
   }
   .game-card .card-character,
   .future-card .card-character {
-    width: 45%;
-    height: 180px;
+    width: calc(45% + var(--card-art-extra, 0px));
+    height: calc(180px + var(--card-art-extra, 0px));
     bottom: 39px;
   }
   .game-card .card-character.character--landscape,
   .future-card .card-character.character--landscape {
-    height: 170px;
-    width: 55%;
+    height: calc(170px + var(--card-art-extra, 0px));
+    width: calc(55% + var(--card-art-extra, 0px));
   }
   .filter-panel .selection-character {
     display: none;

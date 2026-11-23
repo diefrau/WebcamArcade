@@ -244,6 +244,7 @@ export function CommunityPage({
                       endless:
                         game === "dodge" ? "dodgeSurvivalMode" : "endlessMode",
                       "vertical-endless": "dodgeVerticalSurvivalMode",
+                      "time-attack": "bubbleTimeAttack",
                       seeker: "seekerMode",
                       standard:
                         game === "dodge" ? "dodgeHardMode" : "standardMode",

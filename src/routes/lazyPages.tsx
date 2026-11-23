@@ -6,7 +6,21 @@ const cham = () => import("../games/ChamGamePage");
 const circle = () => import("../games/CircleGamePage");
 const rps = () => import("../games/RpsGamePage");
 const dodge = () => import("../games/DodgeGamePage");
+const slice = () => import("../games/SliceGamePage");
+const hockey = () => import("../games/HockeyGamePage");
+const bubble = () => import("../games/BubbleGamePage");
 const community = () => import("../community/CommunityPage");
+const gameLoaders = new Map<string, () => Promise<unknown>>([
+  ["shoot", shoot],
+  ["gate", gate],
+  ["cham", cham],
+  ["circle", circle],
+  ["rps", rps],
+  ["dodge", dodge],
+  ["slice", slice],
+  ["face-hockey", hockey],
+  ["bubble-shooter", bubble],
+]);
 
 export const ShootGamePage = lazy(() =>
   shoot().then((m) => ({ default: m.ShootGamePage })),
@@ -44,6 +58,24 @@ export const DodgeGamePage = lazy(() =>
 export const DodgeResultPage = lazy(() =>
   dodge().then((m) => ({ default: m.DodgeResultPage })),
 );
+export const SliceGamePage = lazy(() =>
+  slice().then((m) => ({ default: m.SliceGamePage })),
+);
+export const SliceResultPage = lazy(() =>
+  slice().then((m) => ({ default: m.SliceResultPage })),
+);
+export const HockeyGamePage = lazy(() =>
+  hockey().then((m) => ({ default: m.HockeyGamePage })),
+);
+export const HockeyResultPage = lazy(() =>
+  hockey().then((m) => ({ default: m.HockeyResultPage })),
+);
+export const BubbleGamePage = lazy(() =>
+  bubble().then((m) => ({ default: m.BubbleGamePage })),
+);
+export const BubbleResultPage = lazy(() =>
+  bubble().then((m) => ({ default: m.BubbleResultPage })),
+);
 export const CommunityPage = lazy(() =>
   community().then((m) => ({ default: m.CommunityPage })),
 );
@@ -66,23 +98,12 @@ export function useRoutePrefetch() {
       const path = anchor.pathname.startsWith(base)
         ? "/" + anchor.pathname.slice(base.length)
         : anchor.pathname;
-      const game = path.match(/^\/(?:play|result)\/(\w+)/)?.[1];
-      const load =
-        game === "shoot"
-          ? shoot
-          : game === "gate"
-            ? gate
-            : game === "cham"
-              ? cham
-              : game === "circle"
-                ? circle
-                : game === "rps"
-                  ? rps
-                  : game === "dodge"
-                    ? dodge
-                    : ["/ranking", "/achievements"].includes(path)
-                      ? community
-                      : null;
+      const game = path.match(/^\/(?:play|result)\/([\w-]+)\/?$/)?.[1];
+      const load = game
+        ? gameLoaders.get(game)
+        : ["/ranking", "/achievements"].includes(path)
+          ? community
+          : null;
       if (!load || warmed.has(load)) return;
       warmed.add(load);
       void load().catch(() => warmed.delete(load));

@@ -37,7 +37,7 @@
   {
     "id": "allrounder",
     "category": "general",
-    "metric": "variety",
+    "metric": "allrounder",
     "target": 5,
     "pending": false
   },

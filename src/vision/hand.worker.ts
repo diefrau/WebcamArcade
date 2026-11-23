@@ -28,6 +28,7 @@ self.onmessage = async (event: MessageEvent) => {
           type: "result",
           landmarks: result?.landmarks[0],
           hands: result?.landmarks,
+          handedness: result?.handedness[0]?.[0]?.categoryName,
           time: message.time,
           aspect: bitmap.width / bitmap.height,
         });

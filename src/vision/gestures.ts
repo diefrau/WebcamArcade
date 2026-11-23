@@ -6,6 +6,8 @@ export type HandSample = {
   pinched: boolean;
   fire: boolean;
   landmarks: Landmark[];
+  time?: number;
+  handedness?: string;
 };
 export const emptyHand: HandSample = {
   detected: false,
@@ -32,6 +34,7 @@ export class GestureInterpreter {
     points: Landmark[] | undefined,
     time: number,
     aspect = 4 / 3,
+    handedness?: string,
   ): HandSample {
     if (
       !points ||
@@ -88,6 +91,8 @@ export class GestureInterpreter {
       pinched: this.pinched,
       fire,
       landmarks: points,
+      time,
+      handedness,
     };
   }
 }

@@ -220,14 +220,14 @@ test("coaches fit narrow screens, reduced motion is static, and cards identify t
     ).toBe(true);
   }
   await page.goto("/games");
-  await expect(page.locator(".selection-games .input-badge")).toHaveCount(5);
+  await expect(page.locator(".selection-games .input-badge")).toHaveCount(9);
   await expect(page.getByLabel("웹캠 입력: 손", { exact: true })).toHaveCount(
-    3,
+    4,
   );
   await expect(page.getByLabel("웹캠 입력: 얼굴", { exact: true })).toHaveCount(
-    1,
+    3,
   );
   await expect(page.getByLabel("웹캠 입력: 몸", { exact: true })).toHaveCount(
-    1,
+    2,
   );
 });

@@ -24,11 +24,17 @@ const routes = [
   ["/play/cham", ".cham-stage"],
   ["/play/rps", ".rps-stage"],
   ["/play/dodge", ".dodge-stage"],
+  ["/play/slice", ".slice-stage"],
   ["/result/shoot", ".empty-state"],
   ["/result/circle", ".empty-state"],
   ["/result/cham", ".empty-state"],
   ["/result/rps", ".empty-state"],
   ["/result/dodge", ".empty-state"],
+  ["/result/slice", ".empty-state"],
+  ["/play/face-hockey", ".hockey-stage"],
+  ["/result/face-hockey", ".empty-state"],
+  ["/play/bubble-shooter", ".bubble-stage"],
+  ["/result/bubble-shooter", ".empty-state"],
 ] as const;
 
 for (const [route, screen] of routes) {

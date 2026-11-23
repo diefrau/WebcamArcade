@@ -22,6 +22,12 @@ const routes = [
   "/result/cham",
   "/result/rps",
   "/result/dodge",
+  "/play/slice",
+  "/result/slice",
+  "/play/face-hockey",
+  "/result/face-hockey",
+  "/play/bubble-shooter",
+  "/result/bubble-shooter",
 ];
 
 for (const route of routes) {

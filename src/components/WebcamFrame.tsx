@@ -11,7 +11,13 @@ const connections = [
   [13, 17, 18, 19, 20],
   [0, 17],
 ];
-export function WebcamFrame({ compact = false }: { compact?: boolean }) {
+export function WebcamFrame({
+  compact = false,
+  showHandLandmarks = true,
+}: {
+  compact?: boolean;
+  showHandLandmarks?: boolean;
+}) {
   const { t } = useTranslation();
   const camera = useCamera();
   const video = useRef<HTMLVideoElement>(null);
@@ -28,17 +34,18 @@ export function WebcamFrame({ compact = false }: { compact?: boolean }) {
     camera.state === "requesting" || camera.state === "connecting";
   const live = camera.state === "ready";
   const problem = ["denied", "missing", "busy", "error"].includes(camera.state);
-  const shownHands = (
-    camera.homeTracking
-      ? camera.homeMotion?.hands || []
-      : camera.hand.detected
-        ? [camera.hand.landmarks]
-        : []
-  ).filter(
-    (points) =>
-      points.length === 21 &&
-      points.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y)),
-  );
+  const shownHands = showHandLandmarks
+    ? (camera.homeTracking
+        ? camera.homeMotion?.hands || []
+        : camera.hand.detected
+          ? [camera.hand.landmarks]
+          : []
+      ).filter(
+        (points) =>
+          points.length === 21 &&
+          points.every((p) => Number.isFinite(p.x) && Number.isFinite(p.y)),
+      )
+    : [];
   const status =
     camera.tracking === "body"
       ? camera.vision === "error"

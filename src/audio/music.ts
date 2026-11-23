@@ -20,11 +20,11 @@ export const musicTracks = {
 export type MusicTrack = keyof typeof musicTracks;
 export function musicForPath(path: string): MusicTrack {
   const game = path.match(/^\/(?:play|result)\/([^/]+)/)?.[1];
-  return game === "circle"
+  return game === "circle" || game === "bubble-shooter"
     ? "leisure"
-    : game === "cham" || game === "dodge"
+    : game === "cham" || game === "dodge" || game === "slice"
       ? "quick"
-      : game === "shoot" || game === "rps" || game === "gate"
+      : game === "shoot" || game === "rps" || game === "gate" || game === "face-hockey"
         ? "bounce"
         : "title";
 }
