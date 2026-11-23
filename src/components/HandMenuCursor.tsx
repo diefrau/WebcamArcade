@@ -41,7 +41,12 @@ export function HandMenuCursor({ active }: { active: boolean }) {
       .elementFromPoint(x, y)
       ?.closest<HTMLButtonElement>("button[data-hand-click]");
     const target = button && !button.disabled ? button : null;
-    setCursor({ x, y, pinched: camera.hand.pinched, hovering: !!target });
+    setCursor({
+      x: camera.hand.x,
+      y: camera.hand.y,
+      pinched: camera.hand.pinched,
+      hovering: !!target,
+    });
     target?.classList.add("hand-hovered");
     if (!camera.hand.pinched) armed.current = true;
     else {
@@ -62,7 +67,7 @@ export function HandMenuCursor({ active }: { active: boolean }) {
     <>
       <div
         className={`hand-menu-cursor ${cursor.pinched ? "pinched" : ""} ${cursor.hovering ? "hovering" : ""}`}
-        style={{ left: cursor.x, top: cursor.y }}
+        style={{ left: `${cursor.x * 100}%`, top: `${cursor.y * 100}%` }}
         aria-hidden="true"
       >
         <Hand />

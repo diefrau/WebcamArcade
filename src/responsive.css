@@ -1,3 +1,35 @@
+/* Large viewports have room for a larger UI without stretching just the columns. */
+@media (min-width: 2300px) and (min-height: 1150px) {
+  :root {
+    --arcade-zoom: 1.18;
+    zoom: var(--arcade-zoom);
+  }
+  .app-shell {
+    min-height: calc(100svh / var(--arcade-zoom));
+  }
+  :is(.player-dialog, .event-popup) {
+    max-height: calc(100dvh / var(--arcade-zoom) - 40px);
+  }
+  .coach-dialog {
+    max-height: calc(100dvh / var(--arcade-zoom) - 32px);
+  }
+}
+@media (min-width: 2750px) and (min-height: 1350px) {
+  :root {
+    --arcade-zoom: 1.4;
+  }
+}
+@media (min-width: 3250px) and (min-height: 1650px) {
+  :root {
+    --arcade-zoom: 1.6;
+  }
+}
+@media (min-width: 3700px) and (min-height: 1850px) {
+  :root {
+    --arcade-zoom: 1.8;
+  }
+}
+
 /* Content determines height; decorative artwork keeps its own proportions. */
 .comic-decor-shapes {
   position: absolute;
