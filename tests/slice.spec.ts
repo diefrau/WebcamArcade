@@ -13,6 +13,11 @@ test("only fast continuous swipes cut, with no repeated segment or jump on reacq
   expect(sample(130, 100)).toBeNull();
   expect(sample(220, 140)?.map((p) => p.x)).toEqual([130, 220]);
   expect(sample(300, 180)?.map((p) => p.x)).toEqual([220, 300]);
+  expect(track.canBridge({ x: 420, y: 220, time: 250 }, "Left")).toBe(true);
+  expect(track.canBridge({ x: 420, y: 220, time: 250 }, "Right")).toBe(false);
+  expect(track.canBridge({ x: 420, y: 220, time: 281 }, "Left")).toBe(false);
+  expect(track.canBridge({ x: 580, y: 220, time: 250 }, "Left")).toBe(false);
+  expect(track.canBridge({ x: 240, y: 220, time: 250 }, "Left")).toBe(false);
   expect(sample(700, 220, "Right")).toBeNull();
   expect(sample(220, 450, "Right")).toBeNull();
   track.reset();

@@ -84,6 +84,8 @@ export function DodgeGamePage({
   );
   useGameSound(phase, countdown, 0, tone);
   const countdownRemaining = useRef(GAME_COUNTDOWN_MS);
+  const trackingPaused = useRef(false);
+  const recoveryCountdown = useRef(false);
   const finished = useRef(false);
   const calibration = useRef({ x: 0.5, y: 0.5, width: 0.3 });
   const targetY = useRef(0.7);
@@ -106,9 +108,12 @@ export function DodgeGamePage({
     keys.current.clear();
     held.current = 0;
   }
-  function pause() {
-    if (phaseRef.current !== "playing" && phaseRef.current !== "countdown")
+  function pause(forTracking = false) {
+    if (phaseRef.current !== "playing" && phaseRef.current !== "countdown") {
+      if (!forTracking) trackingPaused.current = false;
       return;
+    }
+    trackingPaused.current = forTracking;
     resumePhase.current = phaseRef.current;
     transition("paused");
     tone("pause");
@@ -134,6 +139,7 @@ export function DodgeGamePage({
     setState(game.current);
     target.current = 0.5;
     countdownRemaining.current = GAME_COUNTDOWN_MS;
+    recoveryCountdown.current = false;
     setCountdown(countdownBeat(GAME_COUNTDOWN_MS));
     finished.current = false;
     transition("countdown");
@@ -206,25 +212,30 @@ export function DodgeGamePage({
         pause();
         return;
       }
+      if (mode === "body" && !bodyReady) {
+        pause(true);
+        return;
+      }
       if (phaseRef.current === "countdown") {
         countdownRemaining.current = Math.max(
           0,
           countdownRemaining.current - dt * 1000,
         );
-        setCountdown(countdownBeat(countdownRemaining.current));
+        setCountdown(
+          recoveryCountdown.current
+            ? Math.ceil(countdownRemaining.current / 1000)
+            : countdownBeat(countdownRemaining.current),
+        );
         if (countdownRemaining.current === 0) transition("playing");
         return;
       }
       if (mode === "body") {
-        // Freeze the player during the detection grace period instead of using an old pose.
-        if (bodyReady)
-          target.current = bodyTarget(
-            camera.body,
-            calibration.current.x,
-            calibration.current.width,
-          );
-        else target.current = game.current.x;
-        if (vertical && bodyReady)
+        target.current = bodyTarget(
+          camera.body,
+          calibration.current.x,
+          calibration.current.width,
+        );
+        if (vertical)
           targetY.current = Math.max(
             0.5,
             Math.min(0.9, 0.7 + (shoulderY() - calibration.current.y) * 2),
@@ -334,10 +345,20 @@ export function DodgeGamePage({
     if (bodyReady && needsCalibration.current && mode === "body") calibrate();
   }, [bodyReady, mode]);
   useEffect(() => {
-    if (mode !== "body" || bodyReady || phase === "ready" || phase === "paused")
+    if (
+      mode !== "body" ||
+      !bodyReady ||
+      phase !== "paused" ||
+      !trackingPaused.current ||
+      document.hidden ||
+      document.querySelector("dialog[open]")
+    )
       return;
-    const timer = setTimeout(() => callbacks.current.pause(), 800);
-    return () => clearTimeout(timer);
+    trackingPaused.current = false;
+    recoveryCountdown.current = true;
+    countdownRemaining.current = 3000;
+    setCountdown(3);
+    transition("countdown");
   }, [mode, bodyReady, phase]);
   const changeMode = (next: "body" | "buttons") => {
     pause();

@@ -142,6 +142,7 @@ test("hockey appears in face games and a round saves local scores and replays", 
   await page.clock.pauseAt(new Date(Date.now() + 250));
   await start.evaluate((button: HTMLButtonElement) => button.click());
   await page.clock.runFor(1650);
+  await expect(page.locator(".hockey-guide .game-camera-preview")).toHaveCount(0);
   const canvas = stage.locator("canvas");
   const bounds = (await canvas.boundingBox())!;
   await page.mouse.move(
@@ -267,6 +268,9 @@ test("a shared webcam feeds a mirrored circular mallet and tracking loss pauses 
   await start.evaluate((button: HTMLButtonElement) => button.click());
   await page.clock.runFor(1650);
   await expect(stage).toHaveAttribute("data-phase", "playing");
+  const preview = page.locator(".hockey-guide .game-camera-preview video");
+  await expect(preview).toBeVisible();
+  await expect(preview).toHaveJSProperty("hidden", false);
   const canvas = stage.locator("canvas");
   const pixels = await canvas.evaluate((node: HTMLCanvasElement) => {
     const ctx = node.getContext("2d")!;

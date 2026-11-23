@@ -108,6 +108,8 @@ export function SliceGamePage({
   const beginsAt = useRef(0);
   const lastHandTime = useRef(-Infinity);
   const lastHandArrival = useRef(-Infinity);
+  const missedHandFrame = useRef(false);
+  const handSpeed = useRef(0);
   const handTarget = useRef<{ point: Point2D; handedness?: string } | null>(
     null,
   );
@@ -136,6 +138,8 @@ export function SliceGamePage({
 
   function resetStroke() {
     track.current.reset();
+    missedHandFrame.current = false;
+    handSpeed.current = 0;
     handTarget.current = null;
     cursor.current = null;
     trail.current = null;
@@ -247,11 +251,7 @@ export function SliceGamePage({
       now - time > HAND_TIMEOUT ||
       !landmarks[8]
     ) {
-      if (handTarget.current) {
-        // Break the collision path immediately, but keep the display stable through brief gaps.
-        track.current.reset();
-        handTarget.current = null;
-      }
+      missedHandFrame.current = true;
       return;
     }
     if (time <= lastHandTime.current) return;
@@ -264,16 +264,26 @@ export function SliceGamePage({
     const x = (tip.x - 0.08) / 0.84;
     const y = (tip.y - 0.08) / 0.84;
     const point = arenaPoint(x, y);
+    const previous = handTarget.current;
+    const sample = { ...point, time };
+    const recovered = !missedHandFrame.current || track.current.canBridge(sample, handedness);
+    missedHandFrame.current = false;
     if (
-      !handTarget.current ||
-      handTarget.current.handedness !== handedness ||
-      gap > SLICE_SAMPLE_GAP_MS
+      !previous ||
+      previous.handedness !== handedness ||
+      gap > SLICE_SAMPLE_GAP_MS ||
+      !recovered
     ) {
+      track.current.reset();
       cursor.current = point;
       trail.current = null;
+      handSpeed.current = 0;
+    } else {
+      handSpeed.current =
+        Math.hypot(point.x - previous.point.x, point.y - previous.point.y) / gap;
     }
     handTarget.current = { point, handedness };
-    swipe({ ...point, time }, handedness);
+    swipe(sample, handedness);
   });
   const { subscribeGameHand } = camera;
   useEffect(() => {
@@ -297,7 +307,7 @@ export function SliceGamePage({
         const target = handTarget.current?.point;
         const hadRecentHand =
           now - lastHandArrival.current <=
-          (target ? HAND_TIMEOUT : HAND_GAP_GRACE);
+          (target && !missedHandFrame.current ? HAND_TIMEOUT : HAND_GAP_GRACE);
         const lost = mode === "hand" && !hadRecentHand;
         if (lost !== trackingLost) {
           setTrackingLost(lost);
@@ -317,7 +327,7 @@ export function SliceGamePage({
                     cursor.current,
                     target,
                     dt,
-                    distance > 60 ? 15 : 33,
+                    33 - 26 * Math.min(1, handSpeed.current / 1.8),
                   );
           }
           const combo = game.current.combo;

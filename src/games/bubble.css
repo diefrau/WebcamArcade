@@ -125,18 +125,6 @@
   object-fit: contain;
 }
 
-.bubble-camera-preview {
-  margin-top: auto;
-  padding-top: 14px;
-}
-
-.screen-play .bubble-page .bubble-camera-preview .webcam-frame {
-  height: auto;
-  min-height: 0;
-  aspect-ratio: 4 / 3;
-  margin: 0;
-}
-
 @media (max-width: 720px) {
   .bubble-page .game-dialog > .character {
     display: none;

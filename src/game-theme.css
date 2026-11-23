@@ -186,6 +186,16 @@
   padding: 18px;
   transform: none;
 }
+.game-camera-preview {
+  margin-top: auto;
+  padding-top: 14px;
+}
+.screen-play .cham-info .game-camera-preview .webcam-frame {
+  height: auto;
+  min-height: 0;
+  aspect-ratio: 4 / 3;
+  margin: 0;
+}
 .screen-play :is(.hud-panel h3, .circle-score h3) {
   font-family: "Black Han Sans";
   font-size: 24px;

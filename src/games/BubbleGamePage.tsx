@@ -624,7 +624,7 @@ export function BubbleGamePage({
           <p>{instruction}</p>
           <p>{rules}</p>
           {mode === "face" && (
-            <div className="bubble-camera-preview">
+            <div className="game-camera-preview">
               <WebcamFrame compact showHandLandmarks={false} />
             </div>
           )}

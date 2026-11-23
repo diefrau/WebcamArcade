@@ -281,7 +281,7 @@ test("webcam calibration enables a single deliberate mouth-open shot and keeps S
   await page.clock.pauseAt(new Date(Date.now() + 220));
   await start.evaluate((button: HTMLButtonElement) => button.click());
   await page.clock.runFor(1960);
-  const preview = page.locator(".bubble-camera-preview video");
+  const preview = page.locator(".game-camera-preview video");
   await expect(preview).toBeVisible();
   await expect(preview).toHaveJSProperty("hidden", false);
   const setFace = (aim: FaceAim | null) =>

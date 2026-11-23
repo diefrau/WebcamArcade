@@ -519,7 +519,11 @@ export function HockeyGamePage({
           <h1>{t(HOCKEY_ID)}</h1>
           <p>{instruction}</p>
           <p>{t("hockeyRules", { seconds: HOCKEY_SECONDS })}</p>
-          {(phase === "ready" || phase === "paused") && <WebcamFrame compact />}
+          {mode === "face" && (
+            <div className="game-camera-preview">
+              <WebcamFrame compact showHandLandmarks={false} />
+            </div>
+          )}
           {phase === "playing" && (
             <div className="hockey-sides" aria-label={t("hockeyField")}>
               <span>{t("hockeyYou")}</span>

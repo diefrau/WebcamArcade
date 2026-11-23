@@ -104,6 +104,20 @@ export class SlashTracker {
     this.cutThrough = -Infinity;
   }
 
+  canBridge(point: TimedPoint, hand?: string) {
+    const last = this.points.at(-1);
+    if (!last || !hand || hand !== this.hand) return false;
+    const gap = point.time - last.time;
+    const dx = point.x - last.x;
+    const dy = point.y - last.y;
+    const distance = Math.hypot(dx, dy);
+    if (gap <= 0 || gap > 100 || distance > Math.min(220, gap * 3.5))
+      return false;
+    const before = this.points.at(-2);
+    if (!before || distance < 12) return true;
+    return dx * (last.x - before.x) + dy * (last.y - before.y) >= 0;
+  }
+
   add(point: TimedPoint, hand?: string): TimedPoint[] | null {
     const previous = this.points.at(-1);
     if (previous && point.time <= previous.time) return null;
